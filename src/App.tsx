@@ -81,8 +81,16 @@ function App() {
 
       {/* Footer */}
       <footer className="bg-surface-card border-t border-subtle py-3 mt-8">
-        <div className="max-w-7xl mx-auto px-6 text-center text-caption text-text-muted">
-          Spectrum v1.0.0 &middot; Aqua Design System
+        <div className="max-w-7xl mx-auto px-6 text-center text-caption text-text-muted flex items-center justify-center gap-4">
+          <span>Spectrum v1.0.0 &middot; Aqua Design System</span>
+          <a
+            href="https://paypal.me/PhillipPlomer/1EUR"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-aqua-500 hover:text-aqua-400 transition-colors"
+          >
+            ☕ Buy me a coffee
+          </a>
         </div>
       </footer>
     </div>
