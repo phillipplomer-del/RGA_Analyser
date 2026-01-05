@@ -12,6 +12,7 @@ interface AppState {
   // Data
   rawData: RawData | null
   analysisResult: AnalysisResult | null
+  aiInterpretation: string | null
   isAnalyzing: boolean
   error: string | null
 
@@ -23,6 +24,7 @@ interface AppState {
   // Actions
   setRawData: (data: RawData) => void
   setAnalysisResult: (result: AnalysisResult) => void
+  setAiInterpretation: (interpretation: string | null) => void
   setIsAnalyzing: (isAnalyzing: boolean) => void
   setError: (error: string | null) => void
   toggleTheme: () => void
@@ -35,6 +37,7 @@ interface AppState {
 const initialState = {
   rawData: null,
   analysisResult: null,
+  aiInterpretation: null,
   isAnalyzing: false,
   error: null,
   theme: 'light' as const,
@@ -55,6 +58,8 @@ export const useAppStore = create<AppState>()(
         setRawData: (data) => set({ rawData: data, error: null }),
 
         setAnalysisResult: (result) => set({ analysisResult: result, isAnalyzing: false }),
+
+        setAiInterpretation: (interpretation) => set({ aiInterpretation: interpretation }),
 
         setIsAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
 
@@ -80,6 +85,7 @@ export const useAppStore = create<AppState>()(
         reset: () => set({
           rawData: null,
           analysisResult: null,
+          aiInterpretation: null,
           isAnalyzing: false,
           error: null,
         }),

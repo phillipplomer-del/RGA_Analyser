@@ -1,7 +1,7 @@
 {
   "app": {
-    "title": "RGA Analyser",
-    "subtitle": "Residual Gas Analysis Evaluation"
+    "title": "Spectrum",
+    "subtitle": "Residual Gas Analysis"
   },
   "upload": {
     "dropzone": "Drop file here or click to browse",
@@ -56,20 +56,32 @@
     "title": "Export",
     "pdf": "Export as PDF",
     "html": "Export Animated HTML",
-    "csv": "Export Raw Data as CSV"
+    "csv": "Export Raw Data as CSV",
+    "exporting": "Exporting..."
   },
   "ai": {
     "title": "AI Interpretation",
-    "analyze": "Start AI Analysis",
+    "analyze": "Gemini Analysis",
+    "manual": "Manual Analysis",
     "provider": "AI Provider",
     "interpretation": "Interpretation",
-    "noApiKey": "No API key configured"
+    "noApiKey": "No API key configured",
+    "step1": "Step 1: Copy the prompt",
+    "step2": "Step 2: Paste AI response",
+    "showPrompt": "Show prompt",
+    "hidePrompt": "Hide prompt",
+    "copyPrompt": "Copy",
+    "promptHint": "Copy this prompt and paste it into any AI (ChatGPT, Claude, Gemini, etc.)",
+    "responsePlaceholder": "Paste your AI's response here...",
+    "submitResponse": "Submit",
+    "clear": "Clear"
   },
   "common": {
     "loading": "Loading...",
     "error": "Error",
     "close": "Close",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "reset": "Reset"
   }
 }

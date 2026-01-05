@@ -37,18 +37,26 @@ export function SpectrumChart({ data, limitChecks }: SpectrumChartProps) {
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
 
+    // Auto-detect mass range from data
+    const maxMass = Math.max(...data.map(d => d.mass))
+    const xMax = maxMass > 110 ? 200 : 100
+
+    // Auto-detect Y max (for values > 100%)
+    const maxY = Math.max(...data.map(d => d.normalizedToH2))
+    const yMax = maxY > 1 ? Math.ceil(maxY * 1.1) : 1  // Add 10% headroom if > 1
+
     // Scales
     const xScale = d3.scaleLinear()
-      .domain([0, 100])
+      .domain([0, xMax])
       .range([0, innerWidth])
 
     const yScale = chartOptions.logScale
       ? d3.scaleLog()
-          .domain([1e-6, 1])
+          .domain([1e-6, yMax])
           .range([innerHeight, 0])
           .clamp(true)
       : d3.scaleLinear()
-          .domain([0, 1])
+          .domain([0, yMax])
           .range([innerHeight, 0])
 
     // Grid
@@ -60,10 +68,14 @@ export function SpectrumChart({ data, limitChecks }: SpectrumChartProps) {
         .tickFormat(() => '')
       )
 
-    // X Axis
+    // X Axis - adapt ticks to mass range
+    const xTicks = xMax === 200
+      ? d3.range(0, 201, 20)  // 0, 20, 40, ... 200
+      : d3.range(0, 101, 10)  // 0, 10, 20, ... 100
+
     g.append('g')
       .attr('transform', `translate(0,${innerHeight})`)
-      .call(d3.axisBottom(xScale).tickValues(d3.range(0, 101, 10)))
+      .call(d3.axisBottom(xScale).tickValues(xTicks))
       .selectAll('text')
       .style('fill', 'var(--color-text-secondary)')
 
@@ -135,14 +147,19 @@ export function SpectrumChart({ data, limitChecks }: SpectrumChartProps) {
       .attr('stroke-width', 1.5)
       .attr('d', line)
 
-    // Peak annotations
-    const significantMasses = [2, 14, 16, 17, 18, 28, 32, 40, 44]
+    // Peak annotations - extend for 200 AMU range
+    const significantMasses = xMax === 200
+      ? [2, 14, 16, 17, 18, 28, 32, 40, 44, 69, 77, 91, 105, 119, 131, 149, 167, 181, 195]
+      : [2, 14, 16, 17, 18, 28, 32, 40, 44]
+
     significantMasses.forEach(mass => {
       const point = data.find(d => Math.abs(d.mass - mass) < 0.1)
       if (point && point.normalizedToH2 > 0.005) {
+        // Clamp y position to stay within chart bounds
+        const yPos = Math.max(yScale(Math.max(point.normalizedToH2, 1e-6)) - 10, 5)
         g.append('text')
           .attr('x', xScale(mass))
-          .attr('y', yScale(Math.max(point.normalizedToH2, 1e-6)) - 10)
+          .attr('y', yPos)
           .attr('text-anchor', 'middle')
           .style('fill', 'var(--color-text-primary)')
           .style('font-size', '11px')

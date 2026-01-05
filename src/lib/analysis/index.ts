@@ -28,13 +28,64 @@ const KNOWN_MASSES: { mass: number; gas: string; fragments?: string[] }[] = [
   { mass: 77, gas: 'C₆H₅⁺', fragments: ['Aromaten', 'Kohlenwasserstoffe'] },
 ]
 
+export class AnalysisError extends Error {
+  constructor(
+    message: string,
+    public readonly code: string,
+    public readonly details?: string
+  ) {
+    super(message)
+    this.name = 'AnalysisError'
+  }
+}
+
 export function analyzeSpectrum(raw: RawData): AnalysisResult {
+  // Validate input data
+  if (!raw.points || raw.points.length === 0) {
+    throw new AnalysisError(
+      'Keine Datenpunkte gefunden',
+      'NO_DATA',
+      'Die ASC-Datei enthält keine gültigen Messdaten. Bitte überprüfen Sie das Dateiformat.'
+    )
+  }
+
+  if (raw.points.length < 100) {
+    throw new AnalysisError(
+      'Zu wenige Datenpunkte',
+      'INSUFFICIENT_DATA',
+      `Nur ${raw.points.length} Datenpunkte gefunden. Eine valide RGA-Messung sollte mindestens 100 Punkte enthalten.`
+    )
+  }
+
   // 1. Background Subtraction
-  const minCurrent = Math.min(...raw.points.map((p) => p.current))
+  const currents = raw.points.map((p) => p.current).filter(c => isFinite(c) && c > 0)
+
+  if (currents.length === 0) {
+    throw new AnalysisError(
+      'Keine gültigen Stromwerte',
+      'INVALID_CURRENTS',
+      'Alle Ionenstrom-Werte sind ungültig (0, NaN oder Infinity). Die Datei könnte beschädigt sein.'
+    )
+  }
+
+  const minCurrent = Math.min(...currents)
 
   // 2. Find H₂ peak for normalization
   const h2Peak = findPeakValue(raw.points, 2)
-  const maxCurrent = h2Peak > 0 ? h2Peak : Math.max(...raw.points.map((p) => p.current))
+
+  if (h2Peak <= 0) {
+    console.warn('H₂ Peak (Masse 2) nicht gefunden oder zu niedrig. Verwende Maximum als Referenz.')
+  }
+
+  const maxCurrent = h2Peak > 0 ? h2Peak : Math.max(...currents)
+
+  if (maxCurrent <= minCurrent) {
+    throw new AnalysisError(
+      'Kein Signal erkannt',
+      'NO_SIGNAL',
+      'Der maximale Stromwert ist nicht größer als das Hintergrundrauschen. Das Vakuum könnte zu gut sein oder es liegt ein Messfehler vor.'
+    )
+  }
 
   // 3. Normalize data
   const normalizedData: NormalizedData[] = raw.points.map((p) => ({
