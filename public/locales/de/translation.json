@@ -1,0 +1,75 @@
+{
+  "app": {
+    "title": "RGA Analyser",
+    "subtitle": "Restgasanalyse Auswertung"
+  },
+  "upload": {
+    "dropzone": "Datei hierher ziehen oder klicken",
+    "formats": "Unterstützte Formate: .asc",
+    "processing": "Datei wird verarbeitet...",
+    "error": "Fehler beim Laden der Datei"
+  },
+  "metadata": {
+    "title": "Messparameter",
+    "file": "Datei",
+    "date": "Datum",
+    "duration": "Messdauer",
+    "range": "Messbereich",
+    "chamber": "Kammer",
+    "pressure": "Druck"
+  },
+  "chart": {
+    "title": "RGA Spektrum",
+    "logScale": "Logarithmische Skala",
+    "gsiLimit": "GSI Grenzwert",
+    "cernLimit": "CERN Grenzwert",
+    "xAxis": "Masse [AMU]",
+    "yAxis": "Relative Intensität"
+  },
+  "peaks": {
+    "title": "Detektierte Peaks",
+    "mass": "Masse",
+    "gas": "Gas",
+    "intensity": "Rel. Intensität",
+    "gsi": "GSI",
+    "cern": "CERN"
+  },
+  "quality": {
+    "title": "Qualitätsprüfungen",
+    "h2h2oRatio": "H₂/H₂O Verhältnis",
+    "h2h2oDesc": "Wasserstoff muss mindestens 5× größer als Wasser sein",
+    "airLeak": "Luftleck-Prüfung",
+    "airLeakDesc": "N₂/CO muss mindestens 4× größer als O₂ sein",
+    "fragmentConsistency": "Fragment-Konsistenz",
+    "fragmentDesc": "N-Fragment sollte kleiner als O-Fragment sein",
+    "lightHydrocarbons": "Leichte Kohlenwasserstoffe",
+    "lightHCDesc": "Summe der Massen 39, 41-43, 45 unter 0.1%",
+    "heavyHydrocarbons": "Schwere Kohlenwasserstoffe",
+    "heavyHCDesc": "Summe der Massen 69, 77 unter 0.05%",
+    "passed": "Bestanden",
+    "failed": "Nicht bestanden",
+    "gsiStatus": "GSI Status",
+    "cernStatus": "CERN Status",
+    "violations": "Verletzungen"
+  },
+  "export": {
+    "title": "Export",
+    "pdf": "Als PDF exportieren",
+    "html": "Animiertes HTML exportieren",
+    "csv": "Rohdaten als CSV"
+  },
+  "ai": {
+    "title": "KI-Interpretation",
+    "analyze": "KI-Analyse starten",
+    "provider": "KI-Anbieter",
+    "interpretation": "Interpretation",
+    "noApiKey": "Kein API-Key konfiguriert"
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "close": "Schließen",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
+  }
+}

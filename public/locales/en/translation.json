@@ -1,0 +1,75 @@
+{
+  "app": {
+    "title": "RGA Analyser",
+    "subtitle": "Residual Gas Analysis Evaluation"
+  },
+  "upload": {
+    "dropzone": "Drop file here or click to browse",
+    "formats": "Supported formats: .asc",
+    "processing": "Processing file...",
+    "error": "Error loading file"
+  },
+  "metadata": {
+    "title": "Measurement Parameters",
+    "file": "File",
+    "date": "Date",
+    "duration": "Duration",
+    "range": "Mass Range",
+    "chamber": "Chamber",
+    "pressure": "Pressure"
+  },
+  "chart": {
+    "title": "RGA Spectrum",
+    "logScale": "Logarithmic Scale",
+    "gsiLimit": "GSI Limit",
+    "cernLimit": "CERN Limit",
+    "xAxis": "Mass [AMU]",
+    "yAxis": "Relative Intensity"
+  },
+  "peaks": {
+    "title": "Detected Peaks",
+    "mass": "Mass",
+    "gas": "Gas",
+    "intensity": "Rel. Intensity",
+    "gsi": "GSI",
+    "cern": "CERN"
+  },
+  "quality": {
+    "title": "Quality Checks",
+    "h2h2oRatio": "H₂/H₂O Ratio",
+    "h2h2oDesc": "Hydrogen must be at least 5× greater than water",
+    "airLeak": "Air Leak Check",
+    "airLeakDesc": "N₂/CO must be at least 4× greater than O₂",
+    "fragmentConsistency": "Fragment Consistency",
+    "fragmentDesc": "N fragment should be smaller than O fragment",
+    "lightHydrocarbons": "Light Hydrocarbons",
+    "lightHCDesc": "Sum of masses 39, 41-43, 45 below 0.1%",
+    "heavyHydrocarbons": "Heavy Hydrocarbons",
+    "heavyHCDesc": "Sum of masses 69, 77 below 0.05%",
+    "passed": "Passed",
+    "failed": "Failed",
+    "gsiStatus": "GSI Status",
+    "cernStatus": "CERN Status",
+    "violations": "Violations"
+  },
+  "export": {
+    "title": "Export",
+    "pdf": "Export as PDF",
+    "html": "Export Animated HTML",
+    "csv": "Export Raw Data as CSV"
+  },
+  "ai": {
+    "title": "AI Interpretation",
+    "analyze": "Start AI Analysis",
+    "provider": "AI Provider",
+    "interpretation": "Interpretation",
+    "noApiKey": "No API key configured"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+}
