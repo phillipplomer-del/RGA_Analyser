@@ -3,10 +3,14 @@
     "title": "Spectrum",
     "subtitle": "Residual Gas Analysis"
   },
+  "landing": {
+    "knowledge": "Knowledge"
+  },
   "sidebar": {
     "limits": "Limits",
     "ai": "AI",
     "export": "Export",
+    "knowledge": "Knowledge",
     "limitsTitle": "Limit Profiles",
     "aiTitle": "AI Analysis",
     "exportTitle": "Export"

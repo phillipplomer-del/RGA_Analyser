@@ -3,10 +3,14 @@
     "title": "Spectrum",
     "subtitle": "Restgasanalyse"
   },
+  "landing": {
+    "knowledge": "Wissen"
+  },
   "sidebar": {
     "limits": "Limits",
     "ai": "KI",
     "export": "Export",
+    "knowledge": "Wissen",
     "limitsTitle": "Grenzwert-Profile",
     "aiTitle": "KI-Analyse",
     "exportTitle": "Export"

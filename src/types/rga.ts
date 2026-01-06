@@ -61,6 +61,10 @@ export interface AnalysisResult {
   qualityChecks: QualityCheck[]
   totalPressure: number
   dominantGases: { gas: string; percentage: number }[]
+  /** Automatische Diagnosen (optional, wird von Diagnose-Engine hinzugefügt) */
+  diagnostics?: DiagnosticResultSummary[]
+  /** Zusammenfassung der Diagnosen */
+  diagnosisSummary?: DiagnosisSummary
 }
 
 export type SpecificationType = 'GSI' | 'CERN'
@@ -159,4 +163,36 @@ export interface LimitExtractionResult {
   interpretation?: string
   error?: string
   suggestions?: string[]
+}
+
+// ============================================
+// Diagnosis Types
+// ============================================
+
+export type DiagnosisSeverity = 'info' | 'warning' | 'critical'
+
+/** Zusammenfassung eines Diagnose-Ergebnisses für die UI */
+export interface DiagnosticResultSummary {
+  type: string
+  name: string
+  nameEn: string
+  description: string
+  descriptionEn: string
+  confidence: number
+  severity: DiagnosisSeverity
+  recommendation: string
+  recommendationEn: string
+  affectedMasses: number[]
+  evidenceCount: number
+  icon: string
+  color: string
+}
+
+/** Zusammenfassung aller Diagnosen */
+export interface DiagnosisSummary {
+  criticalCount: number
+  warningCount: number
+  infoCount: number
+  overallStatus: 'clean' | 'warning' | 'critical'
+  systemState: 'unbaked' | 'baked' | 'contaminated' | 'air_leak' | 'unknown'
 }

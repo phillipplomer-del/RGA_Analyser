@@ -360,54 +360,59 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
       <CardHeader
         title={t('chart.title')}
         action={
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* File visibility checkboxes */}
             {files.length > 1 && (
               <>
                 {files.map((file, index) => (
-                  <label key={file.id} className="flex items-center gap-1.5 cursor-pointer">
+                  <label key={file.id} className="flex items-center gap-1 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={chartOptions.visibleFiles.includes(file.id)}
                       onChange={() => toggleFileVisibility(file.id)}
-                      className="w-4 h-4 rounded"
+                      className="w-3.5 h-3.5 rounded"
                       style={{ accentColor: FILE_COLORS[index] }}
                     />
                     <span
-                      className="text-caption"
+                      className="text-micro"
                       style={{ color: FILE_COLORS[index] }}
                     >
                       {formatDate(file.rawData.metadata.startTime)}
                     </span>
                   </label>
                 ))}
-                <span className="text-text-muted">|</span>
+                <span className="text-text-muted text-micro">|</span>
               </>
             )}
 
             {/* Chart options */}
-            <label className="flex items-center gap-1.5 cursor-pointer">
+            <label className="flex items-center gap-1 cursor-pointer">
               <input
                 type="checkbox"
                 checked={chartOptions.logScale}
                 onChange={(e) => updateChartOptions({ logScale: e.target.checked })}
-                className="w-4 h-4 rounded accent-accent-teal"
+                className="w-3.5 h-3.5 rounded accent-accent-teal"
               />
-              <span className="text-caption text-text-secondary">{t('chart.logScale')}</span>
+              <span className="text-micro text-text-secondary">{t('chart.logScale')}</span>
             </label>
 
-            {/* Profile toggles */}
-            {limitProfiles.slice(0, 4).map((profile) => (
-              <label key={profile.id} className="flex items-center gap-1.5 cursor-pointer">
+            <span className="text-text-muted text-micro">|</span>
+
+            {/* Profile toggles - show all profiles */}
+            {limitProfiles.map((profile) => (
+              <label key={profile.id} className="flex items-center gap-1 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={activeLimitProfileIds.includes(profile.id)}
                   onChange={() => toggleLimitProfile(profile.id)}
-                  className="w-4 h-4 rounded"
+                  className="w-3.5 h-3.5 rounded"
                   style={{ accentColor: profile.color }}
                 />
-                <span className="text-caption text-text-secondary">
-                  {profile.name.length > 10 ? profile.name.slice(0, 10) + '...' : profile.name}
+                <span
+                  className="text-micro"
+                  style={{ color: activeLimitProfileIds.includes(profile.id) ? profile.color : 'var(--color-text-muted)' }}
+                >
+                  {profile.name.length > 8 ? profile.name.slice(0, 8) + '..' : profile.name}
                 </span>
               </label>
             ))}

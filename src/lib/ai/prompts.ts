@@ -27,6 +27,16 @@ export interface AIInputData {
     gsi: 'passed' | 'failed'
     cern: 'passed' | 'failed'
   }
+  // New: Diagnostic results from knowledge-based analysis
+  diagnostics?: Array<{
+    type: string
+    name: string
+    confidence: number
+    severity: string
+    affectedMasses: number[]
+    recommendation: string
+  }>
+  systemState?: string
 }
 
 // Convert analysis result to AI input format
@@ -89,6 +99,16 @@ export function formatAnalysisForAI(result: AnalysisResult): AIInputData {
   const cernPassed = result.limitChecks.every(c => c.cernPassed) &&
     result.qualityChecks.every(c => c.passed)
 
+  // Format diagnostics if available
+  const diagnostics = result.diagnostics?.map(d => ({
+    type: d.type,
+    name: d.nameEn,
+    confidence: d.confidence,
+    severity: d.severity,
+    affectedMasses: d.affectedMasses,
+    recommendation: d.recommendationEn
+  }))
+
   return {
     metadata: {
       fileName: result.metadata.sourceFile,
@@ -103,7 +123,9 @@ export function formatAnalysisForAI(result: AnalysisResult): AIInputData {
     overallStatus: {
       gsi: gsiPassed ? 'passed' : 'failed',
       cern: cernPassed ? 'passed' : 'failed'
-    }
+    },
+    diagnostics,
+    systemState: result.diagnosisSummary?.systemState
   }
 }
 
@@ -129,7 +151,14 @@ Use Unicode for formulas (H₂O, CO₂, N₂). Use **bold** and bullets for stru
 
 Analyze: 1) Overall assessment 2) Gas composition 3) Contamination sources 4) Quality issues 5) Recommendations
 
-Context: H₂ (mass 2) = 100% baseline. GSI/CERN are accelerator limits. Good UHV = H₂ dominant, minimal H₂O/hydrocarbons. Air leak = N₂/O₂ ratio ~4:1.`
+Expert Knowledge Context:
+- System states: unbaked (H₂O dominant), baked (H₂ dominant), contaminated (organic peaks), air_leak (N₂/O₂ ≈ 3.7)
+- Cracking patterns: H₂O (18:100%, 17:23%, 16:1.5%), N₂ (28:100%, 14:7%), CO (28:100%, 12:5%), CO₂ (44:100%, 28:11%, 16:9%)
+- Oil contamination: Δ14 amu pattern at m/z 41,55,69,83 = mineral oil backstreaming
+- PFPE/Fomblin: m/z 69 (CF₃⁺) dominant WITHOUT alkyl peaks at 41,43,57
+- Solvents: Acetone (43,58), IPA (45,43,27), Ethanol (31,45,46)
+- ESD artifacts: Anomalous O⁺(16), F⁺(19), Cl⁺(35) without parent molecules
+- N₂ vs CO: N₂ has fragment at m/z 14 (~7%), CO has fragment at m/z 12 (~5%)`
 
   // CSV format for peaks (most token-efficient)
   const peaksCSV = `mass,gas,intensity,gsi_ok,cern_ok
@@ -139,16 +168,27 @@ ${data.peaks.map(p => `${p.mass},${p.gas},${p.intensity},${p.gsiOk ? 1 : 0},${p.
   const qualityCSV = `check,passed,value,threshold
 ${data.qualityChecks.map(q => `${q.name},${q.passed ? 1 : 0},${q.value},${q.threshold}`).join('\n')}`
 
+  // Format diagnostics section if available
+  const diagnosticsSection = data.diagnostics && data.diagnostics.length > 0
+    ? `\nAUTOMATIC DIAGNOSTICS (confidence > 30%):
+${data.diagnostics.map(d => `${d.severity.toUpperCase()}|${d.name}|conf:${(d.confidence * 100).toFixed(0)}%|masses:${d.affectedMasses.join(',')}|${d.recommendation}`).join('\n')}`
+    : ''
+
+  const systemStateInfo = data.systemState
+    ? `\nSYSTEM_STATE: ${data.systemState}`
+    : ''
+
   const dataSection = `
 DATA:
 file:${data.metadata.fileName}|date:${data.metadata.date}|pressure:${data.metadata.pressure}|chamber:${data.metadata.chamber}|range:${data.metadata.massRange}
-GSI:${data.overallStatus.gsi.toUpperCase()}|CERN:${data.overallStatus.cern.toUpperCase()}
+GSI:${data.overallStatus.gsi.toUpperCase()}|CERN:${data.overallStatus.cern.toUpperCase()}${systemStateInfo}
 
 PEAKS (top 15):
 ${peaksCSV}
 
 QUALITY:
 ${qualityCSV}
+${diagnosticsSection}
 
 EXCEEDANCES:
 ${data.violations.length > 0 ? data.violations.join('\n') : 'none'}`
@@ -234,7 +274,12 @@ Use Unicode for formulas (H₂O, CO₂, N₂). Use **bold** and bullets for stru
 
 Analyze: 1) Overall assessment 2) Key changes 3) Bakeout effectiveness 4) Remaining issues 5) Recommendations
 
-Context: H₂ (mass 2) = 100% baseline. Negative change = improvement (less contamination). Successful bakeout reduces H₂O, CO₂, hydrocarbons.`
+Expert Knowledge Context:
+- System states: unbaked (H₂O dominant), baked (H₂ dominant), contaminated (organic peaks), air_leak (N₂/O₂ ≈ 3.7)
+- Successful bakeout: H₂O reduction >80%, H₂ becomes dominant, CO₂ reduced, hydrocarbons eliminated
+- Oil contamination persists if m/z 41,55,69 don't reduce - need other cleaning methods
+- Air leak doesn't improve with bakeout - look for N₂/O₂/Ar pattern unchanged
+- Virtual leak: delayed pump-down, He test negative, often from trapped volumes`
 
   // CSV format for peak changes
   const changesCSV = data.peakChanges.length > 0
@@ -275,7 +320,19 @@ BEFORE_EXCEEDANCES:
 ${data.before.violations.length > 0 ? data.before.violations.join('\n') : 'none'}
 
 AFTER_EXCEEDANCES:
-${data.after.violations.length > 0 ? data.after.violations.join('\n') : 'none'}`
+${data.after.violations.length > 0 ? data.after.violations.join('\n') : 'none'}
+
+BEFORE_DIAGNOSTICS:
+${data.before.diagnostics && data.before.diagnostics.length > 0
+    ? data.before.diagnostics.map(d => `${d.severity}|${d.name}|${(d.confidence * 100).toFixed(0)}%`).join('\n')
+    : 'none'}
+
+AFTER_DIAGNOSTICS:
+${data.after.diagnostics && data.after.diagnostics.length > 0
+    ? data.after.diagnostics.map(d => `${d.severity}|${d.name}|${(d.confidence * 100).toFixed(0)}%`).join('\n')
+    : 'none'}
+
+SYSTEM_STATE_CHANGE: ${data.before.systemState || 'unknown'} -> ${data.after.systemState || 'unknown'}`
 
   return `${systemContext}\n${dataSection}\n\nAnalysis:`
 }

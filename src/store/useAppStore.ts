@@ -29,6 +29,7 @@ interface AppState {
   language: 'de' | 'en'
   chartOptions: ChartOptions
   sidebarActivePanel: 'limits' | 'ai' | 'export' | null
+  showKnowledgePage: boolean
 
   // Actions - Files
   addFile: (file: MeasurementFile) => void
@@ -54,6 +55,7 @@ interface AppState {
   updateChartOptions: (options: Partial<ChartOptions>) => void
   toggleFileVisibility: (fileId: string) => void
   setSidebarActivePanel: (panel: 'limits' | 'ai' | 'export' | null) => void
+  setShowKnowledgePage: (show: boolean) => void
   reset: () => void
 }
 
@@ -77,6 +79,7 @@ const initialState = {
     visibleFiles: [] as string[],
   },
   sidebarActivePanel: null as 'limits' | 'ai' | 'export' | null,
+  showKnowledgePage: false,
 }
 
 // Sort files by measurement date and assign order
@@ -249,6 +252,8 @@ export const useAppStore = create<AppState>()(
         }),
 
         setSidebarActivePanel: (panel) => set({ sidebarActivePanel: panel }),
+
+        setShowKnowledgePage: (show) => set({ showKnowledgePage: show }),
 
         reset: () => set({
           files: [],

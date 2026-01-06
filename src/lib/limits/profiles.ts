@@ -53,7 +53,72 @@ export const CERN_PRESET: LimitProfile = {
   updatedAt: '2024-01-01T00:00:00.000Z',
 }
 
-export const DEFAULT_PRESETS: LimitProfile[] = [GSI_PRESET, CERN_PRESET]
+export const CERN_UNBAKED_PRESET: LimitProfile = {
+  id: 'cern-unbaked',
+  name: 'CERN Unbaked',
+  description: 'CERN limits for unbaked systems, normalized to H\u2082O',
+  color: '#6366F1',
+  isPreset: true,
+  ranges: [
+    { massMin: 0, massMax: 3, limit: 0.5, notes: 'H\u2082 (often lower than H\u2082O)' },
+    { massMin: 3, massMax: 17.5, limit: 0.01, notes: 'Before H\u2082O' },
+    { massMin: 17.5, massMax: 18.5, limit: 1.0, notes: 'H\u2082O reference peak' },
+    { massMin: 18.5, massMax: 27.5, limit: 0.01, notes: 'Between H\u2082O and N\u2082' },
+    { massMin: 27.5, massMax: 28.5, limit: 0.1, notes: 'N\u2082/CO' },
+    { massMin: 28.5, massMax: 43.5, limit: 0.01 },
+    { massMin: 43.5, massMax: 44.5, limit: 0.05, notes: 'CO\u2082' },
+    { massMin: 44.5, massMax: 100, limit: 0.001, notes: 'Heavy masses' },
+  ],
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+}
+
+export const DESY_PRESET: LimitProfile = {
+  id: 'desy-hc-free',
+  name: 'DESY HC-Free',
+  description: 'DESY hydrocarbon-free criterion: \u03A3(m45-100) < 0.1%',
+  color: '#14B8A6',
+  isPreset: true,
+  ranges: [
+    { massMin: 0, massMax: 3, limit: 1.0, notes: 'H\u2082 allowed' },
+    { massMin: 3, massMax: 20.5, limit: 0.2, notes: 'H\u2082O region' },
+    { massMin: 20.5, massMax: 27.5, limit: 0.02 },
+    { massMin: 27.5, massMax: 28.5, limit: 0.1, notes: 'N\u2082/CO' },
+    { massMin: 28.5, massMax: 43.5, limit: 0.02 },
+    { massMin: 43.5, massMax: 44.5, limit: 0.05, notes: 'CO\u2082' },
+    { massMin: 44.5, massMax: 100, limit: 0.001, notes: 'HC-free: sum < 0.1%' },
+  ],
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+}
+
+export const GSI_CRYO_PRESET: LimitProfile = {
+  id: 'gsi-cryo',
+  name: 'GSI Cryogenic',
+  description: 'GSI stricter limits for cryogenic beam tubes',
+  color: '#EC4899',
+  isPreset: true,
+  ranges: [
+    { massMin: 0, massMax: 3, limit: 1.0, notes: 'H\u2082 allowed' },
+    { massMin: 3, massMax: 17.5, limit: 0.05 },
+    { massMin: 17.5, massMax: 18.5, limit: 0.1, notes: 'H\u2082O max 10%' },
+    { massMin: 18.5, massMax: 27.5, limit: 0.01 },
+    { massMin: 27.5, massMax: 28.5, limit: 0.05, notes: 'N\u2082/CO reduced' },
+    { massMin: 28.5, massMax: 43.5, limit: 0.005 },
+    { massMin: 43.5, massMax: 44.5, limit: 0.02, notes: 'CO\u2082' },
+    { massMin: 44.5, massMax: 100, limit: 0.0005, notes: 'Stricter HC limits' },
+  ],
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+}
+
+export const DEFAULT_PRESETS: LimitProfile[] = [
+  GSI_PRESET,
+  CERN_PRESET,
+  CERN_UNBAKED_PRESET,
+  DESY_PRESET,
+  GSI_CRYO_PRESET,
+]
 
 export function getNextProfileColor(existingProfiles: LimitProfile[]): string {
   const usedColors = new Set(existingProfiles.map(p => p.color))

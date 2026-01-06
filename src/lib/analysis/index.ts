@@ -1,6 +1,7 @@
-import type { RawData, AnalysisResult, NormalizedData, Peak, DataPoint } from '@/types/rga'
+import type { RawData, AnalysisResult, NormalizedData, Peak, DataPoint, DiagnosticResultSummary, DiagnosisSummary } from '@/types/rga'
 import { checkLimits } from '@/lib/limits'
 import { performQualityChecks } from '@/lib/quality'
+import { runFullDiagnosis, createDiagnosisInput, getDiagnosisSummary, DIAGNOSIS_METADATA, type DiagnosticResult } from '@/lib/diagnosis'
 
 // Known masses and their gas identifications
 export const KNOWN_MASSES: { mass: number; gas: string; fragments?: string[] }[] = [
@@ -108,6 +109,12 @@ export function analyzeSpectrum(raw: RawData): AnalysisResult {
   const totalPressure = raw.points.reduce((sum, p) => sum + p.current, 0)
   const dominantGases = identifyDominantGases(peaks, totalPressure)
 
+  // 8. Run automatic diagnosis
+  const diagnosisInput = createDiagnosisInput(normalizedData)
+  const diagnosticResults = runFullDiagnosis(diagnosisInput, 0.3)
+  const diagnostics = convertDiagnosticsForUI(diagnosticResults)
+  const diagnosisSummary = createDiagnosisSummary(diagnosticResults, normalizedData)
+
   return {
     metadata: raw.metadata,
     normalizedData,
@@ -116,6 +123,8 @@ export function analyzeSpectrum(raw: RawData): AnalysisResult {
     qualityChecks,
     totalPressure,
     dominantGases,
+    diagnostics,
+    diagnosisSummary,
   }
 }
 
@@ -167,4 +176,81 @@ function identifyDominantGases(peaks: Peak[], totalPressure: number): { gas: str
     }))
     .sort((a, b) => b.percentage - a.percentage)
     .slice(0, 5)
+}
+
+/**
+ * Konvertiert Diagnose-Ergebnisse für die UI
+ */
+function convertDiagnosticsForUI(results: DiagnosticResult[]): DiagnosticResultSummary[] {
+  return results.map(result => {
+    const meta = DIAGNOSIS_METADATA[result.type]
+    return {
+      type: result.type,
+      name: result.name,
+      nameEn: result.nameEn,
+      description: result.description,
+      descriptionEn: result.descriptionEn,
+      confidence: result.confidence,
+      severity: result.severity,
+      recommendation: result.recommendation,
+      recommendationEn: result.recommendationEn,
+      affectedMasses: result.affectedMasses,
+      evidenceCount: result.evidence.length,
+      icon: meta?.icon || '?',
+      color: meta?.color || '#6B7280'
+    }
+  })
+}
+
+/**
+ * Erstellt Diagnose-Zusammenfassung
+ */
+function createDiagnosisSummary(
+  results: DiagnosticResult[],
+  normalizedData: NormalizedData[]
+): DiagnosisSummary {
+  const summary = getDiagnosisSummary(results)
+
+  // System-Zustand ermitteln
+  let systemState: DiagnosisSummary['systemState'] = 'unknown'
+
+  // Peak-Werte für Zustandsermittlung
+  const getPeakValue = (mass: number) => {
+    const point = normalizedData.find(p => Math.abs(p.mass - mass) < 0.5)
+    return point?.normalizedToH2 || 0
+  }
+
+  const h2 = getPeakValue(2)
+  const h2o = getPeakValue(18)
+  // Für zukünftige Erweiterung: Luftleck-Erkennung über Ratios
+  const _n2 = getPeakValue(28)
+  const _o2 = getPeakValue(32)
+  void _n2; void _o2; // Suppress unused warnings
+
+  // Luftleck prüfen
+  if (results.some(r => r.type === 'AIR_LEAK' && r.confidence > 0.5)) {
+    systemState = 'air_leak'
+  }
+  // Kontamination prüfen
+  else if (results.some(r =>
+    (r.type === 'OIL_BACKSTREAMING' || r.type === 'FOMBLIN_CONTAMINATION' || r.type === 'SOLVENT_RESIDUE') &&
+    r.confidence > 0.5
+  )) {
+    systemState = 'contaminated'
+  }
+  // Baked vs Unbaked
+  else if (h2 > h2o * 3) {
+    systemState = 'baked'
+  }
+  else if (h2o > h2) {
+    systemState = 'unbaked'
+  }
+
+  return {
+    criticalCount: summary.criticalCount,
+    warningCount: summary.warningCount,
+    infoCount: summary.infoCount,
+    overallStatus: summary.overallStatus,
+    systemState
+  }
 }

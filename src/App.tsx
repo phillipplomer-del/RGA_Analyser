@@ -7,11 +7,13 @@ import { MetadataPanel } from '@/components/MetadataPanel'
 import { SpectrumChart } from '@/components/SpectrumChart'
 import { PeakTable } from '@/components/PeakTable'
 import { QualityChecks } from '@/components/QualityChecks'
+import { DiagnosisPanel } from '@/components/DiagnosisPanel'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { ComparisonPanel } from '@/components/ComparisonPanel'
 import { PeakComparisonTable } from '@/components/PeakComparisonTable'
 import { ActionsSidebar } from '@/components/ActionsSidebar'
+import { KnowledgePage } from '@/components/KnowledgePage'
 import { compareSpectra } from '@/lib/comparison'
 
 function App() {
@@ -22,6 +24,7 @@ function App() {
     reset,
     comparisonResult,
     setComparisonResult,
+    showKnowledgePage,
   } = useAppStore()
   const chartRef = useRef<HTMLDivElement>(null)
 
@@ -35,6 +38,11 @@ function App() {
       setComparisonResult(null)
     }
   }, [files, setComparisonResult])
+
+  // Show Knowledge Page when requested
+  if (showKnowledgePage) {
+    return <KnowledgePage />
+  }
 
   // Show Landing Page when no files
   if (files.length === 0) {
@@ -146,6 +154,14 @@ function App() {
               />
             ))}
           </div>
+        )}
+
+        {/* Automatic Diagnosis - shows for primary file */}
+        {primaryAnalysis.diagnostics && primaryAnalysis.diagnosisSummary && (
+          <DiagnosisPanel
+            diagnostics={primaryAnalysis.diagnostics}
+            summary={primaryAnalysis.diagnosisSummary}
+          />
         )}
 
       </main>
