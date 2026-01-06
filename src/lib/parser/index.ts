@@ -1,11 +1,24 @@
 import type { RawData, RGAMetadata, DataPoint } from '@/types/rga'
 
 export function parseASCFile(content: string): RawData {
+  // Normalize line endings (handle \r\n, \r, and \n)
+  const normalizedContent = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+
+  // Detect file format
+  if (normalizedContent.startsWith('ASCII SCAN ANALOG DATA:')) {
+    return parseAlternativeASCFormat(normalizedContent)
+  }
+  return parseQuaderaFormat(normalizedContent)
+}
+
+// Parse the standard Pfeiffer Quadera export format
+function parseQuaderaFormat(content: string): RawData {
   const lines = content.split('\n')
   const metadata: Partial<RGAMetadata> = {}
   const points: DataPoint[] = []
 
   let dataStarted = false
+  let scanCount = 0
 
   for (const line of lines) {
     const trimmed = line.trim()
@@ -29,8 +42,15 @@ export function parseASCFile(content: string): RawData {
         metadata.scanWidth = parseGermanNumber(trimmed.split('\t')[1]?.trim())
       } else if (trimmed.startsWith('Mass [amu]')) {
         dataStarted = true
+        scanCount++
       }
     } else {
+      // Check if we hit a new scan cycle (stop at first scan only)
+      if (trimmed.startsWith('First Mass') || trimmed.startsWith('Mass [amu]')) {
+        // New scan detected - stop parsing, use only first scan
+        break
+      }
+
       // Data parsing
       const parts = trimmed.split('\t')
       if (parts.length >= 2) {
@@ -57,6 +77,89 @@ export function parseASCFile(content: string): RawData {
       startTime: metadata.startTime || null,
       endTime: metadata.endTime || null,
       taskName: metadata.taskName || 'Scan',
+      firstMass: metadata.firstMass || 0,
+      scanWidth: metadata.scanWidth || 100,
+      chamberName: metadata.chamberName,
+      pressure: metadata.pressure,
+    },
+    points,
+  }
+}
+
+// Parse alternative ASCII SCAN ANALOG DATA format (e.g., from OIPT software)
+function parseAlternativeASCFormat(content: string): RawData {
+  const lines = content.split('\n')
+  const metadata: Partial<RGAMetadata> = {}
+  const points: DataPoint[] = []
+
+  let dataStarted = false
+  let scanCycle = 0
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+    if (!trimmed) continue
+
+    if (!dataStarted) {
+      // Header parsing
+      if (trimmed.startsWith('ASCII SCAN ANALOG DATA:')) {
+        const match = trimmed.match(/ASCII SCAN ANALOG DATA:\s*(.+)/)
+        if (match) {
+          metadata.sourceFile = match[1].trim()
+        }
+      } else if (trimmed.startsWith('DATE:')) {
+        const dateMatch = trimmed.match(/DATE:\s*(\d+\.\d+\.\d+)/)
+        const timeMatch = lines.find(l => l.includes('TIME:'))?.match(/TIME:\s*(\d+:\d+:\d+)/)
+        if (dateMatch && timeMatch) {
+          metadata.startTime = parseGermanDate(`${dateMatch[1]} ${timeMatch[1]}`)
+        }
+      } else if (trimmed.startsWith('First Mass')) {
+        const match = trimmed.match(/First Mass\s+([\d.,]+)/)
+        if (match) {
+          metadata.firstMass = parseGermanNumber(match[1])
+        }
+      } else if (trimmed.startsWith('Scan Width')) {
+        const match = trimmed.match(/Scan Width\s+([\d.,]+)/)
+        if (match) {
+          metadata.scanWidth = parseGermanNumber(match[1])
+        }
+      } else if (trimmed.startsWith('ScanData')) {
+        // Data starts after this line
+        // Format: "ScanData\t1" followed by data on subsequent lines
+        dataStarted = true
+        scanCycle++
+      }
+    } else {
+      // Data parsing - format: "   0.00\t8.6075E-012" (mass\tcurrent)
+      // Stop if we hit a new ScanData block (multiple cycles)
+      if (trimmed.startsWith('ScanData')) {
+        break // Only use first scan cycle
+      }
+
+      const parts = trimmed.split('\t')
+      if (parts.length >= 2) {
+        const mass = parseGermanNumber(parts[0])
+        const current = parseScientificNotation(parts[1])
+        if (!isNaN(mass) && !isNaN(current) && current !== 0) {
+          points.push({ mass, current })
+        }
+      }
+    }
+  }
+
+  // Extract chamber name and pressure from filename if available
+  if (metadata.sourceFile) {
+    const info = extractInfoFromFilename(metadata.sourceFile)
+    metadata.chamberName = info.chamberName
+    metadata.pressure = info.pressure
+  }
+
+  return {
+    metadata: {
+      sourceFile: metadata.sourceFile || '',
+      exportTime: null,
+      startTime: metadata.startTime || null,
+      endTime: null,
+      taskName: 'Scan',
       firstMass: metadata.firstMass || 0,
       scanWidth: metadata.scanWidth || 100,
       chamberName: metadata.chamberName,
