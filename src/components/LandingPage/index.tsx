@@ -4,8 +4,10 @@ import { useDropzone } from 'react-dropzone'
 import { useAppStore } from '@/store/useAppStore'
 import { parseASCFile } from '@/lib/parser'
 import { analyzeSpectrum } from '@/lib/analysis'
+import { compareSpectra } from '@/lib/comparison'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import type { MeasurementFile } from '@/types/rga'
 
 // --- Types ---
 interface Peak {
@@ -84,7 +86,15 @@ const PEAKS: Peak[] = [
 
 export function LandingPage() {
   const { t } = useTranslation()
-  const { setRawData, setAnalysisResult, theme } = useAppStore()
+  const {
+    setRawData,
+    setAnalysisResult,
+    theme,
+    setComparisonMode,
+    setBeforeFile,
+    setAfterFile,
+    setComparisonResult,
+  } = useAppStore()
   const isDark = theme === 'dark'
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -99,23 +109,68 @@ export function LandingPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // File handling
+  // File handling - supports 1-2 files
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0]
-    if (!file) return
+    if (acceptedFiles.length === 0) return
+    if (acceptedFiles.length > 2) {
+      setError(t('upload.maxTwoFiles', 'Maximal 2 Dateien erlaubt'))
+      return
+    }
 
     setIsProcessing(true)
     setError(null)
 
     try {
-      const content = await file.text()
-      const rawData = parseASCFile(content)
-      setRawData(rawData)
-      const result = analyzeSpectrum(rawData)
-      setAnalysisResult(result)
+      if (acceptedFiles.length === 1) {
+        // Single file mode
+        const content = await acceptedFiles[0].text()
+        const rawData = parseASCFile(content)
+        setRawData(rawData)
+        const result = analyzeSpectrum(rawData)
+        setAnalysisResult(result)
+        setComparisonMode(false)
+      } else {
+        // Comparison mode - 2 files
+        const [file1, file2] = acceptedFiles
+
+        // Parse both files
+        const content1 = await file1.text()
+        const content2 = await file2.text()
+        const rawData1 = parseASCFile(content1)
+        const rawData2 = parseASCFile(content2)
+        const result1 = analyzeSpectrum(rawData1)
+        const result2 = analyzeSpectrum(rawData2)
+
+        // Create MeasurementFile objects
+        const beforeFile: MeasurementFile = {
+          id: crypto.randomUUID(),
+          slot: 'before',
+          filename: file1.name,
+          rawData: rawData1,
+          analysisResult: result1,
+          uploadedAt: new Date(),
+        }
+
+        const afterFile: MeasurementFile = {
+          id: crypto.randomUUID(),
+          slot: 'after',
+          filename: file2.name,
+          rawData: rawData2,
+          analysisResult: result2,
+          uploadedAt: new Date(),
+        }
+
+        // Set comparison mode and files
+        setComparisonMode(true)
+        setBeforeFile(beforeFile)
+        setAfterFile(afterFile)
+
+        // Run comparison
+        const comparisonResult = compareSpectra(beforeFile, afterFile)
+        setComparisonResult(comparisonResult)
+      }
     } catch (err) {
       if (err instanceof Error && 'code' in err) {
-        // AnalysisError with details
         const analysisErr = err as { message: string; details?: string }
         setError(analysisErr.details || analysisErr.message)
       } else if (err instanceof Error) {
@@ -126,12 +181,13 @@ export function LandingPage() {
     } finally {
       setIsProcessing(false)
     }
-  }, [setRawData, setAnalysisResult, t])
+  }, [setRawData, setAnalysisResult, setComparisonMode, setBeforeFile, setAfterFile, setComparisonResult, t])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'text/plain': ['.asc'] },
-    multiple: false,
+    multiple: true,
+    maxFiles: 2,
   })
 
   // Helper Math
@@ -439,6 +495,10 @@ export function LandingPage() {
               <p className={`text-[11px] transition-colors duration-300
                 ${isDark ? 'text-[#C8C8A0]' : 'text-[#6B7280]'}`}>
                 {t('upload.formats')}
+              </p>
+              <p className={`text-[10px] mt-1 transition-colors duration-300
+                ${isDark ? 'text-[#9EE000]' : 'text-[#0097E0]'}`}>
+                {t('upload.multiFile', '1 Datei = Analyse | 2 Dateien = Vergleich')}
               </p>
 
               {error && (

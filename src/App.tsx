@@ -11,7 +11,6 @@ import { ExportPanel } from '@/components/ExportPanel'
 import { AIPanel } from '@/components/AIPanel'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
-import { ComparisonUpload } from '@/components/ComparisonUpload'
 import { ComparisonPanel } from '@/components/ComparisonPanel'
 import { PeakComparisonTable } from '@/components/PeakComparisonTable'
 import { cn } from '@/lib/utils/cn'
@@ -30,14 +29,19 @@ function App() {
   } = useAppStore()
   const chartRef = useRef<HTMLDivElement>(null)
 
-  // Show Landing Page when no file loaded (single mode) or no files in comparison mode
-  const hasContent = comparisonMode
-    ? (beforeFile || afterFile)
-    : analysisResult
+  // Check if we have 2 files loaded (comparison capable)
+  const hasTwoFiles = beforeFile && afterFile
+
+  // Show Landing Page when no content
+  const hasContent = analysisResult || hasTwoFiles
 
   if (!hasContent) {
     return <LandingPage />
   }
+
+  // Determine which data to show in single file mode
+  // If 2 files were uploaded, show "before" file in single mode
+  const singleFileAnalysis = hasTwoFiles ? beforeFile.analysisResult : analysisResult
 
   // Analysis View
   return (
@@ -54,31 +58,33 @@ function App() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {/* Mode Toggle */}
-            <div className="flex items-center bg-surface-card-muted rounded-chip p-1">
-              <button
-                onClick={() => setComparisonMode(false)}
-                className={cn(
-                  'px-3 py-1.5 text-caption font-medium rounded-chip transition-colors',
-                  !comparisonMode
-                    ? 'bg-surface-card text-text-primary shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary'
-                )}
-              >
-                {t('mode.single', 'Einzeldatei')}
-              </button>
-              <button
-                onClick={() => setComparisonMode(true)}
-                className={cn(
-                  'px-3 py-1.5 text-caption font-medium rounded-chip transition-colors',
-                  comparisonMode
-                    ? 'bg-surface-card text-text-primary shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary'
-                )}
-              >
-                {t('mode.compare', 'Vergleich')}
-              </button>
-            </div>
+            {/* Mode Toggle - only show when 2 files are loaded */}
+            {hasTwoFiles && (
+              <div className="flex items-center bg-surface-card-muted rounded-chip p-1">
+                <button
+                  onClick={() => setComparisonMode(false)}
+                  className={cn(
+                    'px-3 py-1.5 text-caption font-medium rounded-chip transition-colors',
+                    !comparisonMode
+                      ? 'bg-surface-card text-text-primary shadow-sm'
+                      : 'text-text-secondary hover:text-text-primary'
+                  )}
+                >
+                  {t('mode.single', 'Einzeldatei')}
+                </button>
+                <button
+                  onClick={() => setComparisonMode(true)}
+                  className={cn(
+                    'px-3 py-1.5 text-caption font-medium rounded-chip transition-colors',
+                    comparisonMode
+                      ? 'bg-surface-card text-text-primary shadow-sm'
+                      : 'text-text-secondary hover:text-text-primary'
+                  )}
+                >
+                  {t('mode.compare', 'Vergleich')}
+                </button>
+              </div>
+            )}
 
             <button
               onClick={reset}
@@ -98,9 +104,6 @@ function App() {
         {comparisonMode ? (
           /* === COMPARISON MODE === */
           <>
-            {/* Comparison Upload */}
-            <ComparisonUpload />
-
             {/* Comparison Chart (when both files loaded) */}
             {comparisonResult && beforeFile && afterFile && (
               <>
@@ -128,33 +131,33 @@ function App() {
           </>
         ) : (
           /* === SINGLE FILE MODE === */
-          analysisResult && (
+          singleFileAnalysis && (
             <>
               {/* Upload + Metadata Row */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <FileUpload />
-                <MetadataPanel metadata={analysisResult.metadata} />
+                <MetadataPanel metadata={singleFileAnalysis.metadata} />
               </div>
 
               {/* Spectrum Chart */}
               <div ref={chartRef}>
                 <SpectrumChart
-                  data={analysisResult.normalizedData}
-                  limitChecks={analysisResult.limitChecks}
+                  data={singleFileAnalysis.normalizedData}
+                  limitChecks={singleFileAnalysis.limitChecks}
                 />
               </div>
 
               {/* Results Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <PeakTable peaks={analysisResult.peaks} />
-                <QualityChecks checks={analysisResult.qualityChecks} />
+                <PeakTable peaks={singleFileAnalysis.peaks} />
+                <QualityChecks checks={singleFileAnalysis.qualityChecks} />
               </div>
 
               {/* AI Analysis */}
-              <AIPanel analysis={analysisResult} />
+              <AIPanel analysis={singleFileAnalysis} />
 
               {/* Export */}
-              <ExportPanel analysis={analysisResult} chartRef={chartRef} />
+              <ExportPanel analysis={singleFileAnalysis} chartRef={chartRef} />
             </>
           )
         )}
