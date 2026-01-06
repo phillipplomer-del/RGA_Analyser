@@ -69,14 +69,14 @@ export function ComparisonPanel({ result }: ComparisonPanelProps) {
 
           {/* Resolved Violations */}
           <StatCard
-            label={t('comparison.resolvedViolations', 'Behobene Verletzungen')}
+            label={t('comparison.resolvedViolations', 'Behobene Überschreitungen')}
             value={summary.resolvedViolations}
             colorClass="text-state-success"
           />
 
           {/* New Violations */}
           <StatCard
-            label={t('comparison.newViolations', 'Neue Verletzungen')}
+            label={t('comparison.newViolations', 'Neue Überschreitungen')}
             value={summary.newViolations}
             colorClass="text-state-danger"
           />

@@ -1,88 +1,142 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import type { RawData, AnalysisResult, MeasurementFile, ComparisonResult } from '@/types/rga'
+import type { MeasurementFile, ComparisonResult, LimitProfile } from '@/types/rga'
+import { DEFAULT_PRESETS, getNextProfileColor } from '@/lib/limits/profiles'
+
+const MAX_FILES = 3
 
 interface ChartOptions {
   logScale: boolean
   showGSILimit: boolean
   showCERNLimit: boolean
+  visibleFiles: string[]  // Array of file IDs that are visible in chart
 }
 
 interface AppState {
-  // Data - Single File Mode
-  rawData: RawData | null
-  analysisResult: AnalysisResult | null
+  // Data - Multi-File
+  files: MeasurementFile[]
+  comparisonResult: ComparisonResult | null
   aiInterpretation: string | null
   isAnalyzing: boolean
   error: string | null
 
-  // Data - Comparison Mode
-  comparisonMode: boolean
-  beforeFile: MeasurementFile | null
-  afterFile: MeasurementFile | null
-  comparisonResult: ComparisonResult | null
+  // Limit Profiles
+  limitProfiles: LimitProfile[]
+  activeLimitProfileIds: string[]
 
   // UI
   theme: 'light' | 'dark'
   language: 'de' | 'en'
   chartOptions: ChartOptions
+  sidebarActivePanel: 'limits' | 'ai' | 'export' | null
 
-  // Actions - Single File
-  setRawData: (data: RawData) => void
-  setAnalysisResult: (result: AnalysisResult) => void
+  // Actions - Files
+  addFile: (file: MeasurementFile) => void
+  removeFile: (id: string) => void
+  clearFiles: () => void
+  setComparisonResult: (result: ComparisonResult | null) => void
   setAiInterpretation: (interpretation: string | null) => void
   setIsAnalyzing: (isAnalyzing: boolean) => void
   setError: (error: string | null) => void
 
-  // Actions - Comparison Mode
-  setComparisonMode: (enabled: boolean) => void
-  setBeforeFile: (file: MeasurementFile | null) => void
-  setAfterFile: (file: MeasurementFile | null) => void
-  setComparisonResult: (result: ComparisonResult | null) => void
-  swapFiles: () => void
-  clearComparison: () => void
+  // Actions - Limit Profiles
+  addLimitProfile: (profile: Omit<LimitProfile, 'id' | 'createdAt' | 'updatedAt'>) => string
+  updateLimitProfile: (id: string, updates: Partial<LimitProfile>) => void
+  deleteLimitProfile: (id: string) => void
+  duplicateLimitProfile: (id: string, newName: string) => string
+  toggleLimitProfile: (id: string) => void
+  setActiveLimitProfiles: (ids: string[]) => void
 
   // Actions - UI
   toggleTheme: () => void
   setTheme: (theme: 'light' | 'dark') => void
   setLanguage: (lang: 'de' | 'en') => void
   updateChartOptions: (options: Partial<ChartOptions>) => void
+  toggleFileVisibility: (fileId: string) => void
+  setSidebarActivePanel: (panel: 'limits' | 'ai' | 'export' | null) => void
   reset: () => void
 }
 
 const initialState = {
-  // Single File Mode
-  rawData: null,
-  analysisResult: null,
+  files: [] as MeasurementFile[],
+  comparisonResult: null,
   aiInterpretation: null,
   isAnalyzing: false,
   error: null,
 
-  // Comparison Mode
-  comparisonMode: false,
-  beforeFile: null,
-  afterFile: null,
-  comparisonResult: null,
+  // Limit Profiles - initialize with presets, GSI and CERN active by default
+  limitProfiles: DEFAULT_PRESETS,
+  activeLimitProfileIds: ['gsi-7.3e', 'cern-3076004'],
 
-  // UI
   theme: 'light' as const,
   language: 'de' as const,
   chartOptions: {
     logScale: true,
     showGSILimit: true,
     showCERNLimit: true,
+    visibleFiles: [] as string[],
   },
+  sidebarActivePanel: null as 'limits' | 'ai' | 'export' | null,
+}
+
+// Sort files by measurement date and assign order
+function sortAndOrderFiles(files: MeasurementFile[]): MeasurementFile[] {
+  return [...files]
+    .sort((a, b) => {
+      const dateA = a.rawData.metadata.startTime?.getTime() ?? 0
+      const dateB = b.rawData.metadata.startTime?.getTime() ?? 0
+      return dateA - dateB
+    })
+    .map((file, index) => ({ ...file, order: index }))
 }
 
 export const useAppStore = create<AppState>()(
   devtools(
     persist(
-      (set) => ({
+      (set, get) => ({
         ...initialState,
 
-        setRawData: (data) => set({ rawData: data, error: null }),
+        addFile: (file) => set((state) => {
+          if (state.files.length >= MAX_FILES) {
+            return state // Don't add if at max
+          }
+          const newFiles = sortAndOrderFiles([...state.files, file])
+          return {
+            files: newFiles,
+            comparisonResult: null,
+            aiInterpretation: null,
+            chartOptions: {
+              ...state.chartOptions,
+              visibleFiles: newFiles.map(f => f.id), // All visible by default
+            },
+          }
+        }),
 
-        setAnalysisResult: (result) => set({ analysisResult: result, isAnalyzing: false }),
+        removeFile: (id) => set((state) => {
+          const newFiles = sortAndOrderFiles(state.files.filter(f => f.id !== id))
+          return {
+            files: newFiles,
+            comparisonResult: null,
+            aiInterpretation: null,
+            chartOptions: {
+              ...state.chartOptions,
+              visibleFiles: state.chartOptions.visibleFiles.filter(fid => fid !== id),
+            },
+          }
+        }),
+
+        clearFiles: () => set({
+          files: [],
+          comparisonResult: null,
+          aiInterpretation: null,
+          error: null,
+          chartOptions: {
+            ...get().chartOptions,
+            visibleFiles: [],
+          },
+        }),
+
+        setComparisonResult: (result) => set({ comparisonResult: result, isAnalyzing: false }),
 
         setAiInterpretation: (interpretation) => set({ aiInterpretation: interpretation }),
 
@@ -90,6 +144,81 @@ export const useAppStore = create<AppState>()(
 
         setError: (error) => set({ error, isAnalyzing: false }),
 
+        // Limit Profile Actions
+        addLimitProfile: (profile) => {
+          const id = `custom-${Date.now()}`
+          const now = new Date().toISOString()
+          set((state) => ({
+            limitProfiles: [
+              ...state.limitProfiles,
+              {
+                ...profile,
+                id,
+                createdAt: now,
+                updatedAt: now,
+              },
+            ],
+          }))
+          return id
+        },
+
+        updateLimitProfile: (id, updates) => set((state) => ({
+          limitProfiles: state.limitProfiles.map((p) =>
+            p.id === id
+              ? { ...p, ...updates, updatedAt: new Date().toISOString() }
+              : p
+          ),
+        })),
+
+        deleteLimitProfile: (id) => set((state) => {
+          // Don't allow deleting presets
+          const profile = state.limitProfiles.find((p) => p.id === id)
+          if (profile?.isPreset) return state
+
+          return {
+            limitProfiles: state.limitProfiles.filter((p) => p.id !== id),
+            activeLimitProfileIds: state.activeLimitProfileIds.filter((pid) => pid !== id),
+          }
+        }),
+
+        duplicateLimitProfile: (id, newName) => {
+          const newId = `custom-${Date.now()}`
+          const now = new Date().toISOString()
+          set((state) => {
+            const source = state.limitProfiles.find((p) => p.id === id)
+            if (!source) return state
+
+            const newColor = getNextProfileColor(state.limitProfiles)
+            return {
+              limitProfiles: [
+                ...state.limitProfiles,
+                {
+                  ...source,
+                  id: newId,
+                  name: newName,
+                  color: newColor,
+                  isPreset: false,
+                  createdAt: now,
+                  updatedAt: now,
+                },
+              ],
+            }
+          })
+          return newId
+        },
+
+        toggleLimitProfile: (id) => set((state) => {
+          const isActive = state.activeLimitProfileIds.includes(id)
+          return {
+            activeLimitProfileIds: isActive
+              ? state.activeLimitProfileIds.filter((pid) => pid !== id)
+              : [...state.activeLimitProfileIds, id],
+          }
+        }),
+
+        setActiveLimitProfiles: (ids) => set({ activeLimitProfileIds: ids }),
+
+        // UI Actions
         toggleTheme: () => set((state) => {
           const newTheme = state.theme === 'light' ? 'dark' : 'light'
           document.documentElement.classList.toggle('dark', newTheme === 'dark')
@@ -107,46 +236,30 @@ export const useAppStore = create<AppState>()(
           chartOptions: { ...state.chartOptions, ...options },
         })),
 
-        // Comparison Mode Actions
-        setComparisonMode: (enabled) => set({
-          comparisonMode: enabled,
-          // Clear single-file data when entering comparison mode
-          ...(enabled ? { rawData: null, analysisResult: null, aiInterpretation: null } : {}),
-          // Clear comparison data when leaving comparison mode
-          ...(!enabled ? { beforeFile: null, afterFile: null, comparisonResult: null } : {}),
+        toggleFileVisibility: (fileId) => set((state) => {
+          const isVisible = state.chartOptions.visibleFiles.includes(fileId)
+          return {
+            chartOptions: {
+              ...state.chartOptions,
+              visibleFiles: isVisible
+                ? state.chartOptions.visibleFiles.filter(id => id !== fileId)
+                : [...state.chartOptions.visibleFiles, fileId],
+            },
+          }
         }),
 
-        setBeforeFile: (file) => set({ beforeFile: file, comparisonResult: null }),
-
-        setAfterFile: (file) => set({ afterFile: file, comparisonResult: null }),
-
-        setComparisonResult: (result) => set({ comparisonResult: result, isAnalyzing: false }),
-
-        swapFiles: () => set((state) => ({
-          beforeFile: state.afterFile ? { ...state.afterFile, slot: 'before' as const } : null,
-          afterFile: state.beforeFile ? { ...state.beforeFile, slot: 'after' as const } : null,
-          comparisonResult: null,
-        })),
-
-        clearComparison: () => set({
-          beforeFile: null,
-          afterFile: null,
-          comparisonResult: null,
-          error: null,
-        }),
+        setSidebarActivePanel: (panel) => set({ sidebarActivePanel: panel }),
 
         reset: () => set({
-          // Single file
-          rawData: null,
-          analysisResult: null,
+          files: [],
+          comparisonResult: null,
           aiInterpretation: null,
           isAnalyzing: false,
           error: null,
-          // Comparison
-          comparisonMode: false,
-          beforeFile: null,
-          afterFile: null,
-          comparisonResult: null,
+          chartOptions: {
+            ...get().chartOptions,
+            visibleFiles: [],
+          },
         }),
       }),
       {
@@ -154,8 +267,26 @@ export const useAppStore = create<AppState>()(
         partialize: (state) => ({
           theme: state.theme,
           language: state.language,
-          chartOptions: state.chartOptions,
+          chartOptions: {
+            logScale: state.chartOptions.logScale,
+            showGSILimit: state.chartOptions.showGSILimit,
+            showCERNLimit: state.chartOptions.showCERNLimit,
+            // Don't persist visibleFiles - will be set when files are loaded
+          },
+          // Persist custom limit profiles (filter out presets to avoid duplication on reload)
+          limitProfiles: state.limitProfiles.filter(p => !p.isPreset),
+          activeLimitProfileIds: state.activeLimitProfileIds,
         }),
+        merge: (persistedState, currentState) => {
+          const persisted = persistedState as Partial<AppState>
+          // Merge presets with persisted custom profiles
+          const customProfiles = persisted.limitProfiles || []
+          return {
+            ...currentState,
+            ...persisted,
+            limitProfiles: [...DEFAULT_PRESETS, ...customProfiles],
+          }
+        },
       }
     ),
     { name: 'RGA Analyser' }

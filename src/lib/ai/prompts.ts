@@ -1,4 +1,4 @@
-import type { AnalysisResult } from '@/types/rga'
+import type { AnalysisResult, ComparisonResult } from '@/types/rga'
 
 // Simplified AI input structure
 export interface AIInputData {
@@ -113,67 +113,169 @@ function formatValue(value: number): string {
   return value.toFixed(2)
 }
 
-// Build the prompt for Gemini
+// Build the prompt for Gemini (token-optimized)
 export function buildAnalysisPrompt(
   data: AIInputData,
   language: 'de' | 'en'
 ): string {
   const langInstructions = language === 'de'
-    ? 'Antworte auf Deutsch. Verwende wissenschaftliche Fachbegriffe.'
-    : 'Answer in English. Use scientific terminology.'
+    ? 'Antworte auf Deutsch.'
+    : 'Answer in English.'
 
-  const systemContext = `You are an expert in Ultra-High Vacuum (UHV) technology and Residual Gas Analysis (RGA).
-You are analyzing a mass spectrum from a Pfeiffer Vacuum Prisma Plus/Pro quadrupole mass spectrometer.
+  const systemContext = `You are a UHV/RGA expert analyzing a Pfeiffer Vacuum Prisma mass spectrum.
 ${langInstructions}
 
-IMPORTANT FORMATTING RULES:
-- Use Unicode subscript/superscript characters for chemical formulas, NOT LaTeX notation
-- Examples: H₂O (not $H_2O$), CO₂ (not $CO_2$), N₂ (not $N_2$), O₂ (not $O_2$)
-- Use proper Unicode: ₀₁₂₃₄₅₆₇₈₉ for subscripts, ⁺⁻ for charges
-- Never use dollar signs ($) or backslashes (\\) for formatting
-- Use **bold** and bullet points for structure
+Use Unicode for formulas (H₂O, CO₂, N₂). Use **bold** and bullets for structure.
 
-Your analysis should include:
-1. **Overall Assessment**: Brief summary of spectrum quality
-2. **Gas Composition Analysis**: Interpretation of detected gases and their sources
-3. **Contamination Sources**: Identify potential contamination sources based on peak patterns
-4. **Quality Issues**: Explain any failed quality checks or limit violations
-5. **Recommendations**: Specific suggestions for improving vacuum quality
+Analyze: 1) Overall assessment 2) Gas composition 3) Contamination sources 4) Quality issues 5) Recommendations
 
-Important context:
-- H₂ (Mass 2) is normalized to 100% - all other values are relative
-- GSI/CERN limits are for particle accelerator vacuum systems
-- Good UHV should be dominated by H₂ with minimal H₂O and hydrocarbons
-- Air leaks show characteristic N₂/O₂ ratio around 4:1
-- Hydrocarbon contamination indicates pump oil backstreaming or outgassing`
+Context: H₂ (mass 2) = 100% baseline. GSI/CERN are accelerator limits. Good UHV = H₂ dominant, minimal H₂O/hydrocarbons. Air leak = N₂/O₂ ratio ~4:1.`
+
+  // CSV format for peaks (most token-efficient)
+  const peaksCSV = `mass,gas,intensity,gsi_ok,cern_ok
+${data.peaks.map(p => `${p.mass},${p.gas},${p.intensity},${p.gsiOk ? 1 : 0},${p.cernOk ? 1 : 0}`).join('\n')}`
+
+  // CSV format for quality checks
+  const qualityCSV = `check,passed,value,threshold
+${data.qualityChecks.map(q => `${q.name},${q.passed ? 1 : 0},${q.value},${q.threshold}`).join('\n')}`
 
   const dataSection = `
-## RGA Spectrum Data
+DATA:
+file:${data.metadata.fileName}|date:${data.metadata.date}|pressure:${data.metadata.pressure}|chamber:${data.metadata.chamber}|range:${data.metadata.massRange}
+GSI:${data.overallStatus.gsi.toUpperCase()}|CERN:${data.overallStatus.cern.toUpperCase()}
 
-### Metadata
-- File: ${data.metadata.fileName}
-- Date: ${data.metadata.date}
-- Pressure: ${data.metadata.pressure}
-- Chamber: ${data.metadata.chamber}
-- Mass Range: ${data.metadata.massRange}
+PEAKS (top 15):
+${peaksCSV}
 
-### Overall Status
-- GSI Standard: ${data.overallStatus.gsi === 'passed' ? '✅ PASSED' : '❌ FAILED'}
-- CERN Standard: ${data.overallStatus.cern === 'passed' ? '✅ PASSED' : '❌ FAILED'}
+QUALITY:
+${qualityCSV}
 
-### Detected Peaks (Top 15 by intensity)
-${data.peaks.map(p =>
-    `- Mass ${p.mass} (${p.gas}): ${p.intensity} [GSI: ${p.gsiOk ? '✅' : '❌'}, CERN: ${p.cernOk ? '✅' : '❌'}]`
-  ).join('\n')}
+EXCEEDANCES:
+${data.violations.length > 0 ? data.violations.join('\n') : 'none'}`
 
-### Quality Checks
-${data.qualityChecks.map(q =>
-    `- ${q.name}: ${q.passed ? '✅' : '❌'} (Value: ${q.value}, Threshold: ${q.threshold})`
-  ).join('\n')}
+  return `${systemContext}\n${dataSection}\n\nAnalysis:`
+}
 
-### Violations
-${data.violations.length > 0 ? data.violations.map(v => `- ⚠️ ${v}`).join('\n') : '- None'}
-`
+// Comparison AI input structure
+export interface AIComparisonData {
+  before: AIInputData
+  after: AIInputData
+  comparison: {
+    overallImprovement: number
+    improvedPeaks: number
+    worsenedPeaks: number
+    totalPeaksCompared: number
+    resolvedViolations: number
+    newViolations: number
+    overallGrade: string
+  }
+  peakChanges: Array<{
+    mass: number
+    gas: string
+    beforeValue: string
+    afterValue: string
+    changePercent: number
+    improved: boolean
+  }>
+}
 
-  return `${systemContext}\n\n${dataSection}\n\nPlease provide your analysis:`
+// Convert comparison result to AI input format
+export function formatComparisonForAI(
+  beforeResult: AnalysisResult,
+  afterResult: AnalysisResult,
+  comparisonResult: ComparisonResult
+): AIComparisonData {
+  const before = formatAnalysisForAI(beforeResult)
+  const after = formatAnalysisForAI(afterResult)
+
+  // Get significant peak changes (> 5% change)
+  const peakChanges = comparisonResult.peakComparisons
+    .filter(p => Math.abs(p.percentageChange) > 5)
+    .sort((a, b) => Math.abs(b.percentageChange) - Math.abs(a.percentageChange))
+    .slice(0, 15)
+    .map(p => ({
+      mass: p.mass,
+      gas: p.gasIdentification,
+      beforeValue: `${(p.beforeValue * 100).toFixed(2)}%`,
+      afterValue: `${(p.afterValue * 100).toFixed(2)}%`,
+      changePercent: p.percentageChange,
+      improved: p.percentageChange < 0 // Negative change = improvement (less contamination)
+    }))
+
+  return {
+    before,
+    after,
+    comparison: {
+      overallImprovement: comparisonResult.overallImprovement,
+      improvedPeaks: comparisonResult.summary.improvedPeaks,
+      worsenedPeaks: comparisonResult.summary.worsenedPeaks,
+      totalPeaksCompared: comparisonResult.summary.totalPeaksCompared,
+      resolvedViolations: comparisonResult.summary.resolvedViolations,
+      newViolations: comparisonResult.summary.newViolations,
+      overallGrade: comparisonResult.summary.overallGrade
+    },
+    peakChanges
+  }
+}
+
+// Build the comparison prompt for Gemini (token-optimized)
+export function buildComparisonPrompt(
+  data: AIComparisonData,
+  language: 'de' | 'en'
+): string {
+  const langInstructions = language === 'de'
+    ? 'Antworte auf Deutsch.'
+    : 'Answer in English.'
+
+  const systemContext = `You are a UHV/RGA expert comparing BEFORE/AFTER spectra from a bakeout or cleaning.
+${langInstructions}
+
+Use Unicode for formulas (H₂O, CO₂, N₂). Use **bold** and bullets for structure.
+
+Analyze: 1) Overall assessment 2) Key changes 3) Bakeout effectiveness 4) Remaining issues 5) Recommendations
+
+Context: H₂ (mass 2) = 100% baseline. Negative change = improvement (less contamination). Successful bakeout reduces H₂O, CO₂, hydrocarbons.`
+
+  // CSV format for peak changes
+  const changesCSV = data.peakChanges.length > 0
+    ? `mass,gas,before,after,change%,improved
+${data.peakChanges.map(p => `${p.mass},${p.gas},${p.beforeValue},${p.afterValue},${p.changePercent.toFixed(1)},${p.improved ? 1 : 0}`).join('\n')}`
+    : 'no significant changes'
+
+  // CSV for before peaks (top 10)
+  const beforePeaksCSV = `mass,gas,intensity
+${data.before.peaks.slice(0, 10).map(p => `${p.mass},${p.gas},${p.intensity}`).join('\n')}`
+
+  // CSV for after peaks (top 10)
+  const afterPeaksCSV = `mass,gas,intensity
+${data.after.peaks.slice(0, 10).map(p => `${p.mass},${p.gas},${p.intensity}`).join('\n')}`
+
+  const dataSection = `
+BEFORE:
+file:${data.before.metadata.fileName}|date:${data.before.metadata.date}|pressure:${data.before.metadata.pressure}
+GSI:${data.before.overallStatus.gsi.toUpperCase()}|CERN:${data.before.overallStatus.cern.toUpperCase()}
+
+AFTER:
+file:${data.after.metadata.fileName}|date:${data.after.metadata.date}|pressure:${data.after.metadata.pressure}
+GSI:${data.after.overallStatus.gsi.toUpperCase()}|CERN:${data.after.overallStatus.cern.toUpperCase()}
+
+SUMMARY:
+improvement:${data.comparison.overallImprovement.toFixed(1)}%|grade:${data.comparison.overallGrade}|improved_peaks:${data.comparison.improvedPeaks}/${data.comparison.totalPeaksCompared}|worsened_peaks:${data.comparison.worsenedPeaks}/${data.comparison.totalPeaksCompared}|resolved:${data.comparison.resolvedViolations}|new:${data.comparison.newViolations}
+
+CHANGES (|delta|>5%):
+${changesCSV}
+
+BEFORE_PEAKS (top 10):
+${beforePeaksCSV}
+
+AFTER_PEAKS (top 10):
+${afterPeaksCSV}
+
+BEFORE_EXCEEDANCES:
+${data.before.violations.length > 0 ? data.before.violations.join('\n') : 'none'}
+
+AFTER_EXCEEDANCES:
+${data.after.violations.length > 0 ? data.after.violations.join('\n') : 'none'}`
+
+  return `${systemContext}\n${dataSection}\n\nAnalysis:`
 }

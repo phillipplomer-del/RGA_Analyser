@@ -182,10 +182,10 @@ export function parseScientificNotation(str: string | undefined): number {
 export function parseGermanDate(str: string | undefined): Date | null {
   if (!str) return null
 
-  // Format: "12.16.2025 12:58:16.824" (Monat.Tag.Jahr)
+  // German format: "16.12.2025 12:58:16.824" (Tag.Monat.Jahr)
   const match = str.match(/(\d+)\.(\d+)\.(\d+)\s+(\d+):(\d+):(\d+)/)
   if (match) {
-    const [, month, day, year, hour, min, sec] = match
+    const [, day, month, year, hour, min, sec] = match
     return new Date(+year, +month - 1, +day, +hour, +min, +sec)
   }
 

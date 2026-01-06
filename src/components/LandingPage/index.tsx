@@ -4,7 +4,6 @@ import { useDropzone } from 'react-dropzone'
 import { useAppStore } from '@/store/useAppStore'
 import { parseASCFile } from '@/lib/parser'
 import { analyzeSpectrum } from '@/lib/analysis'
-import { compareSpectra } from '@/lib/comparison'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import type { MeasurementFile } from '@/types/rga'
@@ -86,15 +85,7 @@ const PEAKS: Peak[] = [
 
 export function LandingPage() {
   const { t } = useTranslation()
-  const {
-    setRawData,
-    setAnalysisResult,
-    theme,
-    setComparisonMode,
-    setBeforeFile,
-    setAfterFile,
-    setComparisonResult,
-  } = useAppStore()
+  const { theme, addFile } = useAppStore()
   const isDark = theme === 'dark'
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -109,11 +100,11 @@ export function LandingPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // File handling - supports 1-2 files
+  // File handling - supports 1-3 files
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return
-    if (acceptedFiles.length > 2) {
-      setError(t('upload.maxTwoFiles', 'Maximal 2 Dateien erlaubt'))
+    if (acceptedFiles.length > 3) {
+      setError(t('upload.maxThreeFiles', 'Maximal 3 Dateien erlaubt'))
       return
     }
 
@@ -121,53 +112,22 @@ export function LandingPage() {
     setError(null)
 
     try {
-      if (acceptedFiles.length === 1) {
-        // Single file mode
-        const content = await acceptedFiles[0].text()
+      // Parse and add each file
+      for (const file of acceptedFiles) {
+        const content = await file.text()
         const rawData = parseASCFile(content)
-        setRawData(rawData)
-        const result = analyzeSpectrum(rawData)
-        setAnalysisResult(result)
-        setComparisonMode(false)
-      } else {
-        // Comparison mode - 2 files
-        const [file1, file2] = acceptedFiles
+        const analysisResult = analyzeSpectrum(rawData)
 
-        // Parse both files
-        const content1 = await file1.text()
-        const content2 = await file2.text()
-        const rawData1 = parseASCFile(content1)
-        const rawData2 = parseASCFile(content2)
-        const result1 = analyzeSpectrum(rawData1)
-        const result2 = analyzeSpectrum(rawData2)
-
-        // Create MeasurementFile objects
-        const beforeFile: MeasurementFile = {
+        const measurementFile: MeasurementFile = {
           id: crypto.randomUUID(),
-          slot: 'before',
-          filename: file1.name,
-          rawData: rawData1,
-          analysisResult: result1,
+          order: 0, // Will be set by store based on date
+          filename: file.name,
+          rawData,
+          analysisResult,
           uploadedAt: new Date(),
         }
 
-        const afterFile: MeasurementFile = {
-          id: crypto.randomUUID(),
-          slot: 'after',
-          filename: file2.name,
-          rawData: rawData2,
-          analysisResult: result2,
-          uploadedAt: new Date(),
-        }
-
-        // Set comparison mode and files
-        setComparisonMode(true)
-        setBeforeFile(beforeFile)
-        setAfterFile(afterFile)
-
-        // Run comparison
-        const comparisonResult = compareSpectra(beforeFile, afterFile)
-        setComparisonResult(comparisonResult)
+        addFile(measurementFile)
       }
     } catch (err) {
       if (err instanceof Error && 'code' in err) {
@@ -181,13 +141,13 @@ export function LandingPage() {
     } finally {
       setIsProcessing(false)
     }
-  }, [setRawData, setAnalysisResult, setComparisonMode, setBeforeFile, setAfterFile, setComparisonResult, t])
+  }, [addFile, t])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'text/plain': ['.asc'] },
     multiple: true,
-    maxFiles: 2,
+    maxFiles: 3,
   })
 
   // Helper Math
@@ -498,7 +458,7 @@ export function LandingPage() {
               </p>
               <p className={`text-[10px] mt-1 transition-colors duration-300
                 ${isDark ? 'text-[#9EE000]' : 'text-[#0097E0]'}`}>
-                {t('upload.multiFile', '1 Datei = Analyse | 2 Dateien = Vergleich')}
+                {t('upload.multiFile', '1-3 Dateien (Vergleich ab 2)')}
               </p>
 
               {error && (

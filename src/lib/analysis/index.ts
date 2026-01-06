@@ -3,7 +3,7 @@ import { checkLimits } from '@/lib/limits'
 import { performQualityChecks } from '@/lib/quality'
 
 // Known masses and their gas identifications
-const KNOWN_MASSES: { mass: number; gas: string; fragments?: string[] }[] = [
+export const KNOWN_MASSES: { mass: number; gas: string; fragments?: string[] }[] = [
   { mass: 1, gas: 'H⁺', fragments: ['H₂'] },
   { mass: 2, gas: 'H₂', fragments: [] },
   { mass: 4, gas: 'He', fragments: [] },

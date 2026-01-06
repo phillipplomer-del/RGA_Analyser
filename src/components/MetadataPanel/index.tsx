@@ -4,9 +4,10 @@ import { Card, CardHeader } from '@/components/ui/Card'
 
 interface MetadataPanelProps {
   metadata: RGAMetadata
+  title?: string
 }
 
-export function MetadataPanel({ metadata }: MetadataPanelProps) {
+export function MetadataPanel({ metadata, title }: MetadataPanelProps) {
   const { t, i18n } = useTranslation()
 
   const formatDate = (date: Date | null) => {
@@ -43,7 +44,7 @@ export function MetadataPanel({ metadata }: MetadataPanelProps) {
 
   return (
     <Card>
-      <CardHeader title={t('metadata.title')} />
+      <CardHeader title={title || t('metadata.title')} />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {items.map((item) => (
           <div key={item.label} className="space-y-1">

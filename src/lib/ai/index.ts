@@ -1,2 +1,7 @@
 export { callGemini, getGeminiApiKey, isGeminiAvailable } from './client'
-export { formatAnalysisForAI, buildAnalysisPrompt } from './prompts'
+export {
+  formatAnalysisForAI,
+  buildAnalysisPrompt,
+  formatComparisonForAI,
+  buildComparisonPrompt
+} from './prompts'

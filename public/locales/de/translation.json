@@ -3,6 +3,40 @@
     "title": "Spectrum",
     "subtitle": "Restgasanalyse"
   },
+  "sidebar": {
+    "limits": "Limits",
+    "ai": "KI",
+    "export": "Export",
+    "limitsTitle": "Grenzwert-Profile",
+    "aiTitle": "KI-Analyse",
+    "exportTitle": "Export"
+  },
+  "limits": {
+    "profiles": "Profile",
+    "new": "Neu",
+    "newProfile": "Neues Profil",
+    "preset": "Vorgabe",
+    "passed": "Bestanden",
+    "failed": "{{count}} Überschreitungen",
+    "duplicate": "Duplizieren",
+    "edit": "Bearbeiten",
+    "editProfile": "Profil bearbeiten",
+    "name": "Name",
+    "color": "Farbe",
+    "ranges": "Massenbereiche",
+    "from": "Von",
+    "to": "Bis",
+    "limit": "Limit",
+    "addRange": "Bereich hinzufügen",
+    "copy": "Kopie",
+    "extractFromSpec": "Aus Spezifikationstext extrahieren...",
+    "extractTitle": "Aus Spezifikation extrahieren",
+    "specPlaceholder": "Spezifikationstext hier einfügen...",
+    "showPrompt": "KI-Prompt anzeigen",
+    "hidePrompt": "Prompt ausblenden",
+    "pasteInstructions": "2. Füge dies in ChatGPT/Gemini ein, dann die JSON-Antwort unten:",
+    "processResponse": "Antwort verarbeiten"
+  },
   "upload": {
     "dropzone": "Datei hierher ziehen oder klicken",
     "formats": "Unterstützte Formate: .asc",
@@ -50,7 +84,7 @@
     "failed": "Nicht bestanden",
     "gsiStatus": "GSI Status",
     "cernStatus": "CERN Status",
-    "violations": "Verletzungen"
+    "violations": "Überschreitungen"
   },
   "export": {
     "title": "Export",
@@ -82,6 +116,8 @@
     "close": "Schließen",
     "save": "Speichern",
     "cancel": "Abbrechen",
-    "reset": "Zurücksetzen"
+    "reset": "Zurücksetzen",
+    "delete": "Löschen",
+    "copy": "Kopieren"
   }
 }

@@ -3,20 +3,30 @@ import { useTranslation } from 'react-i18next'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useAppStore } from '@/store/useAppStore'
-import type { AnalysisResult } from '@/types/rga'
+import type { AnalysisResult, ComparisonResult } from '@/types/rga'
 import {
   callGemini,
   getGeminiApiKey,
   isGeminiAvailable,
   formatAnalysisForAI,
-  buildAnalysisPrompt
+  buildAnalysisPrompt,
+  formatComparisonForAI,
+  buildComparisonPrompt
 } from '@/lib/ai'
 
 interface AIPanelProps {
   analysis: AnalysisResult
+  // Optional comparison data for comparison mode
+  comparisonData?: {
+    beforeAnalysis: AnalysisResult
+    afterAnalysis: AnalysisResult
+    comparisonResult: ComparisonResult
+  }
+  // Compact mode for sidebar (no Card wrapper)
+  compact?: boolean
 }
 
-export function AIPanel({ analysis }: AIPanelProps) {
+export function AIPanel({ analysis, comparisonData, compact = false }: AIPanelProps) {
   const { t, i18n } = useTranslation()
   const { aiInterpretation: interpretation, setAiInterpretation: setInterpretation } = useAppStore()
   const [isLoading, setIsLoading] = useState(false)
@@ -27,12 +37,22 @@ export function AIPanel({ analysis }: AIPanelProps) {
   const [showPrompt, setShowPrompt] = useState(false)
   const [manualResponse, setManualResponse] = useState('')
 
-  // Generate prompt for display
+  const isComparisonMode = !!comparisonData
+
+  // Generate prompt for display (single or comparison mode)
   const generatedPrompt = useMemo(() => {
     const language = i18n.language === 'de' ? 'de' : 'en'
+    if (comparisonData) {
+      const formattedData = formatComparisonForAI(
+        comparisonData.beforeAnalysis,
+        comparisonData.afterAnalysis,
+        comparisonData.comparisonResult
+      )
+      return buildComparisonPrompt(formattedData, language)
+    }
     const formattedData = formatAnalysisForAI(analysis)
     return buildAnalysisPrompt(formattedData, language)
-  }, [analysis, i18n.language])
+  }, [analysis, comparisonData, i18n.language])
 
   const handleAnalyze = useCallback(async () => {
     const key = apiKey || getGeminiApiKey()
@@ -47,9 +67,20 @@ export function AIPanel({ analysis }: AIPanelProps) {
     setInterpretation(null)
 
     try {
-      const formattedData = formatAnalysisForAI(analysis)
       const language = i18n.language === 'de' ? 'de' : 'en'
-      const prompt = buildAnalysisPrompt(formattedData, language)
+      let prompt: string
+
+      if (comparisonData) {
+        const formattedData = formatComparisonForAI(
+          comparisonData.beforeAnalysis,
+          comparisonData.afterAnalysis,
+          comparisonData.comparisonResult
+        )
+        prompt = buildComparisonPrompt(formattedData, language)
+      } else {
+        const formattedData = formatAnalysisForAI(analysis)
+        prompt = buildAnalysisPrompt(formattedData, language)
+      }
 
       const response = await callGemini(prompt, key)
       setInterpretation(response)
@@ -58,7 +89,7 @@ export function AIPanel({ analysis }: AIPanelProps) {
     } finally {
       setIsLoading(false)
     }
-  }, [analysis, apiKey, i18n.language, t])
+  }, [analysis, comparisonData, apiKey, i18n.language, t, setInterpretation])
 
   const handleApiKeySubmit = () => {
     if (apiKey.trim()) {
@@ -85,33 +116,29 @@ export function AIPanel({ analysis }: AIPanelProps) {
     setManualResponse('')
   }
 
-  return (
-    <Card>
-      <CardHeader
-        title={t('ai.title')}
-        action={
-          !interpretation && !isLoading && !showManualMode && (
-            <div className="flex gap-2">
-              <Button
-                onClick={() => setShowManualMode(true)}
-                variant="secondary"
-                size="sm"
-              >
-                {t('ai.manual')}
-              </Button>
-              <Button
-                onClick={handleAnalyze}
-                disabled={isLoading}
-                size="sm"
-              >
-                {t('ai.analyze')}
-              </Button>
-            </div>
-          )
-        }
-      />
-
-      <div className="space-y-4">
+  const content = (
+    <div className="space-y-4">
+      {/* Header for compact mode */}
+      {compact && !interpretation && !isLoading && !showManualMode && (
+        <div className="flex gap-2 mb-4">
+          <Button
+            onClick={() => setShowManualMode(true)}
+            variant="secondary"
+            size="sm"
+            className="flex-1"
+          >
+            {t('ai.manual')}
+          </Button>
+          <Button
+            onClick={handleAnalyze}
+            disabled={isLoading}
+            size="sm"
+            className="flex-1"
+          >
+            {t('ai.analyze')}
+          </Button>
+        </div>
+      )}
         {/* Manual Mode */}
         {showManualMode && !interpretation && (
           <div className="space-y-4">
@@ -337,6 +364,38 @@ export function AIPanel({ analysis }: AIPanelProps) {
           </div>
         )}
       </div>
+  )
+
+  if (compact) {
+    return content
+  }
+
+  return (
+    <Card>
+      <CardHeader
+        title={isComparisonMode ? t('ai.comparisonTitle', 'KI-Vergleichsanalyse') : t('ai.title')}
+        action={
+          !interpretation && !isLoading && !showManualMode && (
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowManualMode(true)}
+                variant="secondary"
+                size="sm"
+              >
+                {t('ai.manual')}
+              </Button>
+              <Button
+                onClick={handleAnalyze}
+                disabled={isLoading}
+                size="sm"
+              >
+                {t('ai.analyze')}
+              </Button>
+            </div>
+          )
+        }
+      />
+      {content}
     </Card>
   )
 }

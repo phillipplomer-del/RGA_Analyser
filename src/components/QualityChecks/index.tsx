@@ -5,9 +5,10 @@ import { cn } from '@/lib/utils/cn'
 
 interface QualityChecksProps {
   checks: QualityCheck[]
+  title?: string
 }
 
-export function QualityChecks({ checks }: QualityChecksProps) {
+export function QualityChecks({ checks, title }: QualityChecksProps) {
   const { t } = useTranslation()
 
   const passedCount = checks.filter((c) => c.passed).length
@@ -16,7 +17,7 @@ export function QualityChecks({ checks }: QualityChecksProps) {
   return (
     <Card>
       <CardHeader
-        title={t('quality.title')}
+        title={title || t('quality.title')}
         action={
           <span
             className={cn(

@@ -66,14 +66,12 @@ export interface AnalysisResult {
 export type SpecificationType = 'GSI' | 'CERN'
 
 // ============================================
-// Comparison Mode Types
+// Multi-File Types
 // ============================================
-
-export type FileSlot = 'before' | 'after'
 
 export interface MeasurementFile {
   id: string
-  slot: FileSlot
+  order: number  // 0, 1, 2 - chronological order by measurement date
   filename: string
   rawData: RawData
   analysisResult: AnalysisResult
@@ -115,4 +113,50 @@ export interface ComparisonResult {
   limitImprovements: LimitImprovement[]
   overallImprovement: number  // Percentage
   summary: ComparisonSummary
+}
+
+// ============================================
+// Custom Limit Profiles
+// ============================================
+
+export interface LimitRange {
+  massMin: number
+  massMax: number
+  limit: number
+  notes?: string
+}
+
+export interface LimitProfile {
+  id: string
+  name: string
+  description?: string
+  color: string              // Hex color for chart
+  isPreset: boolean          // true for GSI/CERN
+  ranges: LimitRange[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ProfileLimitCheck {
+  mass: number
+  measuredValue: number
+  limit: number
+  passed: boolean
+  profileId: string
+}
+
+// KI Extraction Result
+export interface LimitExtractionResult {
+  success: boolean
+  profile?: {
+    name: string
+    description?: string
+    color: string
+    ranges: LimitRange[]
+  }
+  confidence?: number
+  warnings?: string[]
+  interpretation?: string
+  error?: string
+  suggestions?: string[]
 }

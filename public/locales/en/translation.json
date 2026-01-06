@@ -3,6 +3,40 @@
     "title": "Spectrum",
     "subtitle": "Residual Gas Analysis"
   },
+  "sidebar": {
+    "limits": "Limits",
+    "ai": "AI",
+    "export": "Export",
+    "limitsTitle": "Limit Profiles",
+    "aiTitle": "AI Analysis",
+    "exportTitle": "Export"
+  },
+  "limits": {
+    "profiles": "Profiles",
+    "new": "New",
+    "newProfile": "New Profile",
+    "preset": "Preset",
+    "passed": "Passed",
+    "failed": "{{count}} violations",
+    "duplicate": "Duplicate",
+    "edit": "Edit",
+    "editProfile": "Edit Profile",
+    "name": "Name",
+    "color": "Color",
+    "ranges": "Mass Ranges",
+    "from": "From",
+    "to": "To",
+    "limit": "Limit",
+    "addRange": "Add Range",
+    "copy": "Copy",
+    "extractFromSpec": "Extract from specification text...",
+    "extractTitle": "Extract from Specification",
+    "specPlaceholder": "Paste specification text here...",
+    "showPrompt": "Show AI Prompt",
+    "hidePrompt": "Hide Prompt",
+    "pasteInstructions": "2. Paste this in ChatGPT/Gemini, then paste the JSON response below:",
+    "processResponse": "Process Response"
+  },
   "upload": {
     "dropzone": "Drop file here or click to browse",
     "formats": "Supported formats: .asc",
@@ -50,7 +84,7 @@
     "failed": "Failed",
     "gsiStatus": "GSI Status",
     "cernStatus": "CERN Status",
-    "violations": "Violations"
+    "violations": "Limit Exceedances"
   },
   "export": {
     "title": "Export",
@@ -82,6 +116,8 @@
     "close": "Close",
     "save": "Save",
     "cancel": "Cancel",
-    "reset": "Reset"
+    "reset": "Reset",
+    "delete": "Delete",
+    "copy": "Copy"
   }
 }
