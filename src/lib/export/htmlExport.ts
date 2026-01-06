@@ -49,6 +49,22 @@ const labels = {
     logScale: 'Log-Skala',
     aiInterpretation: 'KI-Interpretation',
     generatedBy: 'Erstellt mit Spectrum RGA Analyser',
+    // Diagnosis labels
+    diagnosis: 'Automatische Diagnose',
+    confidence: 'Konfidenz',
+    recommendation: 'Empfehlung',
+    affectedMasses: 'Betroffene Massen',
+    critical: 'Kritisch',
+    warning: 'Warnung',
+    info: 'Info',
+    clean: 'Sauber',
+    systemStates: {
+      unbaked: 'Nicht ausgeheizt',
+      baked: 'Ausgeheizt',
+      contaminated: 'Kontaminiert',
+      air_leak: 'Luftleck',
+      unknown: 'Unbekannt',
+    },
   },
   en: {
     title: 'RGA Spectrum Analysis',
@@ -76,6 +92,22 @@ const labels = {
     logScale: 'Log Scale',
     aiInterpretation: 'AI Interpretation',
     generatedBy: 'Generated with Spectrum RGA Analyser',
+    // Diagnosis labels
+    diagnosis: 'Automatic Diagnosis',
+    confidence: 'Confidence',
+    recommendation: 'Recommendation',
+    affectedMasses: 'Affected Masses',
+    critical: 'Critical',
+    warning: 'Warning',
+    info: 'Info',
+    clean: 'Clean',
+    systemStates: {
+      unbaked: 'Unbaked',
+      baked: 'Baked',
+      contaminated: 'Contaminated',
+      air_leak: 'Air Leak',
+      unknown: 'Unknown',
+    },
   },
 }
 
@@ -411,6 +443,139 @@ export function generateAnimatedHTML(
     .axis text { fill: var(--text-muted); font-size: 11px; }
     .grid-line { stroke: #f0f0f5; stroke-dasharray: 2,2; }
 
+    /* Diagnosis Styles */
+    .diagnosis-section {
+      margin-top: 24px;
+    }
+
+    .diagnosis-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .diagnosis-status {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .diagnosis-status.clean { background: rgba(34, 197, 94, 0.15); color: #16a34a; }
+    .diagnosis-status.warning { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+    .diagnosis-status.critical { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+
+    .diagnosis-system-state {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .diagnosis-counts {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .diagnosis-count {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .diagnosis-count .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .diagnosis-count .dot.critical { background: #ef4444; }
+    .diagnosis-count .dot.warning { background: #f59e0b; }
+    .diagnosis-count .dot.info { background: #22c55e; }
+
+    .diagnosis-item {
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      border-left: 4px solid;
+      transition: transform 0.2s;
+    }
+
+    .diagnosis-item:hover { transform: translateX(4px); }
+
+    .diagnosis-item.critical {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: #ef4444;
+    }
+
+    .diagnosis-item.warning {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: #f59e0b;
+    }
+
+    .diagnosis-item.info {
+      background: rgba(34, 197, 94, 0.08);
+      border-color: #22c55e;
+    }
+
+    .diagnosis-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .diagnosis-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .diagnosis-icon {
+      font-size: 18px;
+    }
+
+    .diagnosis-confidence {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--surface);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .diagnosis-description {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .diagnosis-recommendation {
+      font-size: 13px;
+      color: var(--text);
+      font-style: italic;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.03);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .diagnosis-masses {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .diagnosis-masses span {
+      font-family: 'Monaco', 'Menlo', monospace;
+      background: var(--surface);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 4px;
+    }
+
     /* AI Interpretation Styles */
     .ai-interpretation {
       margin-top: 24px;
@@ -533,6 +698,55 @@ export function generateAnimatedHTML(
         </div>
       </div>
     </div>
+
+    ${analysis.diagnostics && analysis.diagnostics.length > 0 && analysis.diagnosisSummary ? `
+    <div class="card diagnosis-section">
+      <h3 class="card-title">${l.diagnosis}</h3>
+      <div class="diagnosis-header">
+        <span class="diagnosis-status ${analysis.diagnosisSummary.overallStatus}">
+          ${analysis.diagnosisSummary.overallStatus === 'clean' ? l.clean :
+            analysis.diagnosisSummary.overallStatus === 'warning' ? l.warning : l.critical}
+        </span>
+        <span class="diagnosis-system-state">
+          ${l.systemStates[analysis.diagnosisSummary.systemState]}
+        </span>
+      </div>
+      ${(analysis.diagnosisSummary.criticalCount > 0 || analysis.diagnosisSummary.warningCount > 0) ? `
+      <div class="diagnosis-counts">
+        ${analysis.diagnosisSummary.criticalCount > 0 ? `
+        <div class="diagnosis-count">
+          <div class="dot critical"></div>
+          <span>${analysis.diagnosisSummary.criticalCount} ${l.critical.toLowerCase()}</span>
+        </div>` : ''}
+        ${analysis.diagnosisSummary.warningCount > 0 ? `
+        <div class="diagnosis-count">
+          <div class="dot warning"></div>
+          <span>${analysis.diagnosisSummary.warningCount} ${l.warning.toLowerCase()}</span>
+        </div>` : ''}
+        ${analysis.diagnosisSummary.infoCount > 0 ? `
+        <div class="diagnosis-count">
+          <div class="dot info"></div>
+          <span>${analysis.diagnosisSummary.infoCount} ${l.info.toLowerCase()}</span>
+        </div>` : ''}
+      </div>` : ''}
+      ${analysis.diagnostics.map(diag => `
+      <div class="diagnosis-item ${diag.severity}">
+        <div class="diagnosis-item-header">
+          <span class="diagnosis-name">
+            <span class="diagnosis-icon">${diag.icon}</span>
+            ${language === 'de' ? diag.name : diag.nameEn}
+          </span>
+          <span class="diagnosis-confidence">${(diag.confidence * 100).toFixed(0)}% ${l.confidence}</span>
+        </div>
+        <p class="diagnosis-description">${language === 'de' ? diag.description : diag.descriptionEn}</p>
+        <p class="diagnosis-recommendation">→ ${language === 'de' ? diag.recommendation : diag.recommendationEn}</p>
+        ${diag.affectedMasses.length > 0 ? `
+        <p class="diagnosis-masses">m/z: ${diag.affectedMasses.map(m => `<span>${m}</span>`).join('')}</p>
+        ` : ''}
+      </div>
+      `).join('')}
+    </div>
+    ` : ''}
 
     ${aiInterpretation ? `
     <div class="card ai-interpretation">

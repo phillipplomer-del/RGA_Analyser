@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf'
-import type { AnalysisResult, NormalizedData } from '@/types/rga'
+import type { AnalysisResult, NormalizedData, DiagnosticResultSummary, DiagnosisSummary } from '@/types/rga'
 
 export interface PDFOptions {
   includeAiInterpretation: boolean
@@ -32,6 +32,23 @@ const labels = {
     cernLimit: 'CERN Grenzwert',
     spectrum: 'Spektrum',
     generatedBy: 'Erstellt mit Spectrum RGA Analyser',
+    // New diagnosis labels
+    diagnosis: 'Automatische Diagnose',
+    systemState: 'Systemzustand',
+    confidence: 'Konfidenz',
+    recommendation: 'Empfehlung',
+    affectedMasses: 'Betroffene Massen',
+    critical: 'Kritisch',
+    warning: 'Warnung',
+    info: 'Info',
+    clean: 'Sauber',
+    systemStates: {
+      unbaked: 'Nicht ausgeheizt',
+      baked: 'Ausgeheizt',
+      contaminated: 'Kontaminiert',
+      air_leak: 'Luftleck',
+      unknown: 'Unbekannt',
+    },
   },
   en: {
     title: 'RGA Spectrum Analysis',
@@ -57,6 +74,23 @@ const labels = {
     cernLimit: 'CERN Limit',
     spectrum: 'Spectrum',
     generatedBy: 'Generated with Spectrum RGA Analyser',
+    // New diagnosis labels
+    diagnosis: 'Automatic Diagnosis',
+    systemState: 'System State',
+    confidence: 'Confidence',
+    recommendation: 'Recommendation',
+    affectedMasses: 'Affected Masses',
+    critical: 'Critical',
+    warning: 'Warning',
+    info: 'Info',
+    clean: 'Clean',
+    systemStates: {
+      unbaked: 'Unbaked',
+      baked: 'Baked',
+      contaminated: 'Contaminated',
+      air_leak: 'Air Leak',
+      unknown: 'Unknown',
+    },
   },
 }
 
@@ -359,6 +393,133 @@ function drawQualityChecks(
   return y + 5
 }
 
+function drawDiagnostics(
+  pdf: jsPDF,
+  diagnostics: DiagnosticResultSummary[],
+  summary: DiagnosisSummary,
+  l: typeof labels.de,
+  language: 'de' | 'en',
+  startY: number
+): number {
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const margin = 20
+  let y = startY
+
+  // Section title with summary badge
+  pdf.setFontSize(10)
+  pdf.setFont('helvetica', 'bold')
+  pdf.setTextColor(40, 40, 40)
+  pdf.text(l.diagnosis, margin, y)
+
+  // System state and status badge
+  const systemStateText = l.systemStates[summary.systemState]
+  const statusColors = {
+    clean: { bg: [220, 252, 231], text: [22, 163, 74] },
+    warning: { bg: [254, 249, 195], text: [161, 98, 7] },
+    critical: { bg: [254, 226, 226], text: [185, 28, 28] },
+  }
+  const statusColor = statusColors[summary.overallStatus]
+
+  // Draw status badge
+  pdf.setFillColor(statusColor.bg[0], statusColor.bg[1], statusColor.bg[2])
+  pdf.roundedRect(margin + 38, y - 3.5, 22, 5, 1, 1, 'F')
+  pdf.setFontSize(7)
+  pdf.setTextColor(statusColor.text[0], statusColor.text[1], statusColor.text[2])
+  const statusText = summary.overallStatus === 'clean' ? l.clean :
+                     summary.overallStatus === 'warning' ? l.warning : l.critical
+  pdf.text(statusText, margin + 49, y, { align: 'center' })
+
+  // System state
+  pdf.setTextColor(100, 100, 100)
+  pdf.setFont('helvetica', 'normal')
+  pdf.text(`(${systemStateText})`, margin + 63, y)
+
+  y += 6
+
+  // Summary counts if there are issues
+  if (summary.criticalCount > 0 || summary.warningCount > 0) {
+    pdf.setFontSize(7)
+    pdf.setTextColor(80, 80, 80)
+    const counts = []
+    if (summary.criticalCount > 0) counts.push(`${summary.criticalCount} ${l.critical.toLowerCase()}`)
+    if (summary.warningCount > 0) counts.push(`${summary.warningCount} ${l.warning.toLowerCase()}`)
+    if (summary.infoCount > 0) counts.push(`${summary.infoCount} ${l.info.toLowerCase()}`)
+    pdf.text(counts.join(' | '), margin, y)
+    y += 4
+  }
+
+  // Diagnostic items
+  pdf.setFontSize(7)
+
+  const sortedDiagnostics = [...diagnostics].sort((a, b) => {
+    const severityOrder = { critical: 0, warning: 1, info: 2 }
+    return severityOrder[a.severity] - severityOrder[b.severity]
+  })
+
+  for (const diag of sortedDiagnostics) {
+    // Check for page break
+    if (y > 270) {
+      pdf.addPage()
+      y = 20
+    }
+
+    const name = language === 'de' ? diag.name : diag.nameEn
+    const description = language === 'de' ? diag.description : diag.descriptionEn
+    const recommendation = language === 'de' ? diag.recommendation : diag.recommendationEn
+
+    // Severity indicator
+    const severityColors = {
+      critical: [239, 68, 68],
+      warning: [245, 158, 11],
+      info: [34, 197, 94],
+    }
+    const sevColor = severityColors[diag.severity]
+
+    // Background
+    pdf.setFillColor(250, 250, 252)
+    pdf.rect(margin, y - 2, pageWidth - 2 * margin, 16, 'F')
+
+    // Severity dot
+    pdf.setFillColor(sevColor[0], sevColor[1], sevColor[2])
+    pdf.circle(margin + 4, y + 1, 1.5, 'F')
+
+    // Name and confidence
+    pdf.setFont('helvetica', 'bold')
+    pdf.setTextColor(50, 50, 50)
+    pdf.text(name.substring(0, 40), margin + 8, y + 1)
+
+    pdf.setFont('helvetica', 'normal')
+    pdf.setTextColor(100, 100, 100)
+    pdf.text(`${(diag.confidence * 100).toFixed(0)}% ${l.confidence}`, pageWidth - margin - 2, y + 1, { align: 'right' })
+
+    // Description
+    y += 4
+    pdf.setTextColor(80, 80, 80)
+    const descLines = pdf.splitTextToSize(description, pageWidth - 2 * margin - 10)
+    pdf.text(descLines[0], margin + 8, y + 1)
+
+    // Recommendation
+    y += 4
+    pdf.setTextColor(100, 100, 100)
+    pdf.setFont('helvetica', 'italic')
+    const recLines = pdf.splitTextToSize(`→ ${recommendation}`, pageWidth - 2 * margin - 10)
+    pdf.text(recLines[0], margin + 8, y + 1)
+
+    // Affected masses
+    if (diag.affectedMasses.length > 0) {
+      y += 4
+      pdf.setFont('helvetica', 'normal')
+      pdf.setTextColor(120, 120, 120)
+      const massesText = `m/z: ${diag.affectedMasses.join(', ')}`
+      pdf.text(massesText.substring(0, 60), margin + 8, y + 1)
+    }
+
+    y += 6
+  }
+
+  return y + 3
+}
+
 function drawAIInterpretation(
   pdf: jsPDF,
   interpretation: string,
@@ -542,6 +703,15 @@ export async function generatePDF(
   // Draw quality checks (if space)
   if (y < 240) {
     y = drawQualityChecks(pdf, analysis, l, y)
+  }
+
+  // Draw diagnostics (if present and space)
+  if (analysis.diagnostics && analysis.diagnostics.length > 0 && analysis.diagnosisSummary) {
+    if (y > 200) {
+      pdf.addPage()
+      y = 20
+    }
+    y = drawDiagnostics(pdf, analysis.diagnostics, analysis.diagnosisSummary, l, options.language, y)
   }
 
   // AI Interpretation (on new page if present)

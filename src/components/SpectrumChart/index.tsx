@@ -187,25 +187,53 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
         .attr('d', line)
     })
 
-    // Peak annotations (use first visible file)
+    // Peak annotations - detect all significant peaks dynamically
     if (visibleFiles.length > 0) {
       const firstData = visibleFiles[0].analysisResult.normalizedData
-      const significantMasses = xMax === 200
-        ? [2, 14, 16, 17, 18, 28, 32, 40, 44, 69, 77, 91, 105, 119, 131, 149, 167, 181, 195]
-        : [2, 14, 16, 17, 18, 28, 32, 40, 44]
 
-      significantMasses.forEach(mass => {
-        const point = firstData.find(d => Math.abs(d.mass - mass) < 0.1)
-        if (point && point.normalizedToH2 > 0.005) {
-          const yPos = Math.max(yScale(Math.max(point.normalizedToH2, 1e-6)) - 10, 5)
-          g.append('text')
-            .attr('x', xScale(mass))
-            .attr('y', yPos)
-            .attr('text-anchor', 'middle')
-            .style('fill', 'var(--color-text-primary)')
-            .style('font-size', '11px')
-            .style('font-weight', '500')
-            .text(mass.toString())
+      // Find local maxima (peaks) above threshold
+      const threshold = 0.005 // 0.5% minimum
+      const minPeakDistance = 3 // Minimum mass units between labels to avoid overlap
+
+      const peaks: { mass: number; value: number }[] = []
+
+      for (let i = 1; i < firstData.length - 1; i++) {
+        const prev = firstData[i - 1]
+        const curr = firstData[i]
+        const next = firstData[i + 1]
+
+        // Check if current point is a local maximum
+        if (curr.normalizedToH2 > prev.normalizedToH2 &&
+            curr.normalizedToH2 > next.normalizedToH2 &&
+            curr.normalizedToH2 > threshold) {
+          // Round mass to nearest integer for labeling
+          const roundedMass = Math.round(curr.mass)
+          peaks.push({ mass: roundedMass, value: curr.normalizedToH2 })
+        }
+      }
+
+      // Sort by intensity (highest first) and filter to avoid overlapping labels
+      const sortedPeaks = peaks.sort((a, b) => b.value - a.value)
+      const labeledMasses: number[] = []
+
+      sortedPeaks.forEach(peak => {
+        // Check if any already-labeled mass is too close
+        const tooClose = labeledMasses.some(m => Math.abs(m - peak.mass) < minPeakDistance)
+        if (!tooClose) {
+          labeledMasses.push(peak.mass)
+
+          const point = firstData.find(d => Math.abs(d.mass - peak.mass) < 0.5)
+          if (point) {
+            const yPos = Math.max(yScale(Math.max(point.normalizedToH2, 1e-6)) - 10, 5)
+            g.append('text')
+              .attr('x', xScale(peak.mass))
+              .attr('y', yPos)
+              .attr('text-anchor', 'middle')
+              .style('fill', 'var(--color-text-primary)')
+              .style('font-size', '10px')
+              .style('font-weight', '500')
+              .text(peak.mass.toString())
+          }
         }
       })
     }
