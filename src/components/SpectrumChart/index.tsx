@@ -8,9 +8,10 @@ import { Card, CardHeader } from '@/components/ui/Card'
 interface SpectrumChartProps {
   data: NormalizedData[]
   limitChecks: LimitCheck[]
+  comparisonData?: NormalizedData[]  // Optional: second spectrum for overlay
 }
 
-export function SpectrumChart({ data, limitChecks }: SpectrumChartProps) {
+export function SpectrumChart({ data, limitChecks, comparisonData }: SpectrumChartProps) {
   const { t } = useTranslation()
   const { chartOptions, updateChartOptions } = useAppStore()
   const svgRef = useRef<SVGSVGElement>(null)
@@ -135,17 +136,28 @@ export function SpectrumChart({ data, limitChecks }: SpectrumChartProps) {
         .attr('d', cernLine)
     }
 
-    // Spectrum line
+    // Spectrum line generator
     const line = d3.line<NormalizedData>()
       .x(d => xScale(d.mass))
       .y(d => yScale(Math.max(d.normalizedToH2, 1e-6)))
 
+    // Primary spectrum line (blue in comparison mode, default otherwise)
     g.append('path')
       .datum(data)
       .attr('fill', 'none')
-      .attr('stroke', 'var(--color-chart-spectrum)')
+      .attr('stroke', comparisonData ? '#3b82f6' : 'var(--color-chart-spectrum)')
       .attr('stroke-width', 1.5)
       .attr('d', line)
+
+    // Comparison spectrum line (green) - only if comparison data provided
+    if (comparisonData && comparisonData.length > 0) {
+      g.append('path')
+        .datum(comparisonData)
+        .attr('fill', 'none')
+        .attr('stroke', '#10b981')
+        .attr('stroke-width', 1.5)
+        .attr('d', line)
+    }
 
     // Peak annotations - extend for 200 AMU range
     const significantMasses = xMax === 200
@@ -172,11 +184,18 @@ export function SpectrumChart({ data, limitChecks }: SpectrumChartProps) {
     const legend = svg.append('g')
       .attr('transform', `translate(${width - margin.right + 10}, ${margin.top})`)
 
-    const legendItems = [
-      { color: 'var(--color-chart-spectrum)', label: t('chart.title'), dash: '' },
-      { color: 'var(--color-chart-gsi-limit)', label: 'GSI Limit', dash: '5,5' },
-      { color: 'var(--color-chart-cern-limit)', label: 'CERN Limit', dash: '2,2' },
-    ]
+    const legendItems = comparisonData
+      ? [
+          { color: '#3b82f6', label: t('comparison.before', 'Vorher'), dash: '' },
+          { color: '#10b981', label: t('comparison.after', 'Nachher'), dash: '' },
+          { color: 'var(--color-chart-gsi-limit)', label: 'GSI Limit', dash: '5,5' },
+          { color: 'var(--color-chart-cern-limit)', label: 'CERN Limit', dash: '2,2' },
+        ]
+      : [
+          { color: 'var(--color-chart-spectrum)', label: t('chart.title'), dash: '' },
+          { color: 'var(--color-chart-gsi-limit)', label: 'GSI Limit', dash: '5,5' },
+          { color: 'var(--color-chart-cern-limit)', label: 'CERN Limit', dash: '2,2' },
+        ]
 
     legendItems.forEach((item, i) => {
       const y = i * 25
@@ -197,7 +216,7 @@ export function SpectrumChart({ data, limitChecks }: SpectrumChartProps) {
         .text(item.label)
     })
 
-  }, [data, limitChecks, chartOptions, t])
+  }, [data, limitChecks, chartOptions, comparisonData, t])
 
   return (
     <Card>

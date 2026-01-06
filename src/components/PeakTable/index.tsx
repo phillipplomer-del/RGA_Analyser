@@ -5,9 +5,10 @@ import { cn } from '@/lib/utils/cn'
 
 interface PeakTableProps {
   peaks: Peak[]
+  title?: string
 }
 
-export function PeakTable({ peaks }: PeakTableProps) {
+export function PeakTable({ peaks, title }: PeakTableProps) {
   const { t } = useTranslation()
 
   // Show top 15 peaks
@@ -15,7 +16,7 @@ export function PeakTable({ peaks }: PeakTableProps) {
 
   return (
     <Card>
-      <CardHeader title={t('peaks.title')} />
+      <CardHeader title={title || t('peaks.title')} />
 
       <div className="overflow-x-auto">
         <table className="w-full">

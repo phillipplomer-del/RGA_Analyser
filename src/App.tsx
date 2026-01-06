@@ -11,14 +11,31 @@ import { ExportPanel } from '@/components/ExportPanel'
 import { AIPanel } from '@/components/AIPanel'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { ComparisonUpload } from '@/components/ComparisonUpload'
+import { ComparisonPanel } from '@/components/ComparisonPanel'
+import { PeakComparisonTable } from '@/components/PeakComparisonTable'
+import { cn } from '@/lib/utils/cn'
 
 function App() {
   const { t } = useTranslation()
-  const { analysisResult, theme, reset } = useAppStore()
+  const {
+    analysisResult,
+    theme,
+    reset,
+    comparisonMode,
+    setComparisonMode,
+    comparisonResult,
+    beforeFile,
+    afterFile,
+  } = useAppStore()
   const chartRef = useRef<HTMLDivElement>(null)
 
-  // Show Landing Page when no file loaded
-  if (!analysisResult) {
+  // Show Landing Page when no file loaded (single mode) or no files in comparison mode
+  const hasContent = comparisonMode
+    ? (beforeFile || afterFile)
+    : analysisResult
+
+  if (!hasContent) {
     return <LandingPage />
   }
 
@@ -37,6 +54,32 @@ function App() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Mode Toggle */}
+            <div className="flex items-center bg-surface-card-muted rounded-chip p-1">
+              <button
+                onClick={() => setComparisonMode(false)}
+                className={cn(
+                  'px-3 py-1.5 text-caption font-medium rounded-chip transition-colors',
+                  !comparisonMode
+                    ? 'bg-surface-card text-text-primary shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary'
+                )}
+              >
+                {t('mode.single', 'Einzeldatei')}
+              </button>
+              <button
+                onClick={() => setComparisonMode(true)}
+                className={cn(
+                  'px-3 py-1.5 text-caption font-medium rounded-chip transition-colors',
+                  comparisonMode
+                    ? 'bg-surface-card text-text-primary shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary'
+                )}
+              >
+                {t('mode.compare', 'Vergleich')}
+              </button>
+            </div>
+
             <button
               onClick={reset}
               className="px-4 py-2 text-caption font-medium text-text-secondary hover:text-text-primary
@@ -52,31 +95,69 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-6 space-y-5">
-        {/* Upload + Metadata Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <FileUpload />
-          <MetadataPanel metadata={analysisResult.metadata} />
-        </div>
+        {comparisonMode ? (
+          /* === COMPARISON MODE === */
+          <>
+            {/* Comparison Upload */}
+            <ComparisonUpload />
 
-        {/* Spectrum Chart */}
-        <div ref={chartRef}>
-          <SpectrumChart
-            data={analysisResult.normalizedData}
-            limitChecks={analysisResult.limitChecks}
-          />
-        </div>
+            {/* Comparison Chart (when both files loaded) */}
+            {comparisonResult && beforeFile && afterFile && (
+              <>
+                <div ref={chartRef}>
+                  <SpectrumChart
+                    data={beforeFile.analysisResult.normalizedData}
+                    limitChecks={beforeFile.analysisResult.limitChecks}
+                    comparisonData={afterFile.analysisResult.normalizedData}
+                  />
+                </div>
 
-        {/* Results Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <PeakTable peaks={analysisResult.peaks} />
-          <QualityChecks checks={analysisResult.qualityChecks} />
-        </div>
+                {/* Comparison Summary Panel */}
+                <ComparisonPanel result={comparisonResult} />
 
-        {/* AI Analysis */}
-        <AIPanel analysis={analysisResult} />
+                {/* Peak-by-Peak Comparison Table */}
+                <PeakComparisonTable comparisons={comparisonResult.peakComparisons} />
 
-        {/* Export */}
-        <ExportPanel analysis={analysisResult} chartRef={chartRef} />
+                {/* Individual Peak Tables */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                  <PeakTable peaks={beforeFile.analysisResult.peaks} title={t('comparison.beforePeaks', 'Peaks (Vorher)')} />
+                  <PeakTable peaks={afterFile.analysisResult.peaks} title={t('comparison.afterPeaks', 'Peaks (Nachher)')} />
+                </div>
+              </>
+            )}
+          </>
+        ) : (
+          /* === SINGLE FILE MODE === */
+          analysisResult && (
+            <>
+              {/* Upload + Metadata Row */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <FileUpload />
+                <MetadataPanel metadata={analysisResult.metadata} />
+              </div>
+
+              {/* Spectrum Chart */}
+              <div ref={chartRef}>
+                <SpectrumChart
+                  data={analysisResult.normalizedData}
+                  limitChecks={analysisResult.limitChecks}
+                />
+              </div>
+
+              {/* Results Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <PeakTable peaks={analysisResult.peaks} />
+                <QualityChecks checks={analysisResult.qualityChecks} />
+              </div>
+
+              {/* AI Analysis */}
+              <AIPanel analysis={analysisResult} />
+
+              {/* Export */}
+              <ExportPanel analysis={analysisResult} chartRef={chartRef} />
+            </>
+          )
+        )}
       </main>
 
       {/* Footer */}
