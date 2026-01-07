@@ -25,11 +25,16 @@ export function SpectrumArchive({ onClose }: SpectrumArchiveProps) {
   }, [currentUser, showArchived])
 
   const loadSpectra = async () => {
-    if (!currentUser) return
+    if (!currentUser) {
+      console.log('No user, skipping load')
+      return
+    }
 
+    console.log('Loading spectra for user:', currentUser.id, 'archived:', showArchived)
     setIsLoading(true)
     try {
       const spectra = await getSpectraList(currentUser.id, { archived: showArchived })
+      console.log('Loaded spectra:', spectra)
       setCloudSpectra(spectra)
     } catch (err) {
       console.error('Failed to load spectra:', err)
@@ -105,9 +110,9 @@ export function SpectrumArchive({ onClose }: SpectrumArchiveProps) {
             </div>
             <button
               onClick={onClose}
-              className="text-white/80 hover:text-white text-xl"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white text-xl font-bold"
             >
-              &times;
+              ×
             </button>
           </div>
 
@@ -208,8 +213,8 @@ export function SpectrumArchive({ onClose }: SpectrumArchiveProps) {
                       onClick={() => handleLoad(spectrum)}
                       disabled={loadingId === spectrum.id}
                       className={cn(
-                        'flex-1 px-3 py-1.5 rounded-chip text-caption font-medium transition-colors',
-                        'bg-aqua-500 text-white hover:bg-aqua-600',
+                        'flex-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                        'bg-[#00BCD4] text-white hover:bg-[#00ACC1]',
                         loadingId === spectrum.id && 'opacity-50 cursor-not-allowed'
                       )}
                     >
@@ -217,13 +222,13 @@ export function SpectrumArchive({ onClose }: SpectrumArchiveProps) {
                     </button>
                     <button
                       onClick={() => handleArchive(spectrum.id, !showArchived)}
-                      className="px-3 py-1.5 rounded-chip text-caption font-medium bg-surface-card-muted text-text-secondary hover:text-text-primary"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200"
                     >
                       {showArchived ? t('cloud.restore') : t('cloud.archive')}
                     </button>
                     <button
                       onClick={() => handleDelete(spectrum.id)}
-                      className="px-3 py-1.5 rounded-chip text-caption font-medium bg-coral-500/10 text-coral-600 hover:bg-coral-500/20"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-100 text-red-600 hover:bg-red-200"
                     >
                       {t('common.delete')}
                     </button>

@@ -166,10 +166,8 @@ export function SaveSpectrumModal({ file, onClose, onSaved }: SaveSpectrumModalP
           <div className="flex gap-3 pt-2">
             <button
               onClick={onClose}
-              className={cn(
-                'flex-1 px-4 py-2 rounded-chip text-caption font-medium transition-colors',
-                'bg-surface-card-muted text-text-secondary hover:text-text-primary'
-              )}
+              className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors
+                bg-gray-100 text-gray-600 hover:bg-gray-200"
               disabled={isLoading}
             >
               {t('common.cancel')}
@@ -177,8 +175,8 @@ export function SaveSpectrumModal({ file, onClose, onSaved }: SaveSpectrumModalP
             <button
               onClick={handleSave}
               className={cn(
-                'flex-1 px-4 py-2 rounded-chip text-caption font-medium transition-colors',
-                'bg-aqua-500 text-white hover:bg-aqua-600',
+                'flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                'bg-[#00BCD4] text-white hover:bg-[#00ACC1]',
                 isLoading && 'opacity-50 cursor-not-allowed'
               )}
               disabled={isLoading}

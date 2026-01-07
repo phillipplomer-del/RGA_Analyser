@@ -85,7 +85,7 @@ const PEAKS: Peak[] = [
 
 export function LandingPage() {
   const { t } = useTranslation()
-  const { theme, addFile } = useAppStore()
+  const { theme, addFile, setSkipLandingPage } = useAppStore()
   const isDark = theme === 'dark'
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -481,33 +481,53 @@ export function LandingPage() {
             </div>
           </div>
 
-          <button
-            onClick={() => setIsRunning(prev => !prev)}
-            className={`pointer-events-auto relative group overflow-hidden rounded-full px-6 py-2.5
-              transition-all duration-300 ease-smooth
-              ${isRunning
-                ? isDark
-                  ? 'shadow-[0_10px_25px_rgba(158,224,0,0.3)] hover:translate-y-[-2px] hover:scale-[1.02]'
-                  : 'shadow-[0_10px_25px_rgba(0,222,224,0.3)] hover:translate-y-[-2px] hover:scale-[1.02]'
-                : isDark
-                  ? 'bg-[#252518] border border-[rgba(248,248,240,0.1)]'
-                  : 'bg-white border border-[rgba(31,36,48,0.1)]'
-              }`}
-          >
-            {isRunning && (
-              <div className={`absolute inset-0 transition-colors duration-300
+          <div className="flex items-center gap-3">
+            {/* Launch App Button */}
+            <button
+              onClick={() => setSkipLandingPage(true)}
+              className={`pointer-events-auto relative group overflow-hidden rounded-full px-6 py-2.5
+                transition-all duration-300 ease-smooth
                 ${isDark
-                  ? 'bg-gradient-to-r from-[#E0BD00] via-[#9EE000] to-[#45F600]'
-                  : 'bg-gradient-to-r from-[#00E097] via-[#00DEE0] to-[#0097E0]'}`}
-              />
-            )}
-            <span className={`relative z-10 font-body text-sm font-semibold tracking-wide transition-colors duration-300
-              ${isRunning
-                ? isDark ? 'text-[#1A1A12]' : 'text-white'
-                : isDark ? 'text-[#F8F8F0]' : 'text-[#1F2430]'}`}>
-              {isRunning ? 'PAUSE' : 'RESUME'}
-            </span>
-          </button>
+                  ? 'bg-[#252518] border border-[rgba(248,248,240,0.1)] hover:border-[#E0BD00]/50'
+                  : 'bg-white border border-[rgba(31,36,48,0.1)] hover:border-[#0097E0]/50'
+                }
+                hover:translate-y-[-2px] hover:scale-[1.02]`}
+            >
+              <span className={`relative z-10 font-body text-sm font-semibold tracking-wide transition-colors duration-300
+                ${isDark ? 'text-[#F8F8F0]' : 'text-[#1F2430]'}`}>
+                {t('landing.launchApp', 'LAUNCH APP')}
+              </span>
+            </button>
+
+            {/* Pause/Resume Button */}
+            <button
+              onClick={() => setIsRunning(prev => !prev)}
+              className={`pointer-events-auto relative group overflow-hidden rounded-full px-6 py-2.5
+                transition-all duration-300 ease-smooth
+                ${isRunning
+                  ? isDark
+                    ? 'shadow-[0_10px_25px_rgba(158,224,0,0.3)] hover:translate-y-[-2px] hover:scale-[1.02]'
+                    : 'shadow-[0_10px_25px_rgba(0,222,224,0.3)] hover:translate-y-[-2px] hover:scale-[1.02]'
+                  : isDark
+                    ? 'bg-[#252518] border border-[rgba(248,248,240,0.1)]'
+                    : 'bg-white border border-[rgba(31,36,48,0.1)]'
+                }`}
+            >
+              {isRunning && (
+                <div className={`absolute inset-0 transition-colors duration-300
+                  ${isDark
+                    ? 'bg-gradient-to-r from-[#E0BD00] via-[#9EE000] to-[#45F600]'
+                    : 'bg-gradient-to-r from-[#00E097] via-[#00DEE0] to-[#0097E0]'}`}
+                />
+              )}
+              <span className={`relative z-10 font-body text-sm font-semibold tracking-wide transition-colors duration-300
+                ${isRunning
+                  ? isDark ? 'text-[#1A1A12]' : 'text-white'
+                  : isDark ? 'text-[#F8F8F0]' : 'text-[#1F2430]'}`}>
+                {isRunning ? 'PAUSE' : 'RESUME'}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 

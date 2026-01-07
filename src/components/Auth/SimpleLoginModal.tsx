@@ -40,15 +40,18 @@ export function SimpleLoginModal({ onClose, isOptional = false }: SimpleLoginMod
     setIsLoading(true)
 
     try {
+      console.log('Attempting login with:', { firstName, lastName, pinLength: pin.length })
       const { user } = await createOrLoginUser(firstName, lastName, pin)
+      console.log('Login successful:', user)
       setCurrentUser(user)
       onClose?.()
     } catch (err) {
+      console.error('Login error:', err)
       if (err instanceof Error) {
         if (err.message === 'PIN_MISMATCH') {
           setError(t('auth.error.pinMismatch'))
         } else {
-          setError(t('auth.error.generic'))
+          setError(`${t('auth.error.generic')}: ${err.message}`)
         }
       }
     } finally {
@@ -148,10 +151,8 @@ export function SimpleLoginModal({ onClose, isOptional = false }: SimpleLoginMod
               <button
                 type="button"
                 onClick={onClose}
-                className={cn(
-                  'flex-1 px-4 py-2 rounded-chip text-caption font-medium transition-colors',
-                  'bg-surface-card-muted text-text-secondary hover:text-text-primary hover:bg-surface-page'
-                )}
+                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors
+                  bg-gray-100 text-gray-600 hover:bg-gray-200"
                 disabled={isLoading}
               >
                 {t('auth.skip')}
@@ -160,8 +161,8 @@ export function SimpleLoginModal({ onClose, isOptional = false }: SimpleLoginMod
             <button
               type="submit"
               className={cn(
-                'flex-1 px-4 py-2 rounded-chip text-caption font-medium transition-colors',
-                'bg-aqua-500 text-white hover:bg-aqua-600',
+                'flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                'bg-[#00BCD4] text-white hover:bg-[#00ACC1]',
                 isLoading && 'opacity-50 cursor-not-allowed'
               )}
               disabled={isLoading}

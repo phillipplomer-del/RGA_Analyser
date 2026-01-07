@@ -29,6 +29,7 @@ export async function saveSpectrum(
   const analysis = file.analysisResult
 
   // Main document with summary data (for list queries)
+  // Note: Firestore doesn't accept undefined values, so we use null or empty strings
   const spectrumData: Omit<FirestoreSpectrum, 'uploadedAt'> & { uploadedAt: ReturnType<typeof serverTimestamp> } = {
     filename: file.filename,
     uploadedAt: serverTimestamp(),
@@ -36,19 +37,19 @@ export async function saveSpectrum(
       ? Timestamp.fromDate(analysis.metadata.startTime)
       : null,
     metadata: {
-      sourceFile: analysis.metadata.sourceFile,
-      taskName: analysis.metadata.taskName,
-      chamberName: analysis.metadata.chamberName,
-      pressure: analysis.metadata.pressure,
-      firstMass: analysis.metadata.firstMass,
-      scanWidth: analysis.metadata.scanWidth,
+      sourceFile: analysis.metadata.sourceFile || '',
+      taskName: analysis.metadata.taskName || '',
+      chamberName: analysis.metadata.chamberName || '',
+      pressure: analysis.metadata.pressure ?? null,
+      firstMass: analysis.metadata.firstMass ?? 0,
+      scanWidth: analysis.metadata.scanWidth ?? 0,
     },
     analysisSnapshot: {
-      totalPressure: analysis.totalPressure,
-      dominantGases: analysis.dominantGases.slice(0, 5),
-      peakCount: analysis.peaks.length,
-      qualityChecksPassed: analysis.qualityChecks.every((c) => c.passed),
-      diagnosisSummary: analysis.diagnosisSummary!,
+      totalPressure: analysis.totalPressure ?? 0,
+      dominantGases: analysis.dominantGases?.slice(0, 5) || [],
+      peakCount: analysis.peaks?.length || 0,
+      qualityChecksPassed: analysis.qualityChecks?.every((c) => c.passed) ?? false,
+      diagnosisSummary: analysis.diagnosisSummary || { overallStatus: 'unknown', issueCount: 0, issues: [] },
     },
     tags: options?.tags || [],
     notes: options?.notes || '',
@@ -139,19 +140,23 @@ export async function getSpectraList(
   userId: string,
   options?: { archived?: boolean; maxItems?: number; tags?: string[] }
 ): Promise<CloudSpectrumMeta[]> {
-  let q = query(
+  // Simple query without compound index requirement
+  // We filter and sort client-side to avoid needing a Firestore index
+  const q = query(
     getUserSpectraRef(userId),
-    where('isArchived', '==', options?.archived ?? false),
     orderBy('uploadedAt', 'desc')
   )
 
-  if (options?.maxItems) {
-    q = query(q, limit(options.maxItems))
-  }
-
   const snapshot = await getDocs(q)
 
-  return snapshot.docs.map((doc) => {
+  // Filter by archived status client-side
+  const archivedFilter = options?.archived ?? false
+  const filteredDocs = snapshot.docs.filter((doc) => {
+    const data = doc.data() as FirestoreSpectrum
+    return data.isArchived === archivedFilter
+  })
+
+  return filteredDocs.map((doc) => {
     const data = doc.data() as FirestoreSpectrum
     return {
       id: doc.id,

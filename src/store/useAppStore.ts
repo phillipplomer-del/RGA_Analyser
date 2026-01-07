@@ -40,6 +40,7 @@ interface AppState {
   sidebarActivePanel: 'limits' | 'ai' | 'export' | null
   showKnowledgePage: boolean
   showLoginModal: boolean
+  skipLandingPage: boolean
 
   // Actions - Files
   addFile: (file: MeasurementFile) => void
@@ -74,6 +75,7 @@ interface AppState {
   toggleFileVisibility: (fileId: string) => void
   setSidebarActivePanel: (panel: 'limits' | 'ai' | 'export' | null) => void
   setShowKnowledgePage: (show: boolean) => void
+  setSkipLandingPage: (skip: boolean) => void
   reset: () => void
 }
 
@@ -106,6 +108,7 @@ const initialState = {
   sidebarActivePanel: null as 'limits' | 'ai' | 'export' | null,
   showKnowledgePage: false,
   showLoginModal: false,
+  skipLandingPage: false,
 }
 
 // Sort files by measurement date and assign order
@@ -291,6 +294,8 @@ export const useAppStore = create<AppState>()(
         setSidebarActivePanel: (panel) => set({ sidebarActivePanel: panel }),
 
         setShowKnowledgePage: (show) => set({ showKnowledgePage: show }),
+
+        setSkipLandingPage: (skip) => set({ skipLandingPage: skip }),
 
         reset: () => set({
           files: [],

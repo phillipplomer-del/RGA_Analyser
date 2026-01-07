@@ -1,5 +1,6 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useDropzone } from 'react-dropzone'
 import { useAppStore } from '@/store/useAppStore'
 import { LandingPage } from '@/components/LandingPage'
 import { FileManager } from '@/components/FileManager'
@@ -16,7 +17,11 @@ import { ActionsSidebar } from '@/components/ActionsSidebar'
 import { KnowledgePage } from '@/components/KnowledgePage'
 import { SimpleLoginModal } from '@/components/Auth/SimpleLoginModal'
 import { UserBadge } from '@/components/Auth/UserBadge'
+import { SpectrumArchive } from '@/components/SpectrumArchive'
 import { compareSpectra } from '@/lib/comparison'
+import { parseASCFile } from '@/lib/parser'
+import { analyzeSpectrum } from '@/lib/analysis'
+import type { MeasurementFile } from '@/types/rga'
 
 function App() {
   const { t } = useTranslation()
@@ -30,8 +35,60 @@ function App() {
     currentUser,
     showLoginModal,
     setShowLoginModal,
+    skipLandingPage,
+    setSkipLandingPage,
+    addFile,
   } = useAppStore()
   const chartRef = useRef<HTMLDivElement>(null)
+  const [showArchive, setShowArchive] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  // File drop handler for empty state
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) return
+    if (acceptedFiles.length > 3) {
+      setUploadError(t('upload.maxThreeFiles', 'Maximal 3 Dateien erlaubt'))
+      return
+    }
+
+    setIsProcessing(true)
+    setUploadError(null)
+
+    try {
+      for (const file of acceptedFiles) {
+        const content = await file.text()
+        const rawData = parseASCFile(content)
+        const analysisResult = analyzeSpectrum(rawData)
+
+        const measurementFile: MeasurementFile = {
+          id: crypto.randomUUID(),
+          order: 0,
+          filename: file.name,
+          rawData,
+          analysisResult,
+          uploadedAt: new Date(),
+        }
+
+        addFile(measurementFile)
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        setUploadError(err.message)
+      } else {
+        setUploadError(t('upload.error'))
+      }
+    } finally {
+      setIsProcessing(false)
+    }
+  }, [addFile, t])
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'text/plain': ['.asc'] },
+    multiple: true,
+    maxFiles: 3,
+  })
 
   // Auto-run comparison when 2+ files are loaded
   useEffect(() => {
@@ -49,9 +106,143 @@ function App() {
     return <KnowledgePage />
   }
 
-  // Show Landing Page when no files
-  if (files.length === 0) {
+  // Show Landing Page when no files and not skipped
+  if (files.length === 0 && !skipLandingPage) {
     return <LandingPage />
+  }
+
+  // Empty state - app launched without files
+  if (files.length === 0 && skipLandingPage) {
+    return (
+      <div className={`min-h-screen bg-surface-page ${theme === 'dark' ? 'dark' : ''}`}>
+        {/* Header */}
+        <header className="bg-surface-card shadow-card sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div>
+              <h1 className="font-display font-bold text-h1 gradient-text">
+                {t('app.title')}
+              </h1>
+              <p className="text-caption text-text-secondary">
+                {t('app.subtitle')}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {currentUser ? (
+                <UserBadge />
+              ) : (
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="px-4 py-2 text-caption font-medium text-aqua-600 hover:text-aqua-500
+                    bg-aqua-500/10 hover:bg-aqua-500/20 rounded-chip transition-colors"
+                >
+                  {t('auth.title')}
+                </button>
+              )}
+              <button
+                onClick={() => setSkipLandingPage(false)}
+                className="px-4 py-2 text-caption font-medium text-text-secondary hover:text-text-primary
+                  bg-surface-card-muted hover:bg-surface-card rounded-chip transition-colors"
+              >
+                {t('common.back', 'Zurück')}
+              </button>
+              <LanguageToggle />
+              <ThemeToggle />
+            </div>
+          </div>
+        </header>
+
+        {/* Empty State Content */}
+        <main className="max-w-4xl mx-auto px-6 py-16">
+          <div className="text-center mb-12">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-aqua-500 to-mint-500 flex items-center justify-center">
+              <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h2 className="font-display font-bold text-2xl text-text-primary mb-2">
+              {t('empty.title', 'Kein Spektrum geladen')}
+            </h2>
+            <p className="text-text-secondary max-w-md mx-auto">
+              {t('empty.description', 'Laden Sie eine ASC-Datei hoch oder öffnen Sie ein gespeichertes Spektrum aus dem Cloud-Archiv.')}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Upload Card */}
+            <div
+              {...getRootProps()}
+              className={`p-8 rounded-card border-2 border-dashed cursor-pointer transition-all
+                ${isDragActive
+                  ? 'border-aqua-500 bg-aqua-500/10'
+                  : 'border-subtle hover:border-aqua-500/50 bg-surface-card hover:bg-surface-card-muted'
+                }
+                ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
+            >
+              <input {...getInputProps()} />
+              <div className="text-center">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-aqua-500/10 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-aqua-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                </div>
+                <h3 className="font-display font-semibold text-lg text-text-primary mb-1">
+                  {isProcessing ? t('upload.processing') : t('upload.dropzone')}
+                </h3>
+                <p className="text-caption text-text-muted">
+                  {t('upload.formats')}
+                </p>
+                {uploadError && (
+                  <p className="mt-2 text-caption text-coral-500">{uploadError}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Archive Card */}
+            <button
+              onClick={() => {
+                if (!currentUser) {
+                  setShowLoginModal(true)
+                } else {
+                  setShowArchive(true)
+                }
+              }}
+              className="p-8 rounded-card border border-subtle bg-surface-card hover:bg-surface-card-muted
+                transition-all text-left group"
+            >
+              <div className="text-center">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-mint-500/10 flex items-center justify-center
+                  group-hover:bg-mint-500/20 transition-colors">
+                  <svg className="w-6 h-6 text-mint-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                </div>
+                <h3 className="font-display font-semibold text-lg text-text-primary mb-1">
+                  {t('cloud.archive')}
+                </h3>
+                <p className="text-caption text-text-muted">
+                  {currentUser
+                    ? t('empty.archiveDesc', 'Gespeicherte Spektren laden')
+                    : t('empty.loginRequired', 'Anmeldung erforderlich')}
+                </p>
+              </div>
+            </button>
+          </div>
+        </main>
+
+        {/* Login Modal */}
+        {showLoginModal && (
+          <SimpleLoginModal
+            onClose={() => setShowLoginModal(false)}
+            isOptional={true}
+          />
+        )}
+
+        {/* Archive Modal */}
+        {showArchive && (
+          <SpectrumArchive onClose={() => setShowArchive(false)} />
+        )}
+      </div>
+    )
   }
 
   // Get the primary analysis (first file for single, comparison uses all)
