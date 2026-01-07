@@ -6,6 +6,23 @@
   "landing": {
     "knowledge": "Wissen"
   },
+  "selector": {
+    "title": "Funktion wählen",
+    "subtitle": "Wählen Sie den gewünschten Analysebereich",
+    "hint": "Sie können jederzeit über die Seitenleiste zwischen den Bereichen wechseln.",
+    "rga": {
+      "title": "RGA Analyse",
+      "description": "Restgasanalyse von Massenspektrometer-Daten mit Peak-Identifikation, Qualitätsprüfung und automatischer Diagnose."
+    },
+    "ror": {
+      "title": "Rate of Rise",
+      "description": "Druckanstiegstest zur Leckratenbestimmung mit automatischer Phasenerkennung und Klassifikation."
+    },
+    "knowledge": {
+      "title": "Wissensdatenbank",
+      "description": "Umfassendes Nachschlagewerk zu Vakuumtechnik, Massenspektrometrie und Lecksuche."
+    }
+  },
   "sidebar": {
     "limits": "Limits",
     "ai": "KI",

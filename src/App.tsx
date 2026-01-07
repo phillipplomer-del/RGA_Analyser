@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useDropzone } from 'react-dropzone'
 import { useAppStore } from '@/store/useAppStore'
 import { LandingPage } from '@/components/LandingPage'
+import { FunctionSelector } from '@/components/FunctionSelector'
 import { FileManager } from '@/components/FileManager'
 import { MetadataPanel } from '@/components/MetadataPanel'
 import { SpectrumChart } from '@/components/SpectrumChart'
@@ -37,13 +38,13 @@ function App() {
     showLoginModal,
     setShowLoginModal,
     skipLandingPage,
-    setSkipLandingPage,
     addFile,
     initializeAuth,
   } = useAppStore()
   const chartRef = useRef<HTMLDivElement>(null)
   const [showArchive, setShowArchive] = useState(false)
   const [showRateOfRise, setShowRateOfRise] = useState(false)
+  const [showRGASection, setShowRGASection] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
 
@@ -116,7 +117,10 @@ function App() {
 
   // Show Rate of Rise Page when requested
   if (showRateOfRise) {
-    return <RateOfRisePage onBack={() => setShowRateOfRise(false)} />
+    return <RateOfRisePage onBack={() => {
+      setShowRateOfRise(false)
+      setShowRGASection(false)
+    }} />
   }
 
   // Show Landing Page when no files and not skipped
@@ -124,8 +128,19 @@ function App() {
     return <LandingPage />
   }
 
-  // Empty state - app launched without files
-  if (files.length === 0 && skipLandingPage) {
+  // Show Function Selector when app is launched but no function selected yet
+  if (skipLandingPage && !showRGASection && files.length === 0) {
+    return (
+      <FunctionSelector
+        onSelectRGA={() => setShowRGASection(true)}
+        onSelectRoR={() => setShowRateOfRise(true)}
+        onSelectKnowledge={() => useAppStore.getState().setShowKnowledgePage(true)}
+      />
+    )
+  }
+
+  // Empty state - RGA section selected but no files loaded
+  if (files.length === 0 && showRGASection) {
     return (
       <div className={`min-h-screen bg-surface-page ${theme === 'dark' ? 'dark' : ''}`}>
         {/* Header */}
@@ -152,7 +167,7 @@ function App() {
                 </button>
               )}
               <button
-                onClick={() => setSkipLandingPage(false)}
+                onClick={() => setShowRGASection(false)}
                 className="px-4 py-2 text-caption font-medium text-text-secondary hover:text-text-primary
                   bg-surface-card-muted hover:bg-surface-card rounded-chip transition-colors"
               >
@@ -300,7 +315,10 @@ function App() {
                 </button>
               )}
               <button
-                onClick={reset}
+                onClick={() => {
+                  reset()
+                  setShowRGASection(false)
+                }}
                 className="px-4 py-2 text-caption font-medium text-text-secondary hover:text-text-primary
                   bg-surface-card-muted hover:bg-surface-card rounded-chip transition-colors"
               >

@@ -6,6 +6,23 @@
   "landing": {
     "knowledge": "Knowledge"
   },
+  "selector": {
+    "title": "Select Function",
+    "subtitle": "Choose your analysis area",
+    "hint": "You can switch between areas at any time using the sidebar.",
+    "rga": {
+      "title": "RGA Analysis",
+      "description": "Residual gas analysis of mass spectrometer data with peak identification, quality checks, and automatic diagnosis."
+    },
+    "ror": {
+      "title": "Rate of Rise",
+      "description": "Pressure rise test for leak rate determination with automatic phase detection and classification."
+    },
+    "knowledge": {
+      "title": "Knowledge Base",
+      "description": "Comprehensive reference for vacuum technology, mass spectrometry, and leak detection."
+    }
+  },
   "sidebar": {
     "limits": "Limits",
     "ai": "AI",
