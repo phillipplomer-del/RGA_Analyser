@@ -19,7 +19,11 @@ export function UserBadge() {
     setShowDropdown(false)
   }
 
-  const initials = `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase()
+  // Extract initials from name (first letters of first two words, or first two chars if single word)
+  const nameParts = currentUser.name.trim().split(/\s+/)
+  const initials = nameParts.length >= 2
+    ? `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase()
+    : currentUser.name.substring(0, 2).toUpperCase()
 
   return (
     <div className="relative">
@@ -37,7 +41,7 @@ export function UserBadge() {
         </div>
         {/* Name */}
         <span className="text-caption font-medium hidden sm:inline">
-          {currentUser.firstName}
+          {currentUser.name}
         </span>
         {/* Dropdown Arrow */}
         <svg
@@ -64,7 +68,7 @@ export function UserBadge() {
             {/* User Info */}
             <div className="px-4 py-3 border-b border-subtle">
               <p className="text-caption font-medium text-text-primary">
-                {currentUser.firstName} {currentUser.lastName}
+                {currentUser.name}
               </p>
               <p className="text-xs text-text-muted">
                 {t('auth.loggedIn')}

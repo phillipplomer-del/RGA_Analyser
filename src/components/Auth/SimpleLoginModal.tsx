@@ -13,8 +13,7 @@ export function SimpleLoginModal({ onClose, isOptional = false }: SimpleLoginMod
   const { t } = useTranslation()
   const { setCurrentUser, loadCloudCalibration } = useAppStore()
 
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
+  const [name, setName] = useState('')
   const [pin, setPin] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -24,12 +23,8 @@ export function SimpleLoginModal({ onClose, isOptional = false }: SimpleLoginMod
     setError(null)
 
     // Validation
-    if (!validateName(firstName)) {
-      setError(t('auth.error.invalidFirstName'))
-      return
-    }
-    if (!validateName(lastName)) {
-      setError(t('auth.error.invalidLastName'))
+    if (!validateName(name)) {
+      setError(t('auth.error.invalidName'))
       return
     }
     if (!validatePin(pin)) {
@@ -40,9 +35,7 @@ export function SimpleLoginModal({ onClose, isOptional = false }: SimpleLoginMod
     setIsLoading(true)
 
     try {
-      console.log('Attempting login with:', { firstName, lastName, pinLength: pin.length })
-      const { user } = await createOrLoginUser(firstName, lastName, pin)
-      console.log('Login successful:', user)
+      const { user } = await createOrLoginUser(name, pin)
       setCurrentUser(user)
       // Load cloud calibration after login
       loadCloudCalibration()
@@ -76,16 +69,16 @@ export function SimpleLoginModal({ onClose, isOptional = false }: SimpleLoginMod
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* First Name */}
+          {/* Name */}
           <div>
             <label className="block text-caption font-medium text-text-secondary mb-1">
-              {t('auth.firstName')}
+              {t('auth.name')}
             </label>
             <input
               type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder={t('auth.firstNamePlaceholder')}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t('auth.namePlaceholder')}
               className={cn(
                 'w-full px-4 py-2 rounded-chip border transition-colors',
                 'bg-surface-page text-text-primary placeholder:text-text-muted',
@@ -93,25 +86,6 @@ export function SimpleLoginModal({ onClose, isOptional = false }: SimpleLoginMod
               )}
               disabled={isLoading}
               autoFocus
-            />
-          </div>
-
-          {/* Last Name */}
-          <div>
-            <label className="block text-caption font-medium text-text-secondary mb-1">
-              {t('auth.lastName')}
-            </label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder={t('auth.lastNamePlaceholder')}
-              className={cn(
-                'w-full px-4 py-2 rounded-chip border transition-colors',
-                'bg-surface-page text-text-primary placeholder:text-text-muted',
-                'border-subtle focus:border-aqua-500 focus:ring-2 focus:ring-aqua-500/20 outline-none'
-              )}
-              disabled={isLoading}
             />
           </div>
 

@@ -153,10 +153,8 @@
   "auth": {
     "title": "Anmelden",
     "subtitle": "Speichere deine Analysen in der Cloud",
-    "firstName": "Vorname",
-    "firstNamePlaceholder": "Max",
-    "lastName": "Nachname",
-    "lastNamePlaceholder": "Mustermann",
+    "name": "Name",
+    "namePlaceholder": "z.B. Max",
     "pin": "PIN-Code",
     "pinPlaceholder": "4-6 Ziffern",
     "pinHint": "Wähle eine 4-6 stellige PIN zum Einloggen",
@@ -167,8 +165,7 @@
     "logout": "Abmelden",
     "info": "Neuer Nutzer? Einfach Namen und PIN eingeben!",
     "error": {
-      "invalidFirstName": "Bitte gib einen gültigen Vornamen ein",
-      "invalidLastName": "Bitte gib einen gültigen Nachnamen ein",
+      "invalidName": "Bitte gib einen gültigen Namen ein (mind. 2 Zeichen)",
       "invalidPin": "PIN muss 4-6 Ziffern haben",
       "pinMismatch": "Falscher PIN für diesen Namen",
       "generic": "Ein Fehler ist aufgetreten"

@@ -153,10 +153,8 @@
   "auth": {
     "title": "Sign In",
     "subtitle": "Save your analyses to the cloud",
-    "firstName": "First Name",
-    "firstNamePlaceholder": "John",
-    "lastName": "Last Name",
-    "lastNamePlaceholder": "Doe",
+    "name": "Name",
+    "namePlaceholder": "e.g. John",
     "pin": "PIN Code",
     "pinPlaceholder": "4-6 digits",
     "pinHint": "Choose a 4-6 digit PIN to log in",
@@ -167,8 +165,7 @@
     "logout": "Sign Out",
     "info": "New user? Just enter your name and PIN!",
     "error": {
-      "invalidFirstName": "Please enter a valid first name",
-      "invalidLastName": "Please enter a valid last name",
+      "invalidName": "Please enter a valid name (min. 2 characters)",
       "invalidPin": "PIN must be 4-6 digits",
       "pinMismatch": "Wrong PIN for this name",
       "generic": "An error occurred"

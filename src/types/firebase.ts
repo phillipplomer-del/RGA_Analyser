@@ -4,8 +4,7 @@ import type { RoRClassification, PressureDataPoint } from './rateOfRise'
 
 // User document in Firestore
 export interface FirestoreUser {
-  firstName: string
-  lastName: string
+  name: string
   pinHash: string // SHA-256 hash of pin
   createdAt: Timestamp
   settings: {
@@ -77,8 +76,7 @@ export interface FirestoreAIReport {
 // Local user type (what we store in app state)
 export interface AppUser {
   id: string
-  firstName: string
-  lastName: string
+  name: string
 }
 
 // Cloud spectrum metadata for archive list

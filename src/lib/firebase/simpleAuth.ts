@@ -5,8 +5,8 @@ import type { FirestoreUser, AppUser } from '@/types/firebase'
 const USER_SESSION_KEY = 'rga-user-session'
 
 // Generate SHA-256 hash for user identification
-async function hashUserCredentials(firstName: string, lastName: string, pin: string): Promise<string> {
-  const input = `${firstName.toLowerCase().trim()}:${lastName.toLowerCase().trim()}:${pin}`
+async function hashUserCredentials(name: string, pin: string): Promise<string> {
+  const input = `${name.toLowerCase().trim()}:${pin}`
   const encoder = new TextEncoder()
   const data = encoder.encode(input)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
@@ -25,11 +25,10 @@ async function hashPin(pin: string): Promise<string> {
 
 // Check if user exists and PIN matches
 export async function loginUser(
-  firstName: string,
-  lastName: string,
+  name: string,
   pin: string
 ): Promise<AppUser | null> {
-  const userId = await hashUserCredentials(firstName, lastName, pin)
+  const userId = await hashUserCredentials(name, pin)
   const userRef = doc(db, 'users', userId)
   const userSnap = await getDoc(userRef)
 
@@ -41,8 +40,7 @@ export async function loginUser(
     if (userData.pinHash === inputPinHash) {
       const user: AppUser = {
         id: userId,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
+        name: userData.name,
       }
 
       // Save session to localStorage
@@ -57,11 +55,10 @@ export async function loginUser(
 
 // Create new user or login if exists
 export async function createOrLoginUser(
-  firstName: string,
-  lastName: string,
+  name: string,
   pin: string
 ): Promise<{ user: AppUser; isNew: boolean }> {
-  const userId = await hashUserCredentials(firstName, lastName, pin)
+  const userId = await hashUserCredentials(name, pin)
   const userRef = doc(db, 'users', userId)
   const userSnap = await getDoc(userRef)
 
@@ -73,8 +70,7 @@ export async function createOrLoginUser(
     if (userData.pinHash === pinHash) {
       const user: AppUser = {
         id: userId,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
+        name: userData.name,
       }
       localStorage.setItem(USER_SESSION_KEY, JSON.stringify(user))
       return { user, isNew: false }
@@ -85,8 +81,7 @@ export async function createOrLoginUser(
 
   // Create new user
   const newUserData: Omit<FirestoreUser, 'createdAt'> & { createdAt: ReturnType<typeof serverTimestamp> } = {
-    firstName: firstName.trim(),
-    lastName: lastName.trim(),
+    name: name.trim(),
     pinHash,
     createdAt: serverTimestamp(),
     settings: {
@@ -103,8 +98,7 @@ export async function createOrLoginUser(
 
   const user: AppUser = {
     id: userId,
-    firstName: firstName.trim(),
-    lastName: lastName.trim(),
+    name: name.trim(),
   }
 
   localStorage.setItem(USER_SESSION_KEY, JSON.stringify(user))
