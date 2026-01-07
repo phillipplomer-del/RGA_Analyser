@@ -5,7 +5,7 @@ import { GAS_LIBRARY, type GasSpecies } from '@/lib/knowledge/gasLibrary'
 import { MASS_REFERENCE } from '@/lib/knowledge/massReference'
 import { DIAGNOSTIC_MASS_GROUPS, SENSITIVITY_FACTORS, ISOTOPE_RATIOS } from '@/lib/knowledge'
 
-type TabKey = 'criteria' | 'gases' | 'masses' | 'patterns' | 'calibration' | 'references'
+type TabKey = 'criteria' | 'gases' | 'masses' | 'patterns' | 'calibration' | 'rateOfRise' | 'references'
 
 interface KnowledgePanelProps {
   compact?: boolean
@@ -25,6 +25,7 @@ export function KnowledgePanel({ compact }: KnowledgePanelProps) {
     { key: 'masses', label: 'Massen', labelEn: 'Masses' },
     { key: 'patterns', label: 'Muster', labelEn: 'Patterns' },
     { key: 'calibration', label: 'Kalibrierung', labelEn: 'Calibration' },
+    { key: 'rateOfRise', label: 'Rate of Rise', labelEn: 'Rate of Rise' },
     { key: 'references', label: 'Referenzen', labelEn: 'References' },
   ]
 
@@ -73,6 +74,7 @@ export function KnowledgePanel({ compact }: KnowledgePanelProps) {
         )}
         {activeTab === 'patterns' && <PatternsTab isGerman={isGerman} />}
         {activeTab === 'calibration' && <CalibrationTab isGerman={isGerman} />}
+        {activeTab === 'rateOfRise' && <RateOfRiseTab isGerman={isGerman} />}
         {activeTab === 'references' && <ReferencesTab isGerman={isGerman} />}
       </div>
     </div>
@@ -367,11 +369,28 @@ function CriteriaTab({
 
   return (
     <div className="space-y-6">
+      {/* Introduction */}
+      <div className="bg-gradient-to-r from-aqua-500/10 to-aqua-600/5 rounded-lg p-4 border border-aqua-500/20">
+        <h3 className="font-semibold text-aqua-600 dark:text-aqua-400 mb-2">
+          {isGerman ? 'Qualitäts- und Diagnosekriterien' : 'Quality & Diagnostic Criteria'}
+        </h3>
+        <p className="text-caption text-text-secondary leading-relaxed">
+          {isGerman
+            ? 'Diese Sektion enthält die wissenschaftlichen Grundlagen für die automatische Spektrenauswertung. Die Qualitätsprüfungen basieren auf etablierten Verhältnissen und Grenzwerten aus der UHV-Technik (CERN, GSI, DESY). Die Diagnose-Algorithmen erkennen charakteristische Muster im Massenspektrum und klassifizieren potenzielle Probleme nach Schweregrad.'
+            : 'This section contains the scientific foundations for automatic spectrum evaluation. Quality checks are based on established ratios and limits from UHV technology (CERN, GSI, DESY). The diagnostic algorithms detect characteristic patterns in the mass spectrum and classify potential problems by severity.'}
+        </p>
+      </div>
+
       {/* Quality Checks */}
       <section>
         <h3 className="font-semibold text-text-primary mb-3">
           {isGerman ? 'Qualitätsprüfungen' : 'Quality Checks'}
         </h3>
+        <p className="text-caption text-text-muted mb-3">
+          {isGerman
+            ? 'Automatische Prüfungen zur Beurteilung der Vakuumqualität. Jede Prüfung basiert auf Peak-Verhältnissen, die auf physikalische oder kontaminationsbedingte Zustände hinweisen.'
+            : 'Automatic checks to assess vacuum quality. Each check is based on peak ratios that indicate physical or contamination-related conditions.'}
+        </p>
         <div className="space-y-2">
           {qualityChecks.map((check, i) => (
             <div key={i} className="bg-surface-card-muted rounded-lg p-3">
@@ -396,6 +415,11 @@ function CriteriaTab({
         <h3 className="font-semibold text-text-primary mb-3">
           {isGerman ? 'Automatische Diagnosen' : 'Automatic Diagnoses'} ({diagnoses.length})
         </h3>
+        <p className="text-caption text-text-muted mb-3">
+          {isGerman
+            ? 'Der Diagnose-Algorithmus erkennt automatisch charakteristische Spektrenmuster und ordnet diese bekannten Vakuumproblemen zu. Jede Diagnose enthält typische Massen, Beschreibung und Handlungsempfehlungen.'
+            : 'The diagnostic algorithm automatically detects characteristic spectrum patterns and maps them to known vacuum issues. Each diagnosis includes typical masses, description, and recommended actions.'}
+        </p>
         <div className="grid grid-cols-1 gap-2">
           {diagnoses.map((diag) => (
             <div key={diag.key} className="bg-surface-card-muted rounded-lg overflow-hidden">
@@ -509,11 +533,28 @@ function GasesTab({
 
   return (
     <div className="space-y-4">
-      <p className="text-caption text-text-muted">
-        {isGerman
-          ? `${GAS_LIBRARY.length} Gase mit Cracking Patterns (70 eV EI)`
-          : `${GAS_LIBRARY.length} gases with cracking patterns (70 eV EI)`}
-      </p>
+      {/* Introduction */}
+      <div className="bg-gradient-to-r from-aqua-500/10 to-aqua-600/5 rounded-lg p-4 border border-aqua-500/20">
+        <h3 className="font-semibold text-aqua-600 dark:text-aqua-400 mb-2">
+          {isGerman ? 'Gasbibliothek' : 'Gas Library'}
+        </h3>
+        <p className="text-caption text-text-secondary leading-relaxed mb-2">
+          {isGerman
+            ? 'Diese Bibliothek enthält Referenzdaten für die Identifikation von Gasen im Massenspektrum. Die Cracking Patterns zeigen, wie jedes Gas bei 70 eV Elektronenstoß-Ionisation fragmentiert. Der Hauptpeak (Base Peak) hat per Definition 100% relative Intensität.'
+            : 'This library contains reference data for gas identification in mass spectra. The cracking patterns show how each gas fragments at 70 eV electron impact ionization. The main peak (base peak) has 100% relative intensity by definition.'}
+        </p>
+        <div className="flex gap-4 text-caption">
+          <span className="text-text-muted">
+            {isGerman ? `${GAS_LIBRARY.length} Gase` : `${GAS_LIBRARY.length} gases`}
+          </span>
+          <span className="text-text-muted">•</span>
+          <span className="text-text-muted">70 eV EI</span>
+          <span className="text-text-muted">•</span>
+          <span className="text-text-muted">
+            {isGerman ? 'NIST-kompatibel' : 'NIST-compatible'}
+          </span>
+        </div>
+      </div>
 
       {categories.map(cat => {
         const gases = GAS_LIBRARY.filter(g => g.category === cat.key)
@@ -619,11 +660,26 @@ function MassesTab({
 
   return (
     <div className="space-y-4">
-      <p className="text-caption text-text-muted">
-        {isGerman
-          ? `${MASS_REFERENCE.length} Massen referenziert (m/z 1-100)`
-          : `${MASS_REFERENCE.length} masses referenced (m/z 1-100)`}
-      </p>
+      {/* Introduction */}
+      <div className="bg-gradient-to-r from-aqua-500/10 to-aqua-600/5 rounded-lg p-4 border border-aqua-500/20">
+        <h3 className="font-semibold text-aqua-600 dark:text-aqua-400 mb-2">
+          {isGerman ? 'Massenreferenz' : 'Mass Reference'}
+        </h3>
+        <p className="text-caption text-text-secondary leading-relaxed mb-2">
+          {isGerman
+            ? 'Diese Referenz ordnet m/z-Werten mögliche Gase und Fragmente zu. Die diagnostische Bedeutung (kritisch/wichtig) basiert auf der Relevanz für typische Vakuumprobleme. Kritische Massen erfordern bei Auffälligkeit sofortige Aufmerksamkeit.'
+            : 'This reference maps m/z values to possible gases and fragments. The diagnostic significance (critical/important) is based on relevance for typical vacuum problems. Critical masses require immediate attention when anomalies are detected.'}
+        </p>
+        <div className="flex gap-4 text-caption">
+          <span className="text-text-muted">
+            {isGerman ? `${MASS_REFERENCE.length} Massen` : `${MASS_REFERENCE.length} masses`}
+          </span>
+          <span className="text-text-muted">•</span>
+          <span className="text-state-danger">{criticalMasses.length} {isGerman ? 'kritisch' : 'critical'}</span>
+          <span className="text-text-muted">•</span>
+          <span className="text-state-warning">{importantMasses.length} {isGerman ? 'wichtig' : 'important'}</span>
+        </div>
+      </div>
 
       {/* Critical Masses */}
       <section>
@@ -897,11 +953,24 @@ function PatternsTab({ isGerman }: { isGerman: boolean }) {
 
   return (
     <div className="space-y-4">
-      <p className="text-caption text-text-muted">
-        {isGerman
-          ? `${patterns.length} diagnostische Massenmuster für automatische Erkennung`
-          : `${patterns.length} diagnostic mass patterns for automatic detection`}
-      </p>
+      {/* Introduction */}
+      <div className="bg-gradient-to-r from-aqua-500/10 to-aqua-600/5 rounded-lg p-4 border border-aqua-500/20">
+        <h3 className="font-semibold text-aqua-600 dark:text-aqua-400 mb-2">
+          {isGerman ? 'Diagnostische Muster' : 'Diagnostic Patterns'}
+        </h3>
+        <p className="text-caption text-text-secondary leading-relaxed mb-2">
+          {isGerman
+            ? 'Spezifische Kombinationen von Massen und deren Verhältnissen ermöglichen die eindeutige Identifikation von Kontaminanten und Systemzuständen. Diese Muster bilden die Grundlage für die automatische Diagnose.'
+            : 'Specific combinations of masses and their ratios enable unique identification of contaminants and system states. These patterns form the basis for automatic diagnosis.'}
+        </p>
+        <div className="flex flex-wrap gap-2 text-caption">
+          <span className="text-text-muted">{patterns.length} {isGerman ? 'Muster' : 'patterns'}</span>
+          <span className="text-text-muted">•</span>
+          <span className="text-state-danger">{patterns.filter(p => p.category === 'leak').length} {isGerman ? 'Lecks' : 'leaks'}</span>
+          <span className="text-text-muted">•</span>
+          <span className="text-state-warning">{patterns.filter(p => p.category === 'oil' || p.category === 'solvent').length} {isGerman ? 'Kontaminationen' : 'contaminations'}</span>
+        </div>
+      </div>
 
       {categories.map(cat => {
         const catPatterns = patterns.filter(p => p.category === cat.key)
@@ -1671,6 +1740,835 @@ function DeviceCalibrationSection({ isGerman }: { isGerman: boolean }) {
 }
 
 // ============================================
+// RATE OF RISE TAB
+// ============================================
+function RateOfRiseTab({ isGerman }: { isGerman: boolean }) {
+  const [expandedSection, setExpandedSection] = useState<string | null>('basics')
+
+  const sections = [
+    { key: 'basics', title: 'Grundlagen', titleEn: 'Fundamentals', icon: '📖' },
+    { key: 'physics', title: 'Physik & Formeln', titleEn: 'Physics & Formulas', icon: '📐' },
+    { key: 'classification', title: 'Klassifikation', titleEn: 'Classification', icon: '🏷️' },
+    { key: 'procedure', title: 'Durchführung', titleEn: 'Procedure', icon: '📋' },
+    { key: 'interpretation', title: 'Interpretation', titleEn: 'Interpretation', icon: '🔍' },
+    { key: 'limits', title: 'Grenzwerte', titleEn: 'Limits', icon: '⚖️' },
+    { key: 'comparison', title: 'Methodenvergleich', titleEn: 'Method Comparison', icon: '📊' },
+    { key: 'troubleshooting', title: 'Fehlerbehebung', titleEn: 'Troubleshooting', icon: '🔧' },
+  ]
+
+  return (
+    <div className="space-y-4">
+      {/* Introduction */}
+      <div className="bg-gradient-to-r from-aqua-500/10 to-aqua-600/5 rounded-lg p-4 border border-aqua-500/20">
+        <h3 className="font-semibold text-aqua-600 dark:text-aqua-400 mb-2">
+          {isGerman ? 'Rate-of-Rise (Druckanstiegstest)' : 'Rate-of-Rise Test'}
+        </h3>
+        <p className="text-caption text-text-secondary leading-relaxed">
+          {isGerman
+            ? 'Der Druckanstiegstest (Rate-of-Rise, RoR) ist eine fundamentale Methode zur Leckratenbestimmung in abgeschlossenen Vakuumsystemen. Durch Messung des Druckanstiegs über Zeit nach Absperren der Pumpen kann die Leckrate quantitativ bestimmt und die Ursache (echtes Leck, virtuelles Leck, Ausgasung) klassifiziert werden.'
+            : 'The Rate-of-Rise (RoR) test is a fundamental method for leak rate determination in closed vacuum systems. By measuring the pressure rise over time after isolating the pumps, the leak rate can be quantitatively determined and the cause (real leak, virtual leak, outgassing) classified.'}
+        </p>
+      </div>
+
+      {/* Accordion Sections */}
+      {sections.map(section => (
+        <div key={section.key} className="bg-surface-card-muted rounded-lg overflow-hidden">
+          <button
+            onClick={() => setExpandedSection(expandedSection === section.key ? null : section.key)}
+            className="w-full flex items-center gap-3 p-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-left"
+          >
+            <span className="text-xl">{section.icon}</span>
+            <span className="flex-1 font-medium text-text-primary">
+              {isGerman ? section.title : section.titleEn}
+            </span>
+            <span className={cn('transition-transform', expandedSection === section.key && 'rotate-180')}>▼</span>
+          </button>
+
+          {expandedSection === section.key && (
+            <div className="px-4 pb-4 border-t border-subtle/50">
+              {section.key === 'basics' && <RoRBasics isGerman={isGerman} />}
+              {section.key === 'physics' && <RoRPhysics isGerman={isGerman} />}
+              {section.key === 'classification' && <RoRClassification isGerman={isGerman} />}
+              {section.key === 'procedure' && <RoRProcedure isGerman={isGerman} />}
+              {section.key === 'interpretation' && <RoRInterpretation isGerman={isGerman} />}
+              {section.key === 'limits' && <RoRLimits isGerman={isGerman} />}
+              {section.key === 'comparison' && <RoRComparison isGerman={isGerman} />}
+              {section.key === 'troubleshooting' && <RoRTroubleshooting isGerman={isGerman} />}
+            </div>
+          )}
+        </div>
+      ))}
+
+      {/* Quick Info Box */}
+      <div className="bg-aqua-500/10 rounded-lg p-3">
+        <p className="text-caption text-aqua-700 dark:text-aqua-300">
+          {isGerman
+            ? '💡 Die Rate-of-Rise Analyse dieser App unterstützt Pfeiffer TPG362 Drucklogger-Daten und führt automatische Phasenerkennung, lineare Regression und Klassifikation durch.'
+            : '💡 This app\'s Rate-of-Rise analysis supports Pfeiffer TPG362 pressure logger data and performs automatic phase detection, linear regression, and classification.'}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// --- Rate of Rise Sub-Components ---
+
+function RoRBasics({ isGerman }: { isGerman: boolean }) {
+  return (
+    <div className="space-y-4 pt-3">
+      <div>
+        <h5 className="font-medium text-text-primary mb-2">
+          {isGerman ? 'Was ist der Druckanstiegstest?' : 'What is the Rate-of-Rise Test?'}
+        </h5>
+        <p className="text-caption text-text-secondary">
+          {isGerman
+            ? 'Der Druckanstiegstest misst, wie schnell der Druck in einem evakuierten, abgeschlossenen System ansteigt. Nach Erreichen eines stabilen Basisdrucks werden die Pumpen abgesperrt (Ventil geschlossen) und der Druckverlauf über Zeit aufgezeichnet.'
+            : 'The rate-of-rise test measures how quickly the pressure rises in an evacuated, closed system. After reaching a stable base pressure, the pumps are isolated (valve closed) and the pressure progression over time is recorded.'}
+        </p>
+      </div>
+
+      <div>
+        <h5 className="font-medium text-text-primary mb-2">
+          {isGerman ? 'Anwendungsgebiete' : 'Applications'}
+        </h5>
+        <ul className="text-caption text-text-secondary space-y-1 list-disc list-inside">
+          <li>{isGerman ? 'Abnahmetests von Vakuumkammern' : 'Acceptance tests for vacuum chambers'}</li>
+          <li>{isGerman ? 'Lecksuche und -lokalisation' : 'Leak detection and localization'}</li>
+          <li>{isGerman ? 'Qualitätskontrolle nach Wartung' : 'Quality control after maintenance'}</li>
+          <li>{isGerman ? 'Bestimmung der Ausgasungsrate' : 'Outgassing rate determination'}</li>
+          <li>{isGerman ? 'Unterscheidung Leck vs. Ausgasung' : 'Differentiation leak vs. outgassing'}</li>
+        </ul>
+      </div>
+
+      <div>
+        <h5 className="font-medium text-text-primary mb-2">
+          {isGerman ? 'Vorteile' : 'Advantages'}
+        </h5>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-state-success/10 rounded-lg p-2">
+            <span className="text-caption text-state-success font-medium">
+              {isGerman ? 'Quantitative Leckrate' : 'Quantitative leak rate'}
+            </span>
+          </div>
+          <div className="bg-state-success/10 rounded-lg p-2">
+            <span className="text-caption text-state-success font-medium">
+              {isGerman ? 'Einfache Durchführung' : 'Simple execution'}
+            </span>
+          </div>
+          <div className="bg-state-success/10 rounded-lg p-2">
+            <span className="text-caption text-state-success font-medium">
+              {isGerman ? 'Kein Tracergas nötig' : 'No tracer gas needed'}
+            </span>
+          </div>
+          <div className="bg-state-success/10 rounded-lg p-2">
+            <span className="text-caption text-state-success font-medium">
+              {isGerman ? 'Gesamtleckrate' : 'Total leak rate'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h5 className="font-medium text-text-primary mb-2">
+          {isGerman ? 'Limitierungen' : 'Limitations'}
+        </h5>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-state-warning/10 rounded-lg p-2">
+            <span className="text-caption text-state-warning font-medium">
+              {isGerman ? 'Keine Lokalisation' : 'No localization'}
+            </span>
+          </div>
+          <div className="bg-state-warning/10 rounded-lg p-2">
+            <span className="text-caption text-state-warning font-medium">
+              {isGerman ? 'Zeitaufwendig' : 'Time-consuming'}
+            </span>
+          </div>
+          <div className="bg-state-warning/10 rounded-lg p-2">
+            <span className="text-caption text-state-warning font-medium">
+              {isGerman ? 'Volumen muss bekannt sein' : 'Volume must be known'}
+            </span>
+          </div>
+          <div className="bg-state-warning/10 rounded-lg p-2">
+            <span className="text-caption text-state-warning font-medium">
+              {isGerman ? 'Überlagert mit Ausgasung' : 'Overlaid with outgassing'}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function RoRPhysics({ isGerman }: { isGerman: boolean }) {
+  return (
+    <div className="space-y-4 pt-3">
+      <div>
+        <h5 className="font-medium text-text-primary mb-2">
+          {isGerman ? 'Grundgleichung' : 'Fundamental Equation'}
+        </h5>
+        <div className="bg-bg-secondary rounded-lg p-3">
+          <div className="font-mono text-center py-2 text-lg">
+            Q = V × (dp/dt)
+          </div>
+          <div className="text-caption text-text-muted mt-2 space-y-1">
+            <div>• <span className="font-mono">Q</span> = {isGerman ? 'Leckrate' : 'Leak rate'} [mbar·L/s]</div>
+            <div>• <span className="font-mono">V</span> = {isGerman ? 'Kammervolumen' : 'Chamber volume'} [L]</div>
+            <div>• <span className="font-mono">dp/dt</span> = {isGerman ? 'Druckanstiegsrate' : 'Pressure rise rate'} [mbar/s]</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h5 className="font-medium text-text-primary mb-2">
+          {isGerman ? 'Druckanstiegsrate berechnen' : 'Calculating Pressure Rise Rate'}
+        </h5>
+        <p className="text-caption text-text-secondary mb-2">
+          {isGerman
+            ? 'Die Druckanstiegsrate dp/dt wird durch lineare Regression der Druckdaten im Anstiegsbereich ermittelt:'
+            : 'The pressure rise rate dp/dt is determined by linear regression of pressure data in the rise phase:'}
+        </p>
+        <div className="bg-bg-secondary rounded-lg p-3">
+          <div className="font-mono text-center py-2">
+            p(t) = p₀ + (dp/dt) × t
+          </div>
+          <div className="text-caption text-text-muted mt-2">
+            <div>• <span className="font-mono">p₀</span> = {isGerman ? 'Basisdruck beim Start' : 'Base pressure at start'}</div>
+            <div>• <span className="font-mono">R²</span> = {isGerman ? 'Bestimmtheitsmaß (sollte > 0.95 sein)' : 'Coefficient of determination (should be > 0.95)'}</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h5 className="font-medium text-text-primary mb-2">
+          {isGerman ? 'Einheitenumrechnung' : 'Unit Conversion'}
+        </h5>
+        <div className="overflow-x-auto">
+          <table className="w-full text-caption">
+            <thead>
+              <tr className="border-b border-subtle">
+                <th className="text-left py-2 px-2">{isGerman ? 'Einheit' : 'Unit'}</th>
+                <th className="text-left py-2 px-2">{isGerman ? 'Faktor zu mbar·L/s' : 'Factor to mbar·L/s'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-subtle/50">
+                <td className="py-1.5 px-2 font-mono">mbar·L/s</td>
+                <td className="py-1.5 px-2 font-mono">1</td>
+              </tr>
+              <tr className="border-b border-subtle/50">
+                <td className="py-1.5 px-2 font-mono">Pa·m³/s</td>
+                <td className="py-1.5 px-2 font-mono">× 10</td>
+              </tr>
+              <tr className="border-b border-subtle/50">
+                <td className="py-1.5 px-2 font-mono">Torr·L/s</td>
+                <td className="py-1.5 px-2 font-mono">× 1.333</td>
+              </tr>
+              <tr className="border-b border-subtle/50">
+                <td className="py-1.5 px-2 font-mono">atm·cm³/s (scc/s)</td>
+                <td className="py-1.5 px-2 font-mono">× 1.013</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h5 className="font-medium text-text-primary mb-2">
+          {isGerman ? 'Helium-Äquivalent' : 'Helium Equivalent'}
+        </h5>
+        <p className="text-caption text-text-secondary mb-2">
+          {isGerman
+            ? 'Für Vergleich mit He-Lecksuchern wird die Leckrate umgerechnet:'
+            : 'For comparison with He leak detectors, the leak rate is converted:'}
+        </p>
+        <div className="bg-bg-secondary rounded-lg p-3">
+          <div className="font-mono text-center py-2">
+            Q<sub>He</sub> = Q<sub>Luft</sub> × √(M<sub>Luft</sub>/M<sub>He</sub>) ≈ Q<sub>Luft</sub> × 2.7
+          </div>
+          <p className="text-caption text-text-muted mt-2">
+            {isGerman
+              ? 'Helium diffundiert ~2.7× schneller als Luft durch gleich große Öffnungen.'
+              : 'Helium diffuses ~2.7× faster than air through equal-sized openings.'}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function RoRClassification({ isGerman }: { isGerman: boolean }) {
+  const types = [
+    {
+      type: 'real_leak',
+      name: 'Echtes Leck',
+      nameEn: 'Real Leak',
+      icon: '🔴',
+      color: 'state-danger',
+      description: 'Durchgehende Verbindung zwischen Kammer und Atmosphäre (Riss, offene Verbindung, defekte Dichtung).',
+      descriptionEn: 'Direct connection between chamber and atmosphere (crack, open connection, defective seal).',
+      characteristics: [
+        'Linearer Druckanstieg (konstant dp/dt)',
+        'Hoher R²-Wert (>0.98)',
+        'Reagiert auf He-Besprühung',
+        'Druckanstieg proportional zum Atmosphärendruck',
+      ],
+      characteristicsEn: [
+        'Linear pressure rise (constant dp/dt)',
+        'High R² value (>0.98)',
+        'Responds to He spraying',
+        'Pressure rise proportional to atmospheric pressure',
+      ],
+    },
+    {
+      type: 'virtual_leak',
+      name: 'Virtuelles Leck',
+      nameEn: 'Virtual Leak',
+      icon: '🟡',
+      color: 'state-warning',
+      description: 'Eingeschlossenes Gas in Hohlräumen, Gewindegängen, Spalten oder porösem Material.',
+      descriptionEn: 'Trapped gas in cavities, threads, gaps, or porous material.',
+      characteristics: [
+        'Anfangs schneller, dann abflachender Anstieg',
+        'Niedriger R²-Wert (<0.9)',
+        'Keine Reaktion auf He-Besprühung',
+        'Oft durch Bakeout reduzierbar',
+      ],
+      characteristicsEn: [
+        'Initially fast, then flattening rise',
+        'Low R² value (<0.9)',
+        'No response to He spraying',
+        'Often reducible by baking',
+      ],
+    },
+    {
+      type: 'outgassing',
+      name: 'Ausgasung',
+      nameEn: 'Outgassing',
+      icon: '🟢',
+      color: 'aqua-500',
+      description: 'Desorption von adsorbierten Gasen (hauptsächlich H₂O, dann H₂) von Oberflächen.',
+      descriptionEn: 'Desorption of adsorbed gases (mainly H₂O, then H₂) from surfaces.',
+      characteristics: [
+        'Exponentiell abklingender Anstieg',
+        'Niedriger R²-Wert',
+        'Stark temperaturabhängig',
+        'Reduziert sich durch Bakeout massiv',
+      ],
+      characteristicsEn: [
+        'Exponentially decaying rise',
+        'Low R² value',
+        'Strongly temperature-dependent',
+        'Massively reduced by baking',
+      ],
+    },
+    {
+      type: 'mixed',
+      name: 'Misch-Signal',
+      nameEn: 'Mixed Signal',
+      icon: '⚪',
+      color: 'text-muted',
+      description: 'Kombination aus mehreren Quellen, typisch in realen Systemen.',
+      descriptionEn: 'Combination of multiple sources, typical in real systems.',
+      characteristics: [
+        'Mittlerer R²-Wert (0.9-0.95)',
+        'Analyse nach Bakeout wiederholen',
+        'RGA zur Differenzierung nutzen',
+        'Mehrere Messungen vergleichen',
+      ],
+      characteristicsEn: [
+        'Medium R² value (0.9-0.95)',
+        'Repeat analysis after baking',
+        'Use RGA for differentiation',
+        'Compare multiple measurements',
+      ],
+    },
+  ]
+
+  return (
+    <div className="space-y-4 pt-3">
+      <p className="text-caption text-text-secondary">
+        {isGerman
+          ? 'Die Klassifikation basiert auf der Form der Druckkurve und dem Fit-Bestimmtheitsmaß R². Verschiedene Ursachen erzeugen charakteristisch unterschiedliche Kurvenverläufe.'
+          : 'Classification is based on the shape of the pressure curve and the fit coefficient of determination R². Different causes produce characteristically different curve progressions.'}
+      </p>
+
+      <div className="space-y-3">
+        {types.map(t => (
+          <div key={t.type} className="bg-bg-secondary rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xl">{t.icon}</span>
+              <span className={cn('font-medium', `text-${t.color}`)}>
+                {isGerman ? t.name : t.nameEn}
+              </span>
+            </div>
+            <p className="text-caption text-text-secondary mb-2">
+              {isGerman ? t.description : t.descriptionEn}
+            </p>
+            <div>
+              <span className="text-micro text-text-muted block mb-1">
+                {isGerman ? 'Charakteristika:' : 'Characteristics:'}
+              </span>
+              <ul className="text-caption text-text-muted list-disc list-inside space-y-0.5">
+                {(isGerman ? t.characteristics : t.characteristicsEn).map((c, i) => (
+                  <li key={i}>{c}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function RoRProcedure({ isGerman }: { isGerman: boolean }) {
+  const steps = [
+    {
+      step: 1,
+      title: 'Vorbereitung',
+      titleEn: 'Preparation',
+      tasks: [
+        'System auf Basisdruck evakuieren',
+        'Drucklogger anschließen (z.B. TPG362)',
+        'Kammervolumen dokumentieren',
+        'Temperatur stabilisieren',
+      ],
+      tasksEn: [
+        'Evacuate system to base pressure',
+        'Connect pressure logger (e.g., TPG362)',
+        'Document chamber volume',
+        'Stabilize temperature',
+      ],
+    },
+    {
+      step: 2,
+      title: 'Baseline-Messung',
+      titleEn: 'Baseline Measurement',
+      tasks: [
+        'Mindestens 10-15 Minuten stabilen Druck aufzeichnen',
+        'Druckschwankungen sollten <5% sein',
+        'Bei zu hohen Schwankungen: System noch nicht stabil',
+      ],
+      tasksEn: [
+        'Record stable pressure for at least 10-15 minutes',
+        'Pressure fluctuations should be <5%',
+        'If fluctuations too high: system not yet stable',
+      ],
+    },
+    {
+      step: 3,
+      title: 'Ventil schließen',
+      titleEn: 'Close Valve',
+      tasks: [
+        'Ventil zwischen Kammer und Pumpe schließen',
+        'Zeitpunkt exakt dokumentieren',
+        'Ventil muss vollständig dicht sein!',
+      ],
+      tasksEn: [
+        'Close valve between chamber and pump',
+        'Document exact time',
+        'Valve must be completely sealed!',
+      ],
+    },
+    {
+      step: 4,
+      title: 'Druckanstieg aufzeichnen',
+      titleEn: 'Record Pressure Rise',
+      tasks: [
+        'Typische Messzeit: 30 min - 3 h',
+        'Kürzere Zeit bei großen Lecks',
+        'Längere Zeit bei kleinen Lecks/Ausgasung',
+        'Messintervall: 1-10 Sekunden empfohlen',
+      ],
+      tasksEn: [
+        'Typical measurement time: 30 min - 3 h',
+        'Shorter time for large leaks',
+        'Longer time for small leaks/outgassing',
+        'Measurement interval: 1-10 seconds recommended',
+      ],
+    },
+    {
+      step: 5,
+      title: 'Analyse',
+      titleEn: 'Analysis',
+      tasks: [
+        'Baseline- und Anstiegsphase identifizieren',
+        'Lineare Regression im Anstiegsbereich',
+        'R²-Wert zur Klassifikation nutzen',
+        'Leckrate Q = V × dp/dt berechnen',
+      ],
+      tasksEn: [
+        'Identify baseline and rise phases',
+        'Linear regression in rise region',
+        'Use R² value for classification',
+        'Calculate leak rate Q = V × dp/dt',
+      ],
+    },
+  ]
+
+  return (
+    <div className="space-y-4 pt-3">
+      <p className="text-caption text-text-secondary">
+        {isGerman
+          ? 'Die korrekte Durchführung ist entscheidend für aussagekräftige Ergebnisse. Folgen Sie diesen Schritten systematisch.'
+          : 'Correct execution is crucial for meaningful results. Follow these steps systematically.'}
+      </p>
+
+      <div className="space-y-3">
+        {steps.map(s => (
+          <div key={s.step} className="bg-bg-secondary rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-6 h-6 rounded-full bg-aqua-500 text-white text-caption font-bold flex items-center justify-center">
+                {s.step}
+              </span>
+              <span className="font-medium text-text-primary">
+                {isGerman ? s.title : s.titleEn}
+              </span>
+            </div>
+            <ul className="text-caption text-text-muted list-disc list-inside space-y-0.5 ml-8">
+              {(isGerman ? s.tasks : s.tasksEn).map((task, i) => (
+                <li key={i}>{task}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function RoRInterpretation({ isGerman }: { isGerman: boolean }) {
+  return (
+    <div className="space-y-4 pt-3">
+      <div>
+        <h5 className="font-medium text-text-primary mb-2">
+          {isGerman ? 'R²-Wert interpretieren' : 'Interpreting R² Value'}
+        </h5>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 p-2 bg-state-success/10 rounded-lg">
+            <span className="font-mono text-state-success font-bold">R² {'>'} 0.98</span>
+            <span className="text-caption text-text-secondary">
+              → {isGerman ? 'Echtes Leck sehr wahrscheinlich' : 'Real leak very likely'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 p-2 bg-state-warning/10 rounded-lg">
+            <span className="font-mono text-state-warning font-bold">0.90 {'<'} R² {'<'} 0.98</span>
+            <span className="text-caption text-text-secondary">
+              → {isGerman ? 'Misch-Signal (Leck + Ausgasung)' : 'Mixed signal (leak + outgassing)'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 p-2 bg-aqua-500/10 rounded-lg">
+            <span className="font-mono text-aqua-500 font-bold">R² {'<'} 0.90</span>
+            <span className="text-caption text-text-secondary">
+              → {isGerman ? 'Ausgasung oder virtuelles Leck' : 'Outgassing or virtual leak'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h5 className="font-medium text-text-primary mb-2">
+          {isGerman ? 'Typische Leckraten' : 'Typical Leak Rates'}
+        </h5>
+        <div className="overflow-x-auto">
+          <table className="w-full text-caption">
+            <thead>
+              <tr className="border-b border-subtle">
+                <th className="text-left py-2 px-2">{isGerman ? 'Bereich' : 'Range'}</th>
+                <th className="text-left py-2 px-2">{isGerman ? 'Bewertung' : 'Assessment'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-subtle/50">
+                <td className="py-1.5 px-2 font-mono text-state-danger">{'>'} 10⁻⁵ mbar·L/s</td>
+                <td className="py-1.5 px-2">{isGerman ? 'Grobes Leck, sofort beheben' : 'Gross leak, fix immediately'}</td>
+              </tr>
+              <tr className="border-b border-subtle/50">
+                <td className="py-1.5 px-2 font-mono text-state-warning">10⁻⁷ - 10⁻⁵ mbar·L/s</td>
+                <td className="py-1.5 px-2">{isGerman ? 'Mittleres Leck, lokalisieren' : 'Medium leak, localize'}</td>
+              </tr>
+              <tr className="border-b border-subtle/50">
+                <td className="py-1.5 px-2 font-mono text-aqua-500">10⁻⁹ - 10⁻⁷ mbar·L/s</td>
+                <td className="py-1.5 px-2">{isGerman ? 'Kleines Leck oder Ausgasung' : 'Small leak or outgassing'}</td>
+              </tr>
+              <tr className="border-b border-subtle/50">
+                <td className="py-1.5 px-2 font-mono text-state-success">{'<'} 10⁻⁹ mbar·L/s</td>
+                <td className="py-1.5 px-2">{isGerman ? 'UHV-tauglich' : 'UHV-compatible'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h5 className="font-medium text-text-primary mb-2">
+          {isGerman ? 'Weitere Analyse nach RoR' : 'Further Analysis After RoR'}
+        </h5>
+        <ul className="text-caption text-text-secondary space-y-1 list-disc list-inside">
+          <li>{isGerman ? 'Bei R² > 0.95: He-Lecksuche zur Lokalisation' : 'If R² > 0.95: He leak detection for localization'}</li>
+          <li>{isGerman ? 'Bei R² < 0.9: Bakeout, dann erneut messen' : 'If R² < 0.9: Bake out, then measure again'}</li>
+          <li>{isGerman ? 'RGA-Analyse für Gasart-Identifikation' : 'RGA analysis for gas type identification'}</li>
+          <li>{isGerman ? 'Temperaturvariation zur Differenzierung' : 'Temperature variation for differentiation'}</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+function RoRLimits({ isGerman }: { isGerman: boolean }) {
+  const limits = [
+    {
+      source: 'CERN LHC',
+      application: 'Beschleuniger-Vakuum',
+      applicationEn: 'Accelerator vacuum',
+      limit: '< 10⁻⁹ mbar·L/s',
+      condition: 'nach Bakeout',
+      conditionEn: 'after bakeout',
+    },
+    {
+      source: 'ITER',
+      application: 'Fusionsreaktor',
+      applicationEn: 'Fusion reactor',
+      limit: '< 10⁻⁸ mbar·L/s/m²',
+      condition: 'oberflächennormiert',
+      conditionEn: 'surface-normalized',
+    },
+    {
+      source: 'ISO 3529-1',
+      application: 'Industriestandard HV',
+      applicationEn: 'Industrial standard HV',
+      limit: '< 10⁻⁶ mbar·L/s',
+      condition: 'Hochvakuum',
+      conditionEn: 'High vacuum',
+    },
+    {
+      source: 'Halbleiter',
+      application: 'Prozesskammern',
+      applicationEn: 'Process chambers',
+      limit: '< 10⁻⁸ mbar·L/s',
+      condition: 'vor Prozessstart',
+      conditionEn: 'before process start',
+    },
+    {
+      source: 'Luft- & Raumfahrt',
+      application: 'Satelliten',
+      applicationEn: 'Satellites',
+      limit: '< 10⁻⁷ mbar·L/s',
+      condition: 'Gesamtsystem',
+      conditionEn: 'Total system',
+    },
+  ]
+
+  return (
+    <div className="space-y-4 pt-3">
+      <p className="text-caption text-text-secondary">
+        {isGerman
+          ? 'Typische Grenzwerte für verschiedene Anwendungen. Die Anforderungen hängen stark vom spezifischen Anwendungsfall ab.'
+          : 'Typical limits for various applications. Requirements depend strongly on the specific use case.'}
+      </p>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-caption">
+          <thead>
+            <tr className="border-b border-subtle">
+              <th className="text-left py-2 px-2">{isGerman ? 'Quelle' : 'Source'}</th>
+              <th className="text-left py-2 px-2">{isGerman ? 'Anwendung' : 'Application'}</th>
+              <th className="text-left py-2 px-2">{isGerman ? 'Grenzwert' : 'Limit'}</th>
+              <th className="text-left py-2 px-2">{isGerman ? 'Bedingung' : 'Condition'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {limits.map((l, i) => (
+              <tr key={i} className="border-b border-subtle/50">
+                <td className="py-1.5 px-2 font-medium text-aqua-500">{l.source}</td>
+                <td className="py-1.5 px-2">{isGerman ? l.application : l.applicationEn}</td>
+                <td className="py-1.5 px-2 font-mono">{l.limit}</td>
+                <td className="py-1.5 px-2 text-text-muted">{isGerman ? l.condition : l.conditionEn}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="bg-state-warning/10 rounded-lg p-3">
+        <p className="text-caption text-state-warning">
+          {isGerman
+            ? '⚠️ Die Grenzwerte beziehen sich oft auf He-Äquivalent. Bei RoR-Messung mit Luft muss umgerechnet werden (Faktor ~2.7).'
+            : '⚠️ Limits often refer to He equivalent. When measuring RoR with air, conversion is needed (factor ~2.7).'}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function RoRComparison({ isGerman }: { isGerman: boolean }) {
+  const methods = [
+    {
+      method: 'Rate-of-Rise',
+      pros: ['Quantitative Gesamtleckrate', 'Einfache Durchführung', 'Kein Tracergas', 'Kostengünstig'],
+      prosEn: ['Quantitative total leak rate', 'Simple execution', 'No tracer gas', 'Cost-effective'],
+      cons: ['Keine Lokalisation', 'Zeitaufwendig', 'Volumen muss bekannt sein'],
+      consEn: ['No localization', 'Time-consuming', 'Volume must be known'],
+      sensitivity: '10⁻⁶ - 10⁻⁹',
+    },
+    {
+      method: 'He-Lecksuche',
+      pros: ['Lokalisation möglich', 'Hohe Empfindlichkeit', 'Schnelle Ergebnisse', 'Industriestandard'],
+      prosEn: ['Localization possible', 'High sensitivity', 'Fast results', 'Industry standard'],
+      cons: ['Teures Equipment', 'Helium-Verbrauch', 'Schulung erforderlich'],
+      consEn: ['Expensive equipment', 'Helium consumption', 'Training required'],
+      sensitivity: '10⁻⁹ - 10⁻¹²',
+    },
+    {
+      method: 'Druckabfall',
+      pros: ['Sehr einfach', 'Keine Spezialgeräte', 'Schnelle Grobprüfung'],
+      prosEn: ['Very simple', 'No special equipment', 'Quick rough check'],
+      cons: ['Nur für große Lecks', 'Temperaturempfindlich', 'Unpräzise'],
+      consEn: ['Only for large leaks', 'Temperature-sensitive', 'Imprecise'],
+      sensitivity: '> 10⁻⁴',
+    },
+    {
+      method: 'Blasentest',
+      pros: ['Direkter visueller Nachweis', 'Sehr kostengünstig', 'Lokalisation möglich'],
+      prosEn: ['Direct visual evidence', 'Very cost-effective', 'Localization possible'],
+      cons: ['Nur für große Lecks', 'Nicht für Vakuum', 'Subjektiv'],
+      consEn: ['Only for large leaks', 'Not for vacuum', 'Subjective'],
+      sensitivity: '> 10⁻³',
+    },
+  ]
+
+  return (
+    <div className="space-y-4 pt-3">
+      <p className="text-caption text-text-secondary">
+        {isGerman
+          ? 'Der Druckanstiegstest ist eine von mehreren Methoden zur Leckprüfung. Die Wahl hängt von Anforderungen, Budget und Anwendung ab.'
+          : 'The rate-of-rise test is one of several leak testing methods. Choice depends on requirements, budget, and application.'}
+      </p>
+
+      <div className="space-y-3">
+        {methods.map(m => (
+          <div key={m.method} className="bg-bg-secondary rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-medium text-text-primary">{m.method}</span>
+              <span className="text-micro font-mono text-aqua-500">{m.sensitivity} mbar·L/s</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-micro text-state-success block mb-1">
+                  {isGerman ? 'Vorteile' : 'Advantages'}
+                </span>
+                <ul className="text-caption text-text-muted list-disc list-inside">
+                  {(isGerman ? m.pros : m.prosEn).map((p, i) => (
+                    <li key={i}>{p}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <span className="text-micro text-state-danger block mb-1">
+                  {isGerman ? 'Nachteile' : 'Disadvantages'}
+                </span>
+                <ul className="text-caption text-text-muted list-disc list-inside">
+                  {(isGerman ? m.cons : m.consEn).map((c, i) => (
+                    <li key={i}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function RoRTroubleshooting({ isGerman }: { isGerman: boolean }) {
+  const issues = [
+    {
+      problem: 'Kein stabiler Basisdruck',
+      problemEn: 'No stable base pressure',
+      causes: ['Aktives Leck', 'Starke Ausgasung', 'Pumpenproblem'],
+      causesEn: ['Active leak', 'Strong outgassing', 'Pump problem'],
+      solutions: ['Längere Evakuierungszeit', 'Bakeout durchführen', 'Pumpe prüfen'],
+      solutionsEn: ['Longer evacuation time', 'Perform bakeout', 'Check pump'],
+    },
+    {
+      problem: 'R²-Wert schwankt stark',
+      problemEn: 'R² value fluctuates strongly',
+      causes: ['Zu kurze Messzeit', 'Temperaturänderung', 'Ventil nicht dicht'],
+      causesEn: ['Measurement time too short', 'Temperature change', 'Valve not sealed'],
+      solutions: ['Messzeit verlängern', 'Temperatur stabilisieren', 'Ventildichtheit prüfen'],
+      solutionsEn: ['Extend measurement time', 'Stabilize temperature', 'Check valve seal'],
+    },
+    {
+      problem: 'Druckanstieg zu schnell',
+      problemEn: 'Pressure rise too fast',
+      causes: ['Grobes Leck', 'Ventil undicht', 'Sensor-Drift'],
+      causesEn: ['Gross leak', 'Leaky valve', 'Sensor drift'],
+      solutions: ['Schnelle Grobprüfung', 'Ventil austauschen', 'Sensor kalibrieren'],
+      solutionsEn: ['Quick rough check', 'Replace valve', 'Calibrate sensor'],
+    },
+    {
+      problem: 'Kein Druckanstieg erkennbar',
+      problemEn: 'No pressure rise detectable',
+      causes: ['Sensor-Bereich zu klein', 'Messzeit zu kurz', 'System sehr dicht'],
+      causesEn: ['Sensor range too small', 'Measurement time too short', 'System very tight'],
+      solutions: ['Empfindlicheren Sensor nutzen', 'Länger messen', 'Erfolg dokumentieren!'],
+      solutionsEn: ['Use more sensitive sensor', 'Measure longer', 'Document success!'],
+    },
+  ]
+
+  return (
+    <div className="space-y-4 pt-3">
+      <p className="text-caption text-text-secondary">
+        {isGerman
+          ? 'Häufige Probleme bei der Druckanstiegsmessung und deren Lösungen.'
+          : 'Common problems with rate-of-rise measurements and their solutions.'}
+      </p>
+
+      <div className="space-y-3">
+        {issues.map((issue, i) => (
+          <div key={i} className="bg-bg-secondary rounded-lg p-3">
+            <h5 className="font-medium text-state-danger mb-2">
+              {isGerman ? issue.problem : issue.problemEn}
+            </h5>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <span className="text-micro text-text-muted block mb-1">
+                  {isGerman ? 'Mögliche Ursachen:' : 'Possible causes:'}
+                </span>
+                <ul className="text-caption text-text-secondary list-disc list-inside">
+                  {(isGerman ? issue.causes : issue.causesEn).map((c, j) => (
+                    <li key={j}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <span className="text-micro text-text-muted block mb-1">
+                  {isGerman ? 'Lösungen:' : 'Solutions:'}
+                </span>
+                <ul className="text-caption text-state-success list-disc list-inside">
+                  {(isGerman ? issue.solutions : issue.solutionsEn).map((s, j) => (
+                    <li key={j}>{s}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-aqua-500/10 rounded-lg p-3">
+        <p className="text-caption text-aqua-700 dark:text-aqua-300">
+          {isGerman
+            ? '💡 Tipp: Bei wiederholt inkonsistenten Ergebnissen sollte eine RGA-Analyse zur Identifikation der dominanten Gasart durchgeführt werden.'
+            : '💡 Tip: For repeatedly inconsistent results, an RGA analysis should be performed to identify the dominant gas species.'}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// ============================================
 // REFERENCES TAB
 // ============================================
 function ReferencesTab({ isGerman }: { isGerman: boolean }) {
@@ -1716,6 +2614,18 @@ function ReferencesTab({ isGerman }: { isGerman: boolean }) {
 
   return (
     <div className="space-y-6">
+      {/* Introduction */}
+      <div className="bg-gradient-to-r from-aqua-500/10 to-aqua-600/5 rounded-lg p-4 border border-aqua-500/20">
+        <h3 className="font-semibold text-aqua-600 dark:text-aqua-400 mb-2">
+          {isGerman ? 'Quellen & Referenzen' : 'Sources & References'}
+        </h3>
+        <p className="text-caption text-text-secondary leading-relaxed">
+          {isGerman
+            ? 'Die Wissensbasis dieser Anwendung wurde aus mehreren autoritativen Quellen konsolidiert: Wissenschaftliche Literatur, Herstellerdokumentation und KI-generierte Synthesen. Alle Diagnose-Algorithmen, Grenzwerte und Cracking Patterns sind durch diese Quellen validiert.'
+            : 'This application\'s knowledge base has been consolidated from multiple authoritative sources: scientific literature, manufacturer documentation, and AI-generated syntheses. All diagnostic algorithms, limits, and cracking patterns are validated by these sources.'}
+        </p>
+      </div>
+
       {/* Knowledge Bases */}
       <section>
         <h4 className="font-medium text-text-primary mb-3">
