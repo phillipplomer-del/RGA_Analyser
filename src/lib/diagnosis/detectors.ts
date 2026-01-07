@@ -436,7 +436,10 @@ export function detectChlorinatedSolvent(input: DiagnosisInput): DiagnosticResul
 // 6. WASSER-AUSGASUNG
 // ============================================
 export function detectWaterOutgassing(input: DiagnosisInput): DiagnosticResult | null {
-  const { peaks } = input
+  const { peaks, metadata } = input
+
+  // Wenn System bekannterweise ausgeheizt ist, Diagnose stark abschwächen
+  const isKnownBaked = metadata?.bakedOut === true
 
   const m18 = getPeak(peaks, 18)  // H₂O⁺
   const m17 = getPeak(peaks, 17)  // OH⁺
@@ -489,19 +492,46 @@ export function detectWaterOutgassing(input: DiagnosisInput): DiagnosticResult |
     confidence += 0.2
   }
 
+  // Wenn System ausgeheizt ist: Konfidenz stark reduzieren und Hinweis hinzufügen
+  if (isKnownBaked) {
+    evidence.push(createEvidence(
+      'presence',
+      `⚠️ System ist als "ausgeheizt" markiert (Dateiname) - Diagnose unwahrscheinlich`,
+      `⚠️ System marked as "baked" (filename) - diagnosis unlikely`,
+      false  // Negatives Indiz
+    ))
+    // Konfidenz auf max 15% begrenzen bei ausgeheiztem System
+    confidence = Math.min(confidence * 0.3, 0.15)
+  }
+
   if (confidence < DEFAULT_THRESHOLDS.minConfidence) return null
+
+  // Angepasste Beschreibung wenn System ausgeheizt ist
+  const description = isKnownBaked
+    ? 'Wasser präsent, aber System ist ausgeheizt. Möglicherweise Messung kurz nach Belüftung oder Restwasser.'
+    : 'Wasser ist dominantes Restgas. Typisch für nicht ausgeheizte Systeme.'
+  const descriptionEn = isKnownBaked
+    ? 'Water present but system is baked. Possibly measurement shortly after venting or residual water.'
+    : 'Water is dominant residual gas. Typical for unbaked systems.'
+
+  const recommendation = isKnownBaked
+    ? 'Prüfen Sie ob die Messung direkt nach einer Belüftung erfolgte. Bei anhaltend hohen Wasserwerten: erneutes Ausheizen.'
+    : 'System ausheizen (>120°C, min. 12-24h). Alternative: Längeres Pumpen (Wochen-Monate).'
+  const recommendationEn = isKnownBaked
+    ? 'Check if measurement was taken right after venting. For persistent high water: rebake.'
+    : 'Bake out system (>120°C, min. 12-24h). Alternative: Extended pumping (weeks-months).'
 
   return {
     type: DiagnosisType.WATER_OUTGASSING,
     name: 'Wasser-Ausgasung',
     nameEn: 'Water Outgassing',
-    description: 'Wasser ist dominantes Restgas. Typisch für nicht ausgeheizte Systeme.',
-    descriptionEn: 'Water is dominant residual gas. Typical for unbaked systems.',
+    description,
+    descriptionEn,
     confidence: Math.min(confidence, 1.0),
-    severity: 'info',
+    severity: isKnownBaked ? 'info' : 'info',
     evidence,
-    recommendation: 'System ausheizen (>120°C, min. 12-24h). Alternative: Längeres Pumpen (Wochen-Monate).',
-    recommendationEn: 'Bake out system (>120°C, min. 12-24h). Alternative: Extended pumping (weeks-months).',
+    recommendation,
+    recommendationEn,
     affectedMasses: [16, 17, 18]
   }
 }
@@ -510,7 +540,10 @@ export function detectWaterOutgassing(input: DiagnosisInput): DiagnosticResult |
 // 7. WASSERSTOFF-DOMINANT (GUTER ZUSTAND)
 // ============================================
 export function detectHydrogenDominant(input: DiagnosisInput): DiagnosticResult | null {
-  const { peaks } = input
+  const { peaks, metadata } = input
+
+  // Wenn System bekannterweise ausgeheizt ist, Diagnose verstärken
+  const isKnownBaked = metadata?.bakedOut === true
 
   const m2 = getPeak(peaks, 2)    // H₂
   const m18 = getPeak(peaks, 18)  // H₂O
@@ -557,6 +590,18 @@ export function detectHydrogenDominant(input: DiagnosisInput): DiagnosticResult 
       true
     ))
     confidence += 0.2
+  }
+
+  // Wenn System ausgeheizt ist: Konfidenz-Boost und Hinweis hinzufügen
+  if (isKnownBaked) {
+    evidence.push(createEvidence(
+      'presence',
+      `✅ System ist als "ausgeheizt" markiert (Dateiname) - erwartetes Verhalten`,
+      `✅ System marked as "baked" (filename) - expected behavior`,
+      true
+    ))
+    // Konfidenz-Boost bei ausgeheiztem System
+    confidence = Math.min(confidence * 1.3, 1.0)
   }
 
   if (confidence < 0.5) return null

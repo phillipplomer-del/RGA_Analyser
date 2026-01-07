@@ -1,3 +1,10 @@
+import type {
+  CalibrationResult,
+  PressureDataPoint,
+  GasPartialPressure,
+  SEMAgingWarning
+} from './calibration'
+
 export interface RGAMetadata {
   sourceFile: string
   exportTime: Date | null
@@ -65,6 +72,18 @@ export interface AnalysisResult {
   diagnostics?: DiagnosticResultSummary[]
   /** Zusammenfassung der Diagnosen */
   diagnosisSummary?: DiagnosisSummary
+
+  // ============================================
+  // Pressure Calibration Data
+  // ============================================
+  /** Kalibrierungsergebnis mit Sensitivity, Korrekturen, Dekonvolution */
+  calibration?: CalibrationResult
+  /** Spektrum mit Druckwerten [mbar] */
+  pressureData?: PressureDataPoint[]
+  /** Partialdrücke der identifizierten Gase */
+  gasPartialPressures?: GasPartialPressure[]
+  /** SEM-Alterungswarnung (falls erkannt) */
+  semWarning?: SEMAgingWarning | null
 }
 
 export type SpecificationType = 'GSI' | 'CERN'

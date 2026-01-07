@@ -1,7 +1,10 @@
 import type { RawData, AnalysisResult, NormalizedData, Peak, DataPoint, DiagnosticResultSummary, DiagnosisSummary } from '@/types/rga'
+import type { CalibrationLevel, DeviceCalibration } from '@/types/calibration'
+import { SystemState } from '@/types/calibration'
 import { checkLimits } from '@/lib/limits'
 import { performQualityChecks } from '@/lib/quality'
 import { runFullDiagnosis, createDiagnosisInput, getDiagnosisSummary, DIAGNOSIS_METADATA, type DiagnosticResult } from '@/lib/diagnosis'
+import { calibrate, PressureConversionService, getSEMTracker, parseFilenameExtended } from '@/lib/calibration'
 
 // Known masses and their gas identifications
 export const KNOWN_MASSES: { mass: number; gas: string; fragments?: string[] }[] = [
@@ -40,7 +43,12 @@ export class AnalysisError extends Error {
   }
 }
 
-export function analyzeSpectrum(raw: RawData): AnalysisResult {
+export interface AnalysisOptions {
+  calibrationLevel?: CalibrationLevel
+  deviceCalibration?: DeviceCalibration
+}
+
+export function analyzeSpectrum(raw: RawData, options: AnalysisOptions = {}): AnalysisResult {
   // Validate input data
   if (!raw.points || raw.points.length === 0) {
     throw new AnalysisError(
@@ -109,11 +117,44 @@ export function analyzeSpectrum(raw: RawData): AnalysisResult {
   const totalPressure = raw.points.reduce((sum, p) => sum + p.current, 0)
   const dominantGases = identifyDominantGases(peaks, totalPressure)
 
-  // 8. Run automatic diagnosis
-  const diagnosisInput = createDiagnosisInput(normalizedData)
+  // 8. Parse filename metadata first (needed for diagnosis AND calibration)
+  const filename = raw.metadata.sourceFile || ''
+  const filenameMetadata = parseFilenameExtended(filename)
+  const isBaked = filenameMetadata.systemState === SystemState.BAKED
+
+  // 9. Run automatic diagnosis WITH metadata from filename
+  const diagnosisInput = createDiagnosisInput(normalizedData, {
+    bakedOut: isBaked,
+    chamber: raw.metadata.chamberName
+  })
   const diagnosticResults = runFullDiagnosis(diagnosisInput, 0.3)
   const diagnostics = convertDiagnosticsForUI(diagnosticResults)
   const diagnosisSummary = createDiagnosisSummary(diagnosticResults, normalizedData)
+
+  // 10. Pressure Calibration (reuses filename metadata)
+  const spectrumMap = new Map(raw.points.map(p => [Math.round(p.mass), p.current]))
+
+  const calibrationResult = calibrate(filename, spectrumMap, {
+    level: options.calibrationLevel || 'STANDARD',
+    deviceCalibration: options.deviceCalibration
+  })
+
+  // 11. Convert to pressure values
+  const conversionService = new PressureConversionService()
+  conversionService.setCalibration(calibrationResult)
+
+  const pressureData = conversionService.convertSpectrum(raw.points, {
+    applyRSF: true,
+    applyDeconvolution: true,
+    unit: 'mbar'
+  })
+
+  const gasPartialPressures = conversionService.getGasPartialPressures('mbar')
+
+  // 12. SEM Aging Tracking
+  const semTracker = getSEMTracker()
+  semTracker.addEntry(calibrationResult.metadata)
+  const semWarning = semTracker.checkAging()
 
   return {
     metadata: raw.metadata,
@@ -125,6 +166,11 @@ export function analyzeSpectrum(raw: RawData): AnalysisResult {
     dominantGases,
     diagnostics,
     diagnosisSummary,
+    // Calibration data
+    calibration: calibrationResult,
+    pressureData,
+    gasPartialPressures,
+    semWarning,
   }
 }
 

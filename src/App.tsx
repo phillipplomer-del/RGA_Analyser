@@ -38,11 +38,17 @@ function App() {
     skipLandingPage,
     setSkipLandingPage,
     addFile,
+    initializeAuth,
   } = useAppStore()
   const chartRef = useRef<HTMLDivElement>(null)
   const [showArchive, setShowArchive] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+
+  // Initialize auth and load cloud data on app startup
+  useEffect(() => {
+    initializeAuth()
+  }, [initializeAuth])
 
   // File drop handler for empty state
   const onDrop = useCallback(async (acceptedFiles: File[]) => {

@@ -5,8 +5,10 @@ import type { MeasurementFile, AnalysisResult, ComparisonResult } from '@/types/
 import { AIPanel } from '@/components/AIPanel'
 import { ExportPanel } from '@/components/ExportPanel'
 import { LimitsPanel } from '@/components/LimitsPanel'
+import { CalibrationPanel } from '@/components/CalibrationPanel'
 import { SaveSpectrumModal } from '@/components/SaveSpectrumModal'
 import { SpectrumArchive } from '@/components/SpectrumArchive'
+import { DeviceCalibrationModal } from '@/components/DeviceCalibrationModal'
 
 interface ActionsSidebarProps {
   files: MeasurementFile[]
@@ -19,12 +21,17 @@ interface ActionsSidebarProps {
   }
 }
 
-type PanelType = 'limits' | 'ai' | 'export'
+type PanelType = 'limits' | 'calibration' | 'ai' | 'export'
 
 const PANEL_ICONS: Record<PanelType, React.ReactNode> = {
   limits: (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+  ),
+  calibration: (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
     </svg>
   ),
   ai: (
@@ -45,8 +52,14 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
 
   const [showSaveModal, setShowSaveModal] = useState(false)
   const [showArchive, setShowArchive] = useState(false)
+  const [showDeviceCalibration, setShowDeviceCalibration] = useState(false)
 
   const isExpanded = sidebarActivePanel !== null
+
+  // Get current N₂ current from loaded file (m/z 28) for device calibration modal
+  const currentN2Current = files.length > 0
+    ? files[0].rawData.points.find(p => Math.round(p.mass) === 28)?.current
+    : undefined
 
   const handleCloudSave = () => {
     if (!currentUser) {
@@ -74,6 +87,7 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
 
   const panels: { key: PanelType; label: string }[] = [
     { key: 'limits', label: t('sidebar.limits', 'Limits') },
+    { key: 'calibration', label: t('sidebar.calibration', 'Druck') },
     { key: 'ai', label: t('sidebar.ai', 'AI') },
     { key: 'export', label: t('sidebar.export', 'Export') },
   ]
@@ -164,6 +178,7 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
           <div className="h-16 px-4 flex items-center justify-between border-b border-subtle bg-surface-card">
             <h2 className="font-semibold text-text-primary">
               {sidebarActivePanel === 'limits' && t('sidebar.limitsTitle', 'Limit Profiles')}
+              {sidebarActivePanel === 'calibration' && t('sidebar.calibrationTitle', 'Pressure Calibration')}
               {sidebarActivePanel === 'ai' && t('sidebar.aiTitle', 'AI Analysis')}
               {sidebarActivePanel === 'export' && t('sidebar.exportTitle', 'Export')}
             </h2>
@@ -181,6 +196,17 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
           <div className="flex-1 overflow-y-auto">
             {sidebarActivePanel === 'limits' && (
               <LimitsPanel files={files} />
+            )}
+            {sidebarActivePanel === 'calibration' && (
+              <div className="p-4">
+                <CalibrationPanel
+                  calibration={analysis.calibration}
+                  gasPartialPressures={analysis.gasPartialPressures}
+                  semWarning={analysis.semWarning}
+                  totalPressure={analysis.totalPressure}
+                  onOpenDeviceCalibration={() => setShowDeviceCalibration(true)}
+                />
+              </div>
             )}
             {sidebarActivePanel === 'ai' && (
               <div className="p-4">
@@ -216,6 +242,14 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
       {/* Archive Modal */}
       {showArchive && (
         <SpectrumArchive onClose={() => setShowArchive(false)} />
+      )}
+
+      {/* Device Calibration Modal */}
+      {showDeviceCalibration && (
+        <DeviceCalibrationModal
+          onClose={() => setShowDeviceCalibration(false)}
+          currentN2Current={currentN2Current}
+        />
       )}
     </div>
   )

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as d3 from 'd3'
 import type { NormalizedData, LimitCheck, MeasurementFile } from '@/types/rga'
+import type { PressureDataPoint } from '@/types/calibration'
 import { useAppStore } from '@/store/useAppStore'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { FILE_COLORS } from '@/components/FileManager'
@@ -23,7 +24,7 @@ interface TooltipData {
 
 export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
   const { t, i18n } = useTranslation()
-  const { chartOptions, updateChartOptions, toggleFileVisibility, limitProfiles, activeLimitProfileIds, toggleLimitProfile } = useAppStore()
+  const { chartOptions, updateChartOptions, toggleFileVisibility, limitProfiles, activeLimitProfileIds, toggleLimitProfile, pressureUnit } = useAppStore()
 
   // Get active profiles
   const activeProfiles = limitProfiles.filter(p => activeLimitProfileIds.includes(p.id))
@@ -72,15 +73,27 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
     const visibleFiles = files.filter(f => chartOptions.visibleFiles.includes(f.id))
     const normMass = chartOptions.normalizationMass || 2
 
-    // Apply renormalization to each file's data
+    // Apply renormalization to each file's data (only relevant for normalized mode)
+    const isAbsoluteMode = chartOptions.yAxisMode === 'absolute'
+    const isPressureMode = chartOptions.yAxisMode === 'pressure'
     const visibleFilesWithNormData = visibleFiles.map(f => ({
       ...f,
-      normalizedData: normMass === 2
+      normalizedData: normMass === 2 || isAbsoluteMode || isPressureMode
         ? f.analysisResult.normalizedData
-        : renormalizeData(f.analysisResult.normalizedData, normMass)
+        : renormalizeData(f.analysisResult.normalizedData, normMass),
+      pressureData: f.analysisResult.pressureData || []
     }))
 
     const allData = visibleFilesWithNormData.flatMap(f => f.normalizedData)
+
+    // Helper to get the Y value based on mode
+    const getYValue = (d: NormalizedData, pressureData?: PressureDataPoint[]) => {
+      if (isPressureMode && pressureData) {
+        const pressurePoint = pressureData.find(p => Math.abs(p.mass - d.mass) < 0.5)
+        return pressurePoint?.pressure || 0
+      }
+      return isAbsoluteMode ? d.current : d.normalizedToH2
+    }
 
     if (allData.length === 0) {
       g.append('text')
@@ -97,18 +110,25 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
     const maxMass = Math.max(...allData.map(d => d.mass))
     const xMax = maxMass > 110 ? 200 : 100
 
-    // Auto-detect Y max
-    const maxY = Math.max(...allData.map(d => d.normalizedToH2))
-    const yMax = maxY > 1 ? Math.ceil(maxY * 1.1) : 1
+    // Auto-detect Y max based on mode
+    const allPressureData = visibleFilesWithNormData.flatMap(f => f.pressureData)
+    const maxY = isPressureMode
+      ? Math.max(...allPressureData.map(p => p.pressure || 0), 1e-12)
+      : Math.max(...allData.map(d => getYValue(d)))
+    const yMax = isAbsoluteMode || isPressureMode
+      ? maxY * 1.1  // For absolute/pressure mode, use raw values
+      : (maxY > 1 ? Math.ceil(maxY * 1.1) : 1)
 
     // Scales
     const xScale = d3.scaleLinear()
       .domain([0, xMax])
       .range([0, innerWidth])
 
+    // Y scale - different minimum for absolute vs normalized vs pressure mode
+    const yMin = isPressureMode ? 1e-12 : (isAbsoluteMode ? 1e-14 : 1e-6)
     const yScale = chartOptions.logScale
       ? d3.scaleLog()
-          .domain([1e-6, yMax])
+          .domain([yMin, yMax])
           .range([innerHeight, 0])
           .clamp(true)
       : d3.scaleLinear()
@@ -150,6 +170,11 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
       .style('font-size', '12px')
       .text(t('chart.xAxis'))
 
+    // Y-axis label based on mode
+    const yAxisLabel = isPressureMode
+      ? `${t('chart.yAxisPressure', 'Partial Pressure')} [${pressureUnit}]`
+      : (isAbsoluteMode ? t('chart.yAxisAbsolute', 'Ion Current [A]') : t('chart.yAxis'))
+
     svg.append('text')
       .attr('transform', 'rotate(-90)')
       .attr('x', -height / 2)
@@ -157,7 +182,7 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
       .attr('text-anchor', 'middle')
       .style('fill', 'var(--color-text-secondary)')
       .style('font-size', '12px')
-      .text(t('chart.yAxis'))
+      .text(yAxisLabel)
 
     // Draw limit lines for active profiles
     activeProfiles.forEach((profile, index) => {
@@ -181,14 +206,15 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
         .attr('d', limitLine)
     })
 
-    // Line generator
-    const line = d3.line<NormalizedData>()
-      .x(d => xScale(d.mass))
-      .y(d => yScale(Math.max(d.normalizedToH2, 1e-6)))
-
     // Draw spectrum lines for each visible file
     visibleFilesWithNormData.forEach((file) => {
       const colorIndex = files.findIndex(f => f.id === file.id)
+
+      // Create line generator with file-specific pressureData
+      const line = d3.line<NormalizedData>()
+        .x(d => xScale(d.mass))
+        .y(d => yScale(Math.max(getYValue(d, file.pressureData), yMin)))
+
       g.append('path')
         .datum(file.normalizedData)
         .attr('fill', 'none')
@@ -199,10 +225,12 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
 
     // Peak annotations - detect all significant peaks dynamically
     if (visibleFilesWithNormData.length > 0) {
-      const firstData = visibleFilesWithNormData[0].normalizedData
+      const firstFile = visibleFilesWithNormData[0]
+      const firstData = firstFile.normalizedData
+      const firstPressureData = firstFile.pressureData
 
       // Find local maxima (peaks) above threshold
-      const threshold = 0.005 // 0.5% minimum
+      const threshold = isPressureMode ? 1e-10 : (isAbsoluteMode ? 1e-12 : 0.005)
       const minPeakDistance = 3 // Minimum mass units between labels to avoid overlap
 
       const peaks: { mass: number; value: number }[] = []
@@ -212,13 +240,15 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
         const curr = firstData[i]
         const next = firstData[i + 1]
 
+        const prevY = getYValue(prev, firstPressureData)
+        const currY = getYValue(curr, firstPressureData)
+        const nextY = getYValue(next, firstPressureData)
+
         // Check if current point is a local maximum
-        if (curr.normalizedToH2 > prev.normalizedToH2 &&
-            curr.normalizedToH2 > next.normalizedToH2 &&
-            curr.normalizedToH2 > threshold) {
+        if (currY > prevY && currY > nextY && currY > threshold) {
           // Round mass to nearest integer for labeling
           const roundedMass = Math.round(curr.mass)
-          peaks.push({ mass: roundedMass, value: curr.normalizedToH2 })
+          peaks.push({ mass: roundedMass, value: currY })
         }
       }
 
@@ -234,7 +264,7 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
 
           const point = firstData.find(d => Math.abs(d.mass - peak.mass) < 0.5)
           if (point) {
-            const yPos = Math.max(yScale(Math.max(point.normalizedToH2, 1e-6)) - 10, 5)
+            const yPos = Math.max(yScale(Math.max(getYValue(point, firstPressureData), yMin)) - 10, 5)
             g.append('text')
               .attr('x', xScale(peak.mass))
               .attr('y', yPos)
@@ -310,7 +340,8 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
 
         if (point) {
           const colorIndex = files.findIndex(f => f.id === file.id)
-          const yPos = yScale(Math.max(point.normalizedToH2, 1e-6))
+          const pointYValue = getYValue(point, file.pressureData)
+          const yPos = yScale(Math.max(pointYValue, yMin))
 
           crosshair.select(`.crosshair-dot-${i}`)
             .attr('cx', xScale(clampedMass))
@@ -318,7 +349,7 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
 
           values.push({
             fileIndex: colorIndex,
-            value: point.normalizedToH2,
+            value: pointYValue,
             color: FILE_COLORS[colorIndex] || FILE_COLORS[0]
           })
         }
@@ -391,7 +422,7 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
         .text(profile.name.length > 12 ? profile.name.slice(0, 12) + '...' : profile.name)
     })
 
-  }, [files, limitChecks, chartOptions, activeProfiles, t, i18n.language])
+  }, [files, limitChecks, chartOptions, activeProfiles, pressureUnit, t, i18n.language])
 
   return (
     <Card>
@@ -423,22 +454,38 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
               </>
             )}
 
-            {/* Normalization selector */}
+            {/* Y-Axis mode selector */}
             <label className="flex items-center gap-1">
-              <span className="text-micro text-text-secondary">{t('chart.normalizeTo', 'Norm:')}</span>
+              <span className="text-micro text-text-secondary">{t('chart.yAxisMode', 'Y:')}</span>
               <select
-                value={chartOptions.normalizationMass || 2}
-                onChange={(e) => updateChartOptions({ normalizationMass: Number(e.target.value) })}
+                value={chartOptions.yAxisMode || 'normalized'}
+                onChange={(e) => updateChartOptions({ yAxisMode: e.target.value as 'normalized' | 'absolute' | 'pressure' })}
                 className="text-micro bg-surface-card border border-subtle rounded px-1 py-0.5 text-text-primary"
               >
-                <option value={2}>H₂ (2)</option>
-                <option value={18}>H₂O (18)</option>
-                <option value={28}>N₂/CO (28)</option>
-                <option value={32}>O₂ (32)</option>
-                <option value={40}>Ar (40)</option>
-                <option value={44}>CO₂ (44)</option>
+                <option value="normalized">{t('chart.normalized', 'Relativ')}</option>
+                <option value="absolute">{t('chart.absolute', 'Absolut (A)')}</option>
+                <option value="pressure">{t('chart.pressure', 'Druck')}</option>
               </select>
             </label>
+
+            {/* Normalization selector - only show in normalized mode */}
+            {chartOptions.yAxisMode === 'normalized' && (
+              <label className="flex items-center gap-1">
+                <span className="text-micro text-text-secondary">{t('chart.normalizeTo', 'Norm:')}</span>
+                <select
+                  value={chartOptions.normalizationMass || 2}
+                  onChange={(e) => updateChartOptions({ normalizationMass: Number(e.target.value) })}
+                  className="text-micro bg-surface-card border border-subtle rounded px-1 py-0.5 text-text-primary"
+                >
+                  <option value={2}>H₂ (2)</option>
+                  <option value={18}>H₂O (18)</option>
+                  <option value={28}>N₂/CO (28)</option>
+                  <option value={32}>O₂ (32)</option>
+                  <option value={40}>Ar (40)</option>
+                  <option value={44}>CO₂ (44)</option>
+                </select>
+              </label>
+            )}
 
             <span className="text-text-muted text-micro">|</span>
 
@@ -501,7 +548,12 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
                   style={{ backgroundColor: v.color }}
                 />
                 <span className="text-text-secondary font-mono">
-                  {(v.value * 100).toFixed(4)}%
+                  {chartOptions.yAxisMode === 'pressure'
+                    ? `${v.value.toExponential(2)} ${pressureUnit}`
+                    : chartOptions.yAxisMode === 'absolute'
+                      ? `${v.value.toExponential(2)} A`
+                      : `${(v.value * 100).toFixed(4)}%`
+                  }
                 </span>
               </div>
             ))}

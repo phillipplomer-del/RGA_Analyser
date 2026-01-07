@@ -11,7 +11,7 @@ interface SimpleLoginModalProps {
 
 export function SimpleLoginModal({ onClose, isOptional = false }: SimpleLoginModalProps) {
   const { t } = useTranslation()
-  const { setCurrentUser } = useAppStore()
+  const { setCurrentUser, loadCloudCalibration } = useAppStore()
 
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -44,6 +44,8 @@ export function SimpleLoginModal({ onClose, isOptional = false }: SimpleLoginMod
       const { user } = await createOrLoginUser(firstName, lastName, pin)
       console.log('Login successful:', user)
       setCurrentUser(user)
+      // Load cloud calibration after login
+      loadCloudCalibration()
       onClose?.()
     } catch (err) {
       console.error('Login error:', err)
