@@ -4,6 +4,7 @@ import { KnowledgePanel } from '@/components/KnowledgePanel'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { ActionsSidebar } from '@/components/ActionsSidebar'
+import { Footer } from '@/components/ui/Footer'
 
 interface KnowledgePageProps {
   onShowRateOfRise?: () => void
@@ -53,6 +54,9 @@ export function KnowledgePage({ onShowRateOfRise }: KnowledgePageProps) {
           <KnowledgePanel />
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer className="ml-16" />
 
       {/* Navigation Sidebar */}
       <ActionsSidebar

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store/useAppStore'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LanguageToggle } from '@/components/LanguageToggle'
+import { Footer } from '@/components/ui/Footer'
 
 interface FunctionSelectorProps {
   onSelectRGA: () => void
@@ -165,6 +166,8 @@ export function FunctionSelector({
           </p>
         </div>
       </main>
+
+      <Footer />
     </div>
   )
 }

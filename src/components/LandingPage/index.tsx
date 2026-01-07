@@ -5,6 +5,7 @@ import { LanguageToggle } from '@/components/LanguageToggle'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { SimpleLoginModal } from '@/components/Auth/SimpleLoginModal'
 import { UserBadge } from '@/components/Auth/UserBadge'
+import { Footer } from '@/components/ui/Footer'
 
 // --- Types ---
 interface Peak {
@@ -453,6 +454,11 @@ export function LandingPage() {
       </div>
 
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-10 block" />
+
+      {/* Footer */}
+      <div className="absolute bottom-0 left-0 right-0 z-30">
+        <Footer className="bg-transparent border-t-0" />
+      </div>
 
       {/* Login Modal */}
       {showLoginModal && (

@@ -284,5 +284,8 @@
       "source": "Source",
       "factor": "Factor"
     }
+  },
+  "footer": {
+    "contact": "Contact"
   }
 }

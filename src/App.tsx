@@ -20,6 +20,7 @@ import { RateOfRisePage } from '@/components/RateOfRise'
 import { SimpleLoginModal } from '@/components/Auth/SimpleLoginModal'
 import { UserBadge } from '@/components/Auth/UserBadge'
 import { SpectrumArchive } from '@/components/SpectrumArchive'
+import { Footer } from '@/components/ui/Footer'
 import { compareSpectra } from '@/lib/comparison'
 import { parseASCFile } from '@/lib/parser'
 import { analyzeSpectrum } from '@/lib/analysis'
@@ -413,19 +414,7 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-surface-card border-t border-subtle py-3 mt-8 ml-16">
-        <div className="max-w-7xl mx-auto px-6 text-center text-caption text-text-muted flex items-center justify-center gap-4">
-          <span>&copy; {new Date().getFullYear()} Phillip Plomer &middot; Spectrum v1.0.0</span>
-          <a
-            href="https://paypal.me/PhillipPlomer/1EUR"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-aqua-500 hover:text-aqua-400 transition-colors"
-          >
-            Buy me a coffee
-          </a>
-        </div>
-      </footer>
+      <Footer className="mt-8 ml-16" />
 
       {/* Actions Sidebar */}
       <ActionsSidebar

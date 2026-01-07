@@ -21,6 +21,7 @@ import { LimitCheckCard } from './LimitCheckCard'
 import { SaveRoRModal } from './SaveRoRModal'
 import { RoRArchive } from './RoRArchive'
 import { ActionsSidebar } from '@/components/ActionsSidebar'
+import { Footer } from '@/components/ui/Footer'
 import { generateRoRPDF, generateRoRCSV, downloadBlob, downloadCSV } from '@/lib/rateOfRise/export'
 
 interface RateOfRisePageProps {
@@ -451,6 +452,9 @@ export function RateOfRisePage({ onBack }: RateOfRisePageProps) {
           isOptional={true}
         />
       )}
+
+      {/* Footer */}
+      <Footer className="ml-16" />
 
       {/* Navigation Sidebar */}
       <ActionsSidebar minimal />
