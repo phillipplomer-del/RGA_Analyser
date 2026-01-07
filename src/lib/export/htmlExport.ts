@@ -376,6 +376,7 @@ export function generateAnimatedHTML(
       stroke: var(--primary);
       stroke-width: 2;
       opacity: 0;
+      transition: none;
     }
 
     .highlight-circle.active {
@@ -383,9 +384,14 @@ export function generateAnimatedHTML(
       animation: pulse 1s ease-in-out infinite;
     }
 
+    .highlight-circle.fade-out {
+      opacity: 0;
+      transition: opacity 0.15s ease-out;
+    }
+
     @keyframes pulse {
-      0%, 100% { transform: scale(1); stroke-opacity: 1; }
-      50% { transform: scale(1.3); stroke-opacity: 0.6; }
+      0%, 100% { stroke-width: 2; stroke-opacity: 1; }
+      50% { stroke-width: 4; stroke-opacity: 0.6; }
     }
 
     .grid {
@@ -986,11 +992,17 @@ export function generateAnimatedHTML(
     }
 
     function highlightPeak(mass, text) {
-      const point = chartData.find(d => Math.abs(d.mass - mass) < 0.5);
-      if (!point) return;
+      // Find the closest data point to the target mass
+      const point = chartData.reduce((closest, d) => {
+        const dist = Math.abs(d.mass - mass);
+        const closestDist = Math.abs(closest.mass - mass);
+        return dist < closestDist ? d : closest;
+      }, chartData[0]);
+
+      if (!point || Math.abs(point.mass - mass) > 1) return;
 
       const x = xScale(point.mass);
-      const y = yScale(point.value);
+      const y = yScale(Math.max(1e-7, point.value));
 
       highlightCircle
         .attr('cx', x)
@@ -1004,9 +1016,17 @@ export function generateAnimatedHTML(
         .classed('active', true);
     }
 
-    function clearHighlight() {
-      highlightCircle.classed('active', false);
-      peakLabel.classed('active', false);
+    function clearHighlight(instant = false) {
+      if (instant) {
+        highlightCircle.classed('active', false).classed('fade-out', false);
+        peakLabel.classed('active', false);
+      } else {
+        // Smooth fade-out before zoom
+        highlightCircle.classed('active', false).classed('fade-out', true);
+        peakLabel.classed('active', false);
+        // Remove fade-out class after transition
+        setTimeout(() => highlightCircle.classed('fade-out', false), 150);
+      }
     }
 
     function showAnnotation(text) {
@@ -1019,20 +1039,25 @@ export function generateAnimatedHTML(
     }
 
     async function executeStep(step) {
-      clearHighlight();
       hideAnnotation();
 
       switch (step.type) {
         case 'overview':
+          clearHighlight();
+          await sleep(160); // Wait for fade-out before zoom
           resetZoom();
           break;
         case 'zoom':
+          clearHighlight();
+          await sleep(160); // Wait for fade-out before zoom
           zoomTo(step.target.massStart, step.target.massEnd, step.duration * 0.4);
           break;
         case 'highlight':
+          clearHighlight(true); // Instant clear for new highlight
           highlightPeak(step.peak, step.text);
           break;
         case 'annotation':
+          clearHighlight();
           showAnnotation(step.text);
           break;
       }
