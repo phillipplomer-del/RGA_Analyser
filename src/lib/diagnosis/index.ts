@@ -30,7 +30,12 @@ import {
   detectSiliconeContamination,
   detectCleanUHV,
   detectVirtualLeak,
-  distinguishN2fromCO
+  distinguishN2fromCO,
+  // Neue Detektoren
+  detectAmmonia,
+  detectMethane,
+  detectSulfur,
+  detectAromatic
 } from './detectors'
 
 import type { DiagnosticResult, DiagnosisInput } from './types'
@@ -49,7 +54,12 @@ export {
   detectSiliconeContamination,
   detectCleanUHV,
   detectVirtualLeak,
-  distinguishN2fromCO
+  distinguishN2fromCO,
+  // Neue Detektoren
+  detectAmmonia,
+  detectMethane,
+  detectSulfur,
+  detectAromatic
 }
 
 /**
@@ -67,7 +77,12 @@ const ALL_DETECTORS = [
   detectESDartifacts,
   detectSiliconeContamination,
   distinguishN2fromCO,
-  detectCleanUHV
+  detectCleanUHV,
+  // Neue Detektoren
+  detectAmmonia,
+  detectMethane,
+  detectSulfur,
+  detectAromatic
 ]
 
 /**

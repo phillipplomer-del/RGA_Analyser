@@ -334,10 +334,10 @@ export const GAS_LIBRARY: GasSpecies[] = [
     nameEn: 'Toluene',
     formula: 'C₇H₈',
     mainMass: 91,
-    crackingPattern: { 91: 100, 92: 69, 65: 16, 51: 10, 63: 9 },
+    crackingPattern: { 91: 100, 92: 69, 65: 16, 51: 10, 39: 14 },
     relativeSensitivity: 6.2,
     category: 'solvent',
-    notes: ['Tropylium-Kation bei 91', 'Aromaten-Marker']
+    notes: ['Tropylium-Kation (C₇H₇⁺) bei m/z 91', 'Aromaten-Marker', 'Base Peak bei 91, nicht Parent']
   },
   {
     key: 'TCE',
@@ -404,10 +404,10 @@ export const GAS_LIBRARY: GasSpecies[] = [
     nameEn: 'Turbopump Oil',
     formula: 'CₓHᵧ',
     mainMass: 43,
-    crackingPattern: { 43: 100, 57: 88, 41: 76, 55: 73, 71: 52, 69: 30, 83: 25 },
-    relativeSensitivity: 4.5,
+    crackingPattern: { 43: 100, 57: 88, 41: 76, 55: 73, 71: 52, 69: 35, 85: 25 },
+    relativeSensitivity: 4.0,
     category: 'oil',
-    notes: ['Turbo-Öl Backstreaming', 'Höherer 71-Anteil als Vorpumpenöl']
+    notes: ['Turbo-Öl Backstreaming', 'm/z 71 deutlich höher (~52%) als bei Vorpumpenöl (~20%)', 'Unterscheidungsmerkmal zu Vorpumpenöl']
   },
   {
     key: 'Fomblin',
@@ -424,12 +424,12 @@ export const GAS_LIBRARY: GasSpecies[] = [
     key: 'DC705',
     name: 'Diffusionspumpenöl DC705',
     nameEn: 'Diffusion Pump Oil DC705',
-    formula: 'Silikonöl',
+    formula: 'C₂₄H₅₀O₄Si₅',
     mainMass: 78,
-    crackingPattern: { 78: 100, 76: 83, 39: 73, 43: 59, 91: 32, 77: 28 },
+    crackingPattern: { 78: 100, 76: 83, 39: 73, 43: 59, 91: 32, 73: 25 },
     relativeSensitivity: 4.0,
     category: 'oil',
-    notes: ['Silikonöl', 'Phenyl-Fragmente']
+    notes: ['Pentaphenyl-Trimethyltrisiloxan', 'm/z 73 (Trimethylsilyl) ist SILIKON-MARKER', 'Phenyl-Fragment bei m/z 78']
   },
 
   // ============================================
@@ -555,10 +555,10 @@ export const GAS_LIBRARY: GasSpecies[] = [
     nameEn: 'Hydrogen Sulfide',
     formula: 'H₂S',
     mainMass: 34,
-    crackingPattern: { 34: 100, 32: 44, 33: 42, 36: 34, 35: 2 },
-    relativeSensitivity: 2.0,
+    crackingPattern: { 34: 100, 33: 42, 32: 44, 36: 4.5 },
+    relativeSensitivity: 1.2,
     category: 'sulfur',
-    notes: ['Schwefelkontamination', 'S-Isotope']
+    notes: ['Schwefelkontamination', '³⁴S-Isotop bei m/z 36', 'm/z 32 überlagert mit O₂']
   },
   {
     key: 'SO2',
@@ -567,9 +567,9 @@ export const GAS_LIBRARY: GasSpecies[] = [
     formula: 'SO₂',
     mainMass: 64,
     crackingPattern: { 64: 100, 48: 49, 32: 10, 16: 5, 66: 5 },
-    relativeSensitivity: 2.2,
+    relativeSensitivity: 1.4,
     category: 'sulfur',
-    notes: ['Schwefel/Prozess', 'SO⁺ bei 48']
+    notes: ['Schwefelindikator', 'm/z 48 (SO⁺) ist charakteristisch', '³⁴S-Isotop bei m/z 66']
   },
 
   // ============================================

@@ -21,7 +21,12 @@ export enum DiagnosisType {
   CLEAN_UHV = 'CLEAN_UHV',
   NEEDS_BAKEOUT = 'NEEDS_BAKEOUT',
   N2_CO_MIXTURE = 'N2_CO_MIXTURE',
-  CO_DOMINANT = 'CO_DOMINANT'
+  CO_DOMINANT = 'CO_DOMINANT',
+  // Neue Diagnose-Typen
+  AMMONIA_CONTAMINATION = 'AMMONIA_CONTAMINATION',
+  METHANE_CONTAMINATION = 'METHANE_CONTAMINATION',
+  SULFUR_CONTAMINATION = 'SULFUR_CONTAMINATION',
+  AROMATIC_CONTAMINATION = 'AROMATIC_CONTAMINATION'
 }
 
 /**
@@ -178,5 +183,26 @@ export const DIAGNOSIS_METADATA: Record<DiagnosisType, {
     icon: '💨',
     color: '#6366F1',
     priority: 14
+  },
+  // Neue Diagnose-Typen
+  [DiagnosisType.AMMONIA_CONTAMINATION]: {
+    icon: '🧪',
+    color: '#F59E0B',
+    priority: 15
+  },
+  [DiagnosisType.METHANE_CONTAMINATION]: {
+    icon: '🔥',
+    color: '#F97316',
+    priority: 16
+  },
+  [DiagnosisType.SULFUR_CONTAMINATION]: {
+    icon: '⚠️',
+    color: '#EAB308',
+    priority: 17
+  },
+  [DiagnosisType.AROMATIC_CONTAMINATION]: {
+    icon: '⬡',
+    color: '#EC4899',
+    priority: 18
   }
 }

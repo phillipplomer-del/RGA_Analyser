@@ -10,6 +10,7 @@ interface ChartOptions {
   showGSILimit: boolean
   showCERNLimit: boolean
   visibleFiles: string[]  // Array of file IDs that are visible in chart
+  normalizationMass: number  // Mass to normalize to (default: 2 for H₂)
 }
 
 interface AppState {
@@ -77,6 +78,7 @@ const initialState = {
     showGSILimit: true,
     showCERNLimit: true,
     visibleFiles: [] as string[],
+    normalizationMass: 2,  // Default: H₂
   },
   sidebarActivePanel: null as 'limits' | 'ai' | 'export' | null,
   showKnowledgePage: false,
@@ -276,6 +278,7 @@ export const useAppStore = create<AppState>()(
             logScale: state.chartOptions.logScale,
             showGSILimit: state.chartOptions.showGSILimit,
             showCERNLimit: state.chartOptions.showCERNLimit,
+            normalizationMass: state.chartOptions.normalizationMass,
             // Don't persist visibleFiles - will be set when files are loaded
           },
           // Persist custom limit profiles (filter out presets to avoid duplication on reload)

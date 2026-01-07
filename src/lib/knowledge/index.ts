@@ -39,18 +39,40 @@ import { MASS_REFERENCE, type MassAssignment } from './massReference'
  * Für quantitative Partialdruck-Berechnung
  */
 export const SENSITIVITY_FACTORS: Record<string, number> = {
+  // Permanentgase
   H2: 0.44,
   He: 0.14,
   Ne: 0.23,
-  N2: 1.0,
+  N2: 1.0,      // Referenzgas
   O2: 0.86,
   Ar: 1.2,
   CO: 1.05,
   CO2: 1.4,
   H2O: 0.9,
-  CH4: 1.6,
   Kr: 1.7,
-  Xe: 3.0
+  Xe: 3.0,
+  // Kohlenwasserstoffe
+  CH4: 1.6,
+  C2H6: 2.1,
+  C3H8: 2.4,
+  // Stickstoffverbindungen
+  NH3: 1.3,
+  // Schwefelverbindungen
+  H2S: 1.2,
+  SO2: 1.4,
+  // Lösemittel
+  Methanol: 1.8,
+  Ethanol: 3.6,
+  Acetone: 3.6,
+  IPA: 2.5,
+  Benzene: 5.9,
+  Toluene: 6.2,
+  // Öle
+  MineralOil: 4.0,
+  TurbopumpOil: 4.0,
+  Fomblin: 3.5,
+  DC705: 4.0,
+  PDMS: 4.0
 }
 
 // ============================================
@@ -61,24 +83,106 @@ export const SENSITIVITY_FACTORS: Record<string, number> = {
  * Natürliche Isotopenverhältnisse für diagnostische Zwecke
  */
 export const ISOTOPE_RATIOS = {
-  // Argon: 40/36 sollte ~300 sein
+  // Argon: 40/36 sollte ~298 sein (Luftleck-Bestätigung)
   argon: {
     primary: 40,
     isotope: 36,
-    expectedRatio: 293, // 99.6% / 0.34%
-    tolerance: 50
+    expectedRatio: 298, // ⁴⁰Ar (99.6%) / ³⁶Ar (0.334%)
+    tolerance: 50,
+    diagnosticUse: 'Argon-Isotope bestätigen Luftleck. ⁴⁰Ar/³⁶Ar ≈ 298'
   },
   // Chlor: 35/37 sollte ~3 sein
   chlorine: {
     primary: 35,
     isotope: 37,
-    expectedRatio: 3.1, // 75.8% / 24.2%
-    tolerance: 0.3
+    expectedRatio: 3.1, // ³⁵Cl (75.8%) / ³⁷Cl (24.2%)
+    tolerance: 0.3,
+    diagnosticUse: 'Chlor-Isotopenmuster für Lösemittel-ID'
   },
   // Kohlenstoff: M/(M+1) für organische Moleküle
   carbon13: {
-    abundancePercent: 1.1
+    abundancePercent: 1.1,
+    diagnosticUse: 'Isotopenpeaks helfen bei Molekülmasse-Bestimmung'
+  },
+  // Schwefel: 32/34 zur Unterscheidung S vs O₂
+  sulfur: {
+    primary: 32,
+    isotope: 34,
+    expectedRatio: 22.5, // ³²S (95.0%) / ³⁴S (4.22%)
+    tolerance: 3,
+    diagnosticUse: 'Unterscheidung S vs O₂ bei m/z 32. ³⁴S bei m/z 34 bestätigt Schwefel'
+  },
+  // Silizium: für Silikon-Kontamination
+  silicon: {
+    primary: 28,
+    isotope: 29,
+    expectedRatio: 19.6, // ²⁸Si (92.2%) / ²⁹Si (4.7%)
+    tolerance: 3,
+    diagnosticUse: 'Si-Isotope können bei Silikon-Kontamination (PDMS) auftreten'
+  },
+  // Krypton: als Tracergas
+  krypton: {
+    primary: 84,
+    isotope: 86,
+    expectedRatio: 3.3, // ⁸⁴Kr (57.0%) / ⁸⁶Kr (17.3%)
+    tolerance: 0.5,
+    diagnosticUse: 'Krypton als Tracergas'
   }
+}
+
+// ============================================
+// Leckraten-Grenzwerte
+// ============================================
+
+/**
+ * Typische Leckraten-Grenzwerte für Vakuumsysteme
+ * Einheit: mbar·l/s
+ */
+export const LEAK_RATE_LIMITS = {
+  // UHV-Systeme
+  uhv: {
+    integral: 1e-10,      // Gesamtleckrate
+    singleLeak: 1e-11,    // Einzelleck-Grenzwert
+    description: 'UHV-System Grenzwerte (CERN, GSI)'
+  },
+  // HV-Systeme
+  hv: {
+    integral: 1e-8,
+    singleLeak: 1e-9,
+    description: 'Hochvakuum-System Grenzwerte'
+  },
+  // Dichtungen
+  seals: {
+    cfFlange: 1e-12,      // CF-Metalldichtung
+    kfViton: 1e-9,        // KF mit Viton O-Ring
+    vcrMetal: 1e-11,      // VCR Metalldichtung
+    description: 'Dichtungs-spezifische Grenzwerte'
+  },
+  // Helium-Lecktest
+  heliumTest: {
+    background: 1e-10,    // Typischer Hintergrund
+    detectionLimit: 5e-12, // Nachweisgrenze moderner He-Tester
+    description: 'He-Lecktest Referenzwerte'
+  }
+}
+
+/**
+ * Berechnet die äquivalente Leckrate für ein gemessenes Partial-Signal
+ * @param partialPressure - Gemessener Partialdruck in mbar
+ * @param pumpingSpeed - Saugleistung in l/s
+ * @returns Leckrate in mbar·l/s
+ */
+export function calculateLeakRate(partialPressure: number, pumpingSpeed: number): number {
+  return partialPressure * pumpingSpeed
+}
+
+/**
+ * Klassifiziert eine Leckrate nach Schweregrad
+ */
+export function classifyLeakRate(leakRate: number): 'acceptable' | 'marginal' | 'critical' {
+  if (leakRate < 1e-10) return 'acceptable'
+  if (leakRate < 1e-9) return 'marginal'
+  return 'critical'
 }
 
 // ============================================

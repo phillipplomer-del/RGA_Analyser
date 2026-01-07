@@ -135,6 +135,53 @@ function findPeakValue(points: DataPoint[], targetMass: number): number {
   return Math.max(...peakPoints.map((p) => p.current))
 }
 
+/**
+ * Re-normalisiert Daten auf einen anderen Peak (on-the-fly Berechnung)
+ * @param normalizedData Originale normalisierte Daten (auf H₂)
+ * @param targetMass Masse, auf die normalisiert werden soll
+ * @returns Neu normalisierte Werte (nur die normalizedToH2 Werte werden ersetzt)
+ */
+export function renormalizeData(
+  normalizedData: NormalizedData[],
+  targetMass: number
+): NormalizedData[] {
+  // Finde den Peak-Wert für die Ziel-Masse
+  const tolerance = 0.5
+  const targetPoints = normalizedData.filter(
+    (p) => Math.abs(p.mass - targetMass) <= tolerance
+  )
+
+  if (targetPoints.length === 0) {
+    // Ziel-Peak nicht gefunden, verwende Maximum
+    const maxValue = Math.max(...normalizedData.map((p) => p.backgroundSubtracted))
+    if (maxValue <= 0) return normalizedData
+
+    return normalizedData.map((p) => ({
+      ...p,
+      normalizedToH2: p.backgroundSubtracted / maxValue,
+    }))
+  }
+
+  const targetPeakValue = Math.max(...targetPoints.map((p) => p.backgroundSubtracted))
+
+  if (targetPeakValue <= 0) {
+    // Ziel-Peak hat keinen gültigen Wert, verwende Maximum
+    const maxValue = Math.max(...normalizedData.map((p) => p.backgroundSubtracted))
+    if (maxValue <= 0) return normalizedData
+
+    return normalizedData.map((p) => ({
+      ...p,
+      normalizedToH2: p.backgroundSubtracted / maxValue,
+    }))
+  }
+
+  // Normalisiere auf den Ziel-Peak
+  return normalizedData.map((p) => ({
+    ...p,
+    normalizedToH2: p.backgroundSubtracted / targetPeakValue,
+  }))
+}
+
 export function integratePeak(points: DataPoint[], targetMass: number): number {
   const tolerance = 0.5
   const peakPoints = points.filter((p) => Math.abs(p.mass - targetMass) <= tolerance)

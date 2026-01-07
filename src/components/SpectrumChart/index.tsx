@@ -5,7 +5,7 @@ import type { NormalizedData, LimitCheck, MeasurementFile } from '@/types/rga'
 import { useAppStore } from '@/store/useAppStore'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { FILE_COLORS } from '@/components/FileManager'
-import { KNOWN_MASSES } from '@/lib/analysis'
+import { KNOWN_MASSES, renormalizeData } from '@/lib/analysis'
 import { generateProfileLimitCurve } from '@/lib/limits'
 
 interface SpectrumChartProps {
@@ -68,9 +68,19 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
 
-    // Get all visible files' data
+    // Get all visible files' data, applying renormalization if needed
     const visibleFiles = files.filter(f => chartOptions.visibleFiles.includes(f.id))
-    const allData = visibleFiles.flatMap(f => f.analysisResult.normalizedData)
+    const normMass = chartOptions.normalizationMass || 2
+
+    // Apply renormalization to each file's data
+    const visibleFilesWithNormData = visibleFiles.map(f => ({
+      ...f,
+      normalizedData: normMass === 2
+        ? f.analysisResult.normalizedData
+        : renormalizeData(f.analysisResult.normalizedData, normMass)
+    }))
+
+    const allData = visibleFilesWithNormData.flatMap(f => f.normalizedData)
 
     if (allData.length === 0) {
       g.append('text')
@@ -177,10 +187,10 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
       .y(d => yScale(Math.max(d.normalizedToH2, 1e-6)))
 
     // Draw spectrum lines for each visible file
-    visibleFiles.forEach((file) => {
+    visibleFilesWithNormData.forEach((file) => {
       const colorIndex = files.findIndex(f => f.id === file.id)
       g.append('path')
-        .datum(file.analysisResult.normalizedData)
+        .datum(file.normalizedData)
         .attr('fill', 'none')
         .attr('stroke', FILE_COLORS[colorIndex] || FILE_COLORS[0])
         .attr('stroke-width', 1.5)
@@ -188,8 +198,8 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
     })
 
     // Peak annotations - detect all significant peaks dynamically
-    if (visibleFiles.length > 0) {
-      const firstData = visibleFiles[0].analysisResult.normalizedData
+    if (visibleFilesWithNormData.length > 0) {
+      const firstData = visibleFilesWithNormData[0].normalizedData
 
       // Find local maxima (peaks) above threshold
       const threshold = 0.005 // 0.5% minimum
@@ -252,7 +262,7 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
       .attr('stroke-dasharray', '4,4')
 
     // Add circles for each visible file
-    visibleFiles.forEach((file, i) => {
+    visibleFilesWithNormData.forEach((file, i) => {
       const colorIndex = files.findIndex(f => f.id === file.id)
       crosshair.append('circle')
         .attr('class', `crosshair-dot-${i}`)
@@ -289,8 +299,8 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
       // Find values for each visible file
       const values: { fileIndex: number; value: number; color: string }[] = []
 
-      visibleFiles.forEach((file, i) => {
-        const data = file.analysisResult.normalizedData
+      visibleFilesWithNormData.forEach((file, i) => {
+        const data = file.normalizedData
         const idx = bisect(data, clampedMass)
         const d0 = data[idx - 1]
         const d1 = data[idx]
@@ -412,6 +422,25 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
                 <span className="text-text-muted text-micro">|</span>
               </>
             )}
+
+            {/* Normalization selector */}
+            <label className="flex items-center gap-1">
+              <span className="text-micro text-text-secondary">{t('chart.normalizeTo', 'Norm:')}</span>
+              <select
+                value={chartOptions.normalizationMass || 2}
+                onChange={(e) => updateChartOptions({ normalizationMass: Number(e.target.value) })}
+                className="text-micro bg-surface-card border border-subtle rounded px-1 py-0.5 text-text-primary"
+              >
+                <option value={2}>H₂ (2)</option>
+                <option value={18}>H₂O (18)</option>
+                <option value={28}>N₂/CO (28)</option>
+                <option value={32}>O₂ (32)</option>
+                <option value={40}>Ar (40)</option>
+                <option value={44}>CO₂ (44)</option>
+              </select>
+            </label>
+
+            <span className="text-text-muted text-micro">|</span>
 
             {/* Chart options */}
             <label className="flex items-center gap-1 cursor-pointer">

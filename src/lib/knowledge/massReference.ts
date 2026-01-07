@@ -118,8 +118,8 @@ export const MASS_REFERENCE: MassAssignment[] = [
     primaryAssignmentEn: 'CH₃⁺',
     possibleSources: ['Methan', 'Kohlenwasserstoffe', 'NH⁺'],
     fragmentOf: ['CH₄', 'alle KW'],
-    notes: '"Sauberer" Methan-Marker ohne O⁺ Überlagerung',
-    diagnosticValue: 'important'
+    notes: 'KRITISCH: Sauberer CH₄-Nachweis! Kein anderes häufiges Gas hat starken Peak bei m/z 15',
+    diagnosticValue: 'critical'
   },
   {
     mass: 16,
@@ -263,8 +263,8 @@ export const MASS_REFERENCE: MassAssignment[] = [
     primaryAssignmentEn: 'HS⁺',
     possibleSources: ['H₂S'],
     fragmentOf: ['H₂S'],
-    notes: 'Schwefelwasserstoff-Fragment',
-    diagnosticValue: 'minor'
+    notes: 'H₂S-Fragment, m33/m34 ≈ 0.42 charakteristisch',
+    diagnosticValue: 'important'
   },
   {
     mass: 34,
@@ -409,8 +409,8 @@ export const MASS_REFERENCE: MassAssignment[] = [
     primaryAssignmentEn: 'SO⁺',
     possibleSources: ['SO₂'],
     fragmentOf: ['SO₂'],
-    notes: 'Schwefel-Fragment',
-    diagnosticValue: 'minor'
+    notes: 'SO₂-Fragment, m48/m64 ≈ 0.49 charakteristisch für Schwefel',
+    diagnosticValue: 'important'
   },
   {
     mass: 49,
@@ -476,8 +476,8 @@ export const MASS_REFERENCE: MassAssignment[] = [
     primaryAssignmentEn: 'C₄H₇⁺',
     possibleSources: ['Öl', 'Kohlenwasserstoffe'],
     fragmentOf: ['Öle', 'Alkane'],
-    notes: 'ÖL-MARKER (Δ14 Serie)',
-    diagnosticValue: 'important'
+    notes: 'KRITISCH: Pumpenöl-Marker (Δ14 Serie: 41-55-69-83)',
+    diagnosticValue: 'critical'
   },
   {
     mass: 57,
@@ -565,10 +565,10 @@ export const MASS_REFERENCE: MassAssignment[] = [
     mass: 71,
     primaryAssignment: 'C₅H₁₁⁺',
     primaryAssignmentEn: 'C₅H₁₁⁺',
-    possibleSources: ['Öl'],
-    fragmentOf: ['Öle', 'Alkane'],
-    notes: 'ÖL-MARKER (Δ14 Serie)',
-    diagnosticValue: 'important'
+    possibleSources: ['Öl', 'Turbopumpenöl'],
+    fragmentOf: ['Öle', 'Alkane', 'Turbopumpenöl'],
+    notes: 'KRITISCH: Turbopumpenöl-Marker (Pentyl-Kation)',
+    diagnosticValue: 'critical'
   },
 
   // ============================================
@@ -578,10 +578,10 @@ export const MASS_REFERENCE: MassAssignment[] = [
     mass: 73,
     primaryAssignment: '(CH₃)₃Si⁺',
     primaryAssignmentEn: '(CH₃)₃Si⁺',
-    possibleSources: ['PDMS/Silikonfett'],
-    fragmentOf: ['PDMS', 'Siloxane'],
-    notes: 'SILIKON-MARKER (Trimethylsilyl)',
-    diagnosticValue: 'important'
+    possibleSources: ['PDMS/Silikonfett', 'DC705'],
+    fragmentOf: ['PDMS', 'Siloxane', 'DC705'],
+    notes: 'KRITISCH: Silikon/DC705-Marker (Trimethylsilyl-Kation)',
+    diagnosticValue: 'critical'
   },
   {
     mass: 77,

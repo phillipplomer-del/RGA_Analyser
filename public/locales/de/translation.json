@@ -58,11 +58,12 @@
   },
   "chart": {
     "title": "RGA Spektrum",
-    "logScale": "Logarithmische Skala",
+    "logScale": "Log",
     "gsiLimit": "GSI Grenzwert",
     "cernLimit": "CERN Grenzwert",
     "xAxis": "Masse [AMU]",
-    "yAxis": "Relative Intensität"
+    "yAxis": "Relative Intensität",
+    "normalizeTo": "Norm:"
   },
   "peaks": {
     "title": "Detektierte Peaks",

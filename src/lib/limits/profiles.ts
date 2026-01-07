@@ -112,9 +112,35 @@ export const GSI_CRYO_PRESET: LimitProfile = {
   updatedAt: '2024-01-01T00:00:00.000Z',
 }
 
+/**
+ * CERN Baked System Limits (H₂-normalized)
+ * Source: CERN ACC-V-ES-0001, CERN-ACC-2014-0270
+ * For baked UHV systems where H₂ is the dominant residual gas
+ */
+export const CERN_BAKED_H2_PRESET: LimitProfile = {
+  id: 'cern-baked-h2',
+  name: 'CERN Baked (H₂)',
+  description: 'CERN strict limits for baked systems, H₂-normalized (ACC-V-ES-0001)',
+  color: '#8B5CF6',
+  isPreset: true,
+  ranges: [
+    { massMin: 0, massMax: 3, limit: 1.0, notes: 'H₂ reference (100%)' },
+    { massMin: 3, massMax: 20.5, limit: 0.1, notes: 'Max 10% of H₂' },
+    { massMin: 20.5, massMax: 27.5, limit: 0.01, notes: 'Max 1% of H₂' },
+    { massMin: 27.5, massMax: 28.5, limit: 0.1, notes: 'N₂/CO allowed (10%)' },
+    { massMin: 28.5, massMax: 32.5, limit: 0.01, notes: 'Max 1% of H₂' },
+    { massMin: 32.5, massMax: 43.5, limit: 0.002, notes: 'Max 0.2% of H₂' },
+    { massMin: 43.5, massMax: 44.5, limit: 0.05, notes: 'CO₂ allowed (5%)' },
+    { massMin: 44.5, massMax: 100, limit: 0.0001, notes: 'HC-free: max 0.01% of H₂' },
+  ],
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+}
+
 export const DEFAULT_PRESETS: LimitProfile[] = [
   GSI_PRESET,
   CERN_PRESET,
+  CERN_BAKED_H2_PRESET,
   CERN_UNBAKED_PRESET,
   DESY_PRESET,
   GSI_CRYO_PRESET,

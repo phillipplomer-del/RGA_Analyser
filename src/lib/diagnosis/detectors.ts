@@ -967,3 +967,381 @@ export function detectCleanUHV(input: DiagnosisInput): DiagnosticResult | null {
     affectedMasses: [2]
   }
 }
+
+// ============================================
+// 13. AMMONIAK-KONTAMINATION (NEU)
+// ============================================
+export function detectAmmonia(input: DiagnosisInput): DiagnosticResult | null {
+  const { peaks } = input
+
+  const m17 = getPeak(peaks, 17)  // NH₃⁺
+  const m18 = getPeak(peaks, 18)  // H₂O⁺
+  const m16 = getPeak(peaks, 16)  // NH₂⁺ oder O⁺
+  const m15 = getPeak(peaks, 15)  // NH⁺ oder CH₃⁺
+
+  const evidence: EvidenceItem[] = []
+  let confidence = 0
+
+  // Primärkriterium: OH/H₂O Verhältnis anomal hoch
+  // H₂O normal: 17/18 ≈ 0.23, bei NH₃ vorhanden: > 0.30
+  if (m18 > DEFAULT_THRESHOLDS.minPeakHeight) {
+    const ratio_17_18 = m17 / m18
+
+    if (ratio_17_18 > 0.30) {
+      evidence.push(createEvidence(
+        'ratio',
+        `m17/m18 = ${ratio_17_18.toFixed(2)} (H₂O normal: ~0.23, >0.30 deutet auf NH₃)`,
+        `m17/m18 = ${ratio_17_18.toFixed(2)} (H₂O normal: ~0.23, >0.30 indicates NH₃)`,
+        true,
+        ratio_17_18,
+        { min: 0.30 }
+      ))
+      confidence += 0.4
+
+      if (ratio_17_18 > 0.40) {
+        evidence.push(createEvidence(
+          'ratio',
+          `Starker NH₃-Überschuss (m17/m18 > 0.40)`,
+          `Strong NH₃ excess (m17/m18 > 0.40)`,
+          true,
+          ratio_17_18
+        ))
+        confidence += 0.2
+      }
+    }
+  }
+
+  // Sekundärkriterium: NH₂⁺ Fragment bei m/z 16
+  // NH₃: 16/17 ≈ 0.80
+  if (m17 > DEFAULT_THRESHOLDS.minPeakHeight) {
+    const ratio_16_17 = m16 / m17
+    if (ratio_16_17 >= 0.6 && ratio_16_17 <= 1.0) {
+      evidence.push(createEvidence(
+        'ratio',
+        `NH₂/NH₃ (m16/m17) = ${ratio_16_17.toFixed(2)} (NH₃ typisch: ~0.80)`,
+        `NH₂/NH₃ (m16/m17) = ${ratio_16_17.toFixed(2)} (NH₃ typical: ~0.80)`,
+        true,
+        ratio_16_17,
+        { min: 0.6, max: 1.0 }
+      ))
+      confidence += 0.2
+    }
+  }
+
+  // Tertiär: NH⁺ bei m/z 15 (schwach, ~7.5%)
+  if (m15 > DEFAULT_THRESHOLDS.minPeakHeight && m17 > 0) {
+    const ratio_15_17 = m15 / m17
+    if (ratio_15_17 >= 0.05 && ratio_15_17 <= 0.15) {
+      evidence.push(createEvidence(
+        'ratio',
+        `NH⁺ Fragment (m15/m17) = ${ratio_15_17.toFixed(2)} (NH₃ typisch: ~0.075)`,
+        `NH⁺ fragment (m15/m17) = ${ratio_15_17.toFixed(2)} (NH₃ typical: ~0.075)`,
+        true,
+        ratio_15_17,
+        { min: 0.05, max: 0.15 }
+      ))
+      confidence += 0.1
+    }
+  }
+
+  if (confidence < DEFAULT_THRESHOLDS.minConfidence) return null
+
+  return {
+    type: DiagnosisType.AMMONIA_CONTAMINATION,
+    name: 'Ammoniak-Kontamination',
+    nameEn: 'Ammonia Contamination',
+    description: 'NH₃-Signatur detektiert. Überlagerung mit H₂O bei m/z 17.',
+    descriptionEn: 'NH₃ signature detected. Overlaps with H₂O at m/z 17.',
+    confidence: Math.min(confidence, 1.0),
+    severity: confidence > 0.5 ? 'warning' : 'info',
+    evidence,
+    recommendation: 'NH₃-Quelle identifizieren: Prozessgas, Reinigungsmittel, Pumpenöl-Zersetzung, biologische Kontamination.',
+    recommendationEn: 'Identify NH₃ source: Process gas, cleaning agents, pump oil decomposition, biological contamination.',
+    affectedMasses: [14, 15, 16, 17]
+  }
+}
+
+// ============================================
+// 14. METHAN-KONTAMINATION (NEU)
+// ============================================
+export function detectMethane(input: DiagnosisInput): DiagnosticResult | null {
+  const { peaks } = input
+
+  const m16 = getPeak(peaks, 16)  // CH₄⁺ oder O⁺
+  const m15 = getPeak(peaks, 15)  // CH₃⁺ - SAUBERER INDIKATOR!
+  const m14 = getPeak(peaks, 14)  // CH₂⁺ oder N⁺
+  // const m13 = getPeak(peaks, 13)  // CH⁺ (für zukünftige Erweiterung)
+  const m32 = getPeak(peaks, 32)  // O₂ (zur Korrektur)
+
+  const evidence: EvidenceItem[] = []
+  let confidence = 0
+
+  // Hauptkriterium: m/z 15 (CH₃⁺) als sauberer Indikator
+  // m/z 15 kommt praktisch NUR von CH₄ und höheren HC
+  if (m15 > DEFAULT_THRESHOLDS.minPeakHeight * 5) {
+    evidence.push(createEvidence(
+      'presence',
+      `CH₃⁺ (m/z 15) signifikant: ${(m15 * 100).toFixed(2)}%`,
+      `CH₃⁺ (m/z 15) significant: ${(m15 * 100).toFixed(2)}%`,
+      true,
+      m15 * 100
+    ))
+    confidence += 0.4
+
+    // CH₄-Pattern prüfen: 15/16 ≈ 0.85
+    if (m16 > 0) {
+      const ratio_15_16 = m15 / m16
+      if (ratio_15_16 >= 0.7 && ratio_15_16 <= 1.0) {
+        evidence.push(createEvidence(
+          'ratio',
+          `CH₃/CH₄ (m15/m16) = ${ratio_15_16.toFixed(2)} (CH₄ typisch: ~0.85)`,
+          `CH₃/CH₄ (m15/m16) = ${ratio_15_16.toFixed(2)} (CH₄ typical: ~0.85)`,
+          true,
+          ratio_15_16,
+          { min: 0.7, max: 1.0 }
+        ))
+        confidence += 0.3
+      }
+    }
+  }
+
+  // Sekundär: CH₂⁺ bei m/z 14
+  if (m14 > 0 && m15 > 0) {
+    const ratio_14_15 = m14 / m15
+    if (ratio_14_15 >= 0.15 && ratio_14_15 <= 0.25) {
+      evidence.push(createEvidence(
+        'ratio',
+        `CH₂⁺ Fragment bestätigt (m14/m15) = ${ratio_14_15.toFixed(2)}`,
+        `CH₂⁺ fragment confirmed (m14/m15) = ${ratio_14_15.toFixed(2)}`,
+        true,
+        ratio_14_15,
+        { min: 0.15, max: 0.25 }
+      ))
+      confidence += 0.2
+    }
+  }
+
+  // Warnung: Hoher O₂-Anteil kann m/z 16 verfälschen
+  if (m32 > m16 * 5) {
+    confidence *= 0.7
+    evidence.push(createEvidence(
+      'presence',
+      `Warnung: Hoher O₂-Anteil, m/z 16 könnte teilweise O⁺ sein`,
+      `Warning: High O₂ content, m/z 16 could be partially O⁺`,
+      false,
+      m32 * 100
+    ))
+  }
+
+  if (confidence < DEFAULT_THRESHOLDS.minConfidence) return null
+
+  return {
+    type: DiagnosisType.METHANE_CONTAMINATION,
+    name: 'Methan-Kontamination',
+    nameEn: 'Methane Contamination',
+    description: 'CH₄-Signatur detektiert. m/z 15 ist sauberer Indikator.',
+    descriptionEn: 'CH₄ signature detected. m/z 15 is a clean indicator.',
+    confidence: Math.min(confidence, 1.0),
+    severity: confidence > 0.5 ? 'warning' : 'info',
+    evidence,
+    recommendation: 'Methan-Quelle: Organische Zersetzung, Prozessgas, RGA-Filament-Reaktion mit Kohlenstoff.',
+    recommendationEn: 'Methane source: Organic decomposition, process gas, RGA filament reaction with carbon.',
+    affectedMasses: [12, 13, 14, 15, 16]
+  }
+}
+
+// ============================================
+// 15. SCHWEFELVERBINDUNGEN (NEU)
+// ============================================
+export function detectSulfur(input: DiagnosisInput): DiagnosticResult | null {
+  const { peaks } = input
+
+  const m34 = getPeak(peaks, 34)  // H₂S⁺
+  const m33 = getPeak(peaks, 33)  // HS⁺
+  // const m32 = getPeak(peaks, 32)  // S⁺ oder O₂⁺ (ambivalent, für zukünftige Erweiterung)
+  const m64 = getPeak(peaks, 64)  // SO₂⁺
+  const m48 = getPeak(peaks, 48)  // SO⁺
+
+  const evidence: EvidenceItem[] = []
+  let confidence = 0
+  let sulfurType = ''
+
+  // H₂S Detektion
+  if (m34 > DEFAULT_THRESHOLDS.minPeakHeight * 3) {
+    evidence.push(createEvidence(
+      'presence',
+      `H₂S-Hauptpeak (m/z 34) detektiert: ${(m34 * 100).toFixed(3)}%`,
+      `H₂S main peak (m/z 34) detected: ${(m34 * 100).toFixed(3)}%`,
+      true,
+      m34 * 100
+    ))
+    confidence += 0.4
+    sulfurType = 'H₂S'
+
+    // HS⁺ Fragment prüfen: 33/34 ≈ 0.42
+    if (m33 > 0) {
+      const ratio_33_34 = m33 / m34
+      if (ratio_33_34 >= 0.3 && ratio_33_34 <= 0.5) {
+        evidence.push(createEvidence(
+          'ratio',
+          `HS⁺ Fragment bestätigt (m33/m34) = ${ratio_33_34.toFixed(2)} (H₂S: ~0.42)`,
+          `HS⁺ fragment confirmed (m33/m34) = ${ratio_33_34.toFixed(2)} (H₂S: ~0.42)`,
+          true,
+          ratio_33_34,
+          { min: 0.3, max: 0.5 }
+        ))
+        confidence += 0.2
+      }
+    }
+  }
+
+  // SO₂ Detektion
+  if (m64 > DEFAULT_THRESHOLDS.minPeakHeight * 3) {
+    evidence.push(createEvidence(
+      'presence',
+      `SO₂-Hauptpeak (m/z 64) detektiert: ${(m64 * 100).toFixed(3)}%`,
+      `SO₂ main peak (m/z 64) detected: ${(m64 * 100).toFixed(3)}%`,
+      true,
+      m64 * 100
+    ))
+    confidence += 0.4
+    sulfurType = sulfurType ? `${sulfurType} + SO₂` : 'SO₂'
+
+    // SO⁺ Fragment bei m/z 48: 48/64 ≈ 0.49
+    if (m48 > 0) {
+      const ratio_48_64 = m48 / m64
+      if (ratio_48_64 >= 0.4 && ratio_48_64 <= 0.6) {
+        evidence.push(createEvidence(
+          'ratio',
+          `SO⁺ Fragment bestätigt (m48/m64) = ${ratio_48_64.toFixed(2)} (SO₂: ~0.49)`,
+          `SO⁺ fragment confirmed (m48/m64) = ${ratio_48_64.toFixed(2)} (SO₂: ~0.49)`,
+          true,
+          ratio_48_64,
+          { min: 0.4, max: 0.6 }
+        ))
+        confidence += 0.2
+      }
+    }
+  }
+
+  if (confidence < DEFAULT_THRESHOLDS.minConfidence || !sulfurType) return null
+
+  return {
+    type: DiagnosisType.SULFUR_CONTAMINATION,
+    name: `Schwefel-Kontamination (${sulfurType})`,
+    nameEn: `Sulfur Contamination (${sulfurType})`,
+    description: `${sulfurType}-Signatur detektiert.`,
+    descriptionEn: `${sulfurType} signature detected.`,
+    confidence: Math.min(confidence, 1.0),
+    severity: 'warning',
+    evidence,
+    recommendation: `${sulfurType}-Quelle: Vorpumpenöl-Zersetzung, Prozessgas, biologische Kontamination.`,
+    recommendationEn: `${sulfurType} source: Forepump oil decomposition, process gas, biological contamination.`,
+    affectedMasses: [32, 33, 34, 48, 64, 66]
+  }
+}
+
+// ============================================
+// 16. AROMATEN-KONTAMINATION (NEU)
+// ============================================
+export function detectAromatic(input: DiagnosisInput): DiagnosticResult | null {
+  const { peaks } = input
+
+  const m78 = getPeak(peaks, 78)  // Benzol C₆H₆⁺
+  const m77 = getPeak(peaks, 77)  // C₆H₅⁺
+  const m91 = getPeak(peaks, 91)  // Toluol Tropylium C₇H₇⁺
+  const m92 = getPeak(peaks, 92)  // Toluol Parent C₇H₈⁺
+  const m51 = getPeak(peaks, 51)  // C₄H₃⁺
+  // const m52 = getPeak(peaks, 52)  // C₄H₄⁺ (für zukünftige Erweiterung)
+  const m39 = getPeak(peaks, 39)  // C₃H₃⁺
+
+  const evidence: EvidenceItem[] = []
+  let confidence = 0
+  let aromaticType = ''
+
+  // Benzol Detektion
+  if (m78 > DEFAULT_THRESHOLDS.minPeakHeight * 3) {
+    evidence.push(createEvidence(
+      'presence',
+      `Benzol-Peak (m/z 78) detektiert: ${(m78 * 100).toFixed(3)}%`,
+      `Benzene peak (m/z 78) detected: ${(m78 * 100).toFixed(3)}%`,
+      true,
+      m78 * 100
+    ))
+    confidence += 0.4
+    aromaticType = 'Benzol'
+
+    // Benzol-Fragment: 77/78 ≈ 0.22
+    if (m77 > 0) {
+      const ratio_77_78 = m77 / m78
+      if (ratio_77_78 >= 0.15 && ratio_77_78 <= 0.30) {
+        evidence.push(createEvidence(
+          'ratio',
+          `Phenyl-Fragment bestätigt (m77/m78) = ${ratio_77_78.toFixed(2)} (Benzol: ~0.22)`,
+          `Phenyl fragment confirmed (m77/m78) = ${ratio_77_78.toFixed(2)} (Benzene: ~0.22)`,
+          true,
+          ratio_77_78,
+          { min: 0.15, max: 0.30 }
+        ))
+        confidence += 0.2
+      }
+    }
+  }
+
+  // Toluol Detektion
+  if (m91 > DEFAULT_THRESHOLDS.minPeakHeight * 3) {
+    evidence.push(createEvidence(
+      'presence',
+      `Toluol/Tropylium-Peak (m/z 91) detektiert: ${(m91 * 100).toFixed(3)}%`,
+      `Toluene/Tropylium peak (m/z 91) detected: ${(m91 * 100).toFixed(3)}%`,
+      true,
+      m91 * 100
+    ))
+    confidence += 0.4
+    aromaticType = aromaticType ? `${aromaticType} + Toluol` : 'Toluol'
+
+    // Toluol-Pattern: 92/91 ≈ 0.69
+    if (m92 > 0) {
+      const ratio_92_91 = m92 / m91
+      if (ratio_92_91 >= 0.5 && ratio_92_91 <= 0.9) {
+        evidence.push(createEvidence(
+          'ratio',
+          `Toluol-Pattern bestätigt (m92/m91) = ${ratio_92_91.toFixed(2)} (Toluol: ~0.69)`,
+          `Toluene pattern confirmed (m92/m91) = ${ratio_92_91.toFixed(2)} (Toluene: ~0.69)`,
+          true,
+          ratio_92_91,
+          { min: 0.5, max: 0.9 }
+        ))
+        confidence += 0.2
+      }
+    }
+  }
+
+  // Allgemeine Aromaten-Fragmente
+  if ((m39 > DEFAULT_THRESHOLDS.minPeakHeight * 5 && m51 > DEFAULT_THRESHOLDS.minPeakHeight * 3) && !aromaticType) {
+    evidence.push(createEvidence(
+      'pattern',
+      `Aromaten-Fragmente (m39, m51) vorhanden`,
+      `Aromatic fragments (m39, m51) present`,
+      true
+    ))
+    confidence += 0.2
+    aromaticType = 'Aromaten'
+  }
+
+  if (confidence < DEFAULT_THRESHOLDS.minConfidence || !aromaticType) return null
+
+  return {
+    type: DiagnosisType.AROMATIC_CONTAMINATION,
+    name: `Aromaten-Kontamination (${aromaticType})`,
+    nameEn: `Aromatic Contamination (${aromaticType})`,
+    description: `${aromaticType}-Signatur detektiert. Hohe Empfindlichkeit!`,
+    descriptionEn: `${aromaticType} signature detected. High sensitivity!`,
+    confidence: Math.min(confidence, 1.0),
+    severity: 'warning',
+    evidence,
+    recommendation: `${aromaticType}-Quelle: Lösemittel, Diffusionspumpenöl, Kunststoffe, Reinigungsmittel.`,
+    recommendationEn: `${aromaticType} source: Solvents, diffusion pump oil, plastics, cleaning agents.`,
+    affectedMasses: [39, 50, 51, 52, 65, 77, 78, 91, 92]
+  }
+}
