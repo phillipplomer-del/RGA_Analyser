@@ -453,26 +453,26 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
         {/* Tooltip */}
         {tooltip && (
           <div
-            className="absolute z-50 pointer-events-none bg-surface-card border border-subtle rounded-chip shadow-lg px-3 py-2"
+            className="absolute z-50 pointer-events-none bg-surface-card border border-subtle rounded-chip shadow-lg px-4 py-3 min-w-[200px] max-w-[280px]"
             style={{
-              left: Math.min(tooltip.x + 15, (containerRef.current?.clientWidth || 0) - 180),
-              top: Math.max(tooltip.y - 60, 10),
+              left: Math.min(tooltip.x + 20, (containerRef.current?.clientWidth || 0) - 290),
+              top: Math.max(tooltip.y - 70, 10),
             }}
           >
-            <div className="text-caption font-semibold text-text-primary mb-1">
+            <div className="text-sm font-semibold text-text-primary mb-1">
               Mass {tooltip.mass.toFixed(1)} AMU
             </div>
-            <div className="text-micro text-text-secondary mb-2">
+            <div className="text-xs text-text-secondary mb-2 break-words">
               {tooltip.gas}
             </div>
             {tooltip.values.map((v, i) => (
-              <div key={i} className="flex items-center gap-2 text-micro">
+              <div key={i} className="flex items-center gap-2 text-xs">
                 <span
-                  className="w-2 h-2 rounded-full"
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ backgroundColor: v.color }}
                 />
-                <span className="text-text-secondary">
-                  {(v.value * 100).toFixed(3)}%
+                <span className="text-text-secondary font-mono">
+                  {(v.value * 100).toFixed(4)}%
                 </span>
               </div>
             ))}

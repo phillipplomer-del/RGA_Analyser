@@ -135,6 +135,7 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
               <div className="p-4">
                 <AIPanel
                   analysis={analysis}
+                  normalizedData={files.length > 0 ? files[0].analysisResult.normalizedData : []}
                   comparisonData={comparisonData}
                   compact
                 />

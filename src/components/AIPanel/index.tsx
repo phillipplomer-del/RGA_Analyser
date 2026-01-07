@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useAppStore } from '@/store/useAppStore'
-import type { AnalysisResult, ComparisonResult } from '@/types/rga'
+import type { AnalysisResult, ComparisonResult, NormalizedData } from '@/types/rga'
 import {
   callGemini,
   getGeminiApiKey,
@@ -16,6 +16,7 @@ import {
 
 interface AIPanelProps {
   analysis: AnalysisResult
+  normalizedData?: NormalizedData[]
   // Optional comparison data for comparison mode
   comparisonData?: {
     beforeAnalysis: AnalysisResult
@@ -26,9 +27,12 @@ interface AIPanelProps {
   compact?: boolean
 }
 
-export function AIPanel({ analysis, comparisonData, compact = false }: AIPanelProps) {
+export function AIPanel({ analysis, normalizedData = [], comparisonData, compact = false }: AIPanelProps) {
   const { t, i18n } = useTranslation()
-  const { aiInterpretation: interpretation, setAiInterpretation: setInterpretation } = useAppStore()
+  const { aiInterpretation: interpretation, setAiInterpretation: setInterpretation, limitProfiles, activeLimitProfileIds } = useAppStore()
+
+  // Get active profiles
+  const activeProfiles = limitProfiles.filter(p => activeLimitProfileIds.includes(p.id))
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [apiKey, setApiKey] = useState(getGeminiApiKey() || '')
@@ -46,13 +50,14 @@ export function AIPanel({ analysis, comparisonData, compact = false }: AIPanelPr
       const formattedData = formatComparisonForAI(
         comparisonData.beforeAnalysis,
         comparisonData.afterAnalysis,
-        comparisonData.comparisonResult
+        comparisonData.comparisonResult,
+        activeProfiles
       )
       return buildComparisonPrompt(formattedData, language)
     }
-    const formattedData = formatAnalysisForAI(analysis)
+    const formattedData = formatAnalysisForAI(analysis, activeProfiles, normalizedData)
     return buildAnalysisPrompt(formattedData, language)
-  }, [analysis, comparisonData, i18n.language])
+  }, [analysis, comparisonData, i18n.language, activeProfiles, normalizedData])
 
   const handleAnalyze = useCallback(async () => {
     const key = apiKey || getGeminiApiKey()
@@ -74,11 +79,12 @@ export function AIPanel({ analysis, comparisonData, compact = false }: AIPanelPr
         const formattedData = formatComparisonForAI(
           comparisonData.beforeAnalysis,
           comparisonData.afterAnalysis,
-          comparisonData.comparisonResult
+          comparisonData.comparisonResult,
+          activeProfiles
         )
         prompt = buildComparisonPrompt(formattedData, language)
       } else {
-        const formattedData = formatAnalysisForAI(analysis)
+        const formattedData = formatAnalysisForAI(analysis, activeProfiles, normalizedData)
         prompt = buildAnalysisPrompt(formattedData, language)
       }
 
@@ -89,7 +95,7 @@ export function AIPanel({ analysis, comparisonData, compact = false }: AIPanelPr
     } finally {
       setIsLoading(false)
     }
-  }, [analysis, comparisonData, apiKey, i18n.language, t, setInterpretation])
+  }, [analysis, comparisonData, apiKey, i18n.language, t, setInterpretation, activeProfiles, normalizedData])
 
   const handleApiKeySubmit = () => {
     if (apiKey.trim()) {
