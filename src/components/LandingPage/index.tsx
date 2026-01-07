@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store/useAppStore'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { SimpleLoginModal } from '@/components/Auth/SimpleLoginModal'
+import { UserBadge } from '@/components/Auth/UserBadge'
 
 // --- Types ---
 interface Peak {
@@ -81,7 +83,7 @@ const PEAKS: Peak[] = [
 
 export function LandingPage() {
   const { t } = useTranslation()
-  const { theme, setSkipLandingPage } = useAppStore()
+  const { theme, setSkipLandingPage, currentUser, showLoginModal, setShowLoginModal } = useAppStore()
   const isDark = theme === 'dark'
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -339,6 +341,22 @@ export function LandingPage() {
           {/* Controls */}
           <div className="flex items-center gap-3">
             <div className="pointer-events-auto">
+              {currentUser ? (
+                <UserBadge />
+              ) : (
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className={`px-4 py-2 text-caption font-medium rounded-chip transition-colors
+                    ${isDark
+                      ? 'text-[#9EE000] bg-[#9EE000]/10 hover:bg-[#9EE000]/20'
+                      : 'text-aqua-600 bg-aqua-500/10 hover:bg-aqua-500/20'
+                    }`}
+                >
+                  {t('auth.title')}
+                </button>
+              )}
+            </div>
+            <div className="pointer-events-auto">
               <LanguageToggle />
             </div>
             <div className="pointer-events-auto">
@@ -435,6 +453,14 @@ export function LandingPage() {
       </div>
 
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-10 block" />
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <SimpleLoginModal
+          onClose={() => setShowLoginModal(false)}
+          isOptional={true}
+        />
+      )}
     </div>
   )
 }
