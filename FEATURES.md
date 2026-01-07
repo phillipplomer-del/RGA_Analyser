@@ -4,6 +4,10 @@ Eine umfassende Webanwendung zur Analyse von Restgasanalyse (RGA) Spektren mit a
 
 ---
 
+**Stand:** 2026-01-07 | **Version:** 1.0.0
+
+---
+
 ## Inhaltsverzeichnis
 
 1. [Datenimport](#1-datenimport)
@@ -19,6 +23,7 @@ Eine umfassende Webanwendung zur Analyse von Restgasanalyse (RGA) Spektren mit a
 11. [KI-Integration](#11-ki-integration)
 12. [Druckkalibrierung](#12-druckkalibrierung)
 13. [Benutzeroberfläche](#13-benutzeroberfläche)
+14. [Rate of Rise](#14-rate-of-rise)
 
 ---
 
@@ -388,4 +393,88 @@ Der RGA Analyser bietet eine **professionelle Plattform** zur Vakuumsystem-Diagn
 
 ---
 
+## 14. Rate of Rise
+
+### Übersicht
+
+Eigenständiges Modul zur **Leckratenbestimmung** mittels Druckanstiegstest (Rate-of-Rise Methode).
+
+### Datenimport
+
+| Feature | Beschreibung |
+|---------|--------------|
+| CSV-Parser | Pfeiffer TPG362 Drucklogger-Format |
+| Drag & Drop | Datei-Upload mit visuellem Feedback |
+| Metadaten | Gerätename, Datum, Messintervall |
+| Validierung | Prüfung auf gültige Druckwerte |
+
+### Analyse
+
+| Schritt | Beschreibung |
+|---------|--------------|
+| Phasenerkennung | Automatische Erkennung von Baseline und Anstiegsphase |
+| Baseline | Mittelwert und Standardabweichung der stabilen Phase |
+| Lineare Regression | Fit auf Anstiegsphase mit R²-Wert |
+| dp/dt | Druckanstiegsrate in mbar/s |
+| Leckrate Q | Q = V × dp/dt (bei Volumeneingabe) |
+
+### Klassifikation
+
+| Typ | dp/dt Bereich | Beschreibung |
+|-----|---------------|--------------|
+| UHV-tauglich | < 10⁻⁸ mbar/s | Exzellent |
+| HV-tauglich | 10⁻⁸ - 10⁻⁶ mbar/s | Gut |
+| Grenzwertig | 10⁻⁶ - 10⁻⁴ mbar/s | Akzeptabel |
+| Klein-Leck | 10⁻⁴ - 10⁻² mbar/s | Problematisch |
+| Groß-Leck | > 10⁻² mbar/s | Kritisch |
+
+### Visualisierung
+
+| Feature | Beschreibung |
+|---------|--------------|
+| Druck-Zeit-Chart | Interaktives D3.js Diagramm |
+| Phasen-Markierung | Farbige Hinterlegung Baseline/Rise |
+| Fit-Linie | Lineare Regression als Overlay |
+| Skalierung | Linear/Logarithmisch umschaltbar |
+
+### Eingaben
+
+| Parameter | Beschreibung |
+|-----------|--------------|
+| Kammervolumen | Optional, für Leckratenberechnung |
+| Leckraten-Grenzwert | Optional, für Pass/Fail-Prüfung |
+| Grenzwert-Quelle | Beschreibung des Standards |
+
+### Export
+
+| Format | Inhalt |
+|--------|--------|
+| PDF | Vollständiger Analysebericht mit Chart |
+| CSV | Messdaten + Analyseergebnisse |
+
+### Cloud-Integration
+
+- Analysen in Firebase speichern
+- Archiv durchsuchen und laden
+- Mit Notizen und Tags versehen
+
+---
+
+## Geplante Features
+
+Siehe **[NextFeatures/FEATURE_BACKLOG.md](./NextFeatures/FEATURE_BACKLOG.md)** für die priorisierte Liste geplanter Erweiterungen:
+
+| Priorität | Feature | Status |
+|-----------|---------|--------|
+| 1 | Error Handling System | Geplant |
+| 1 | Firebase Auth Migration | Geplant |
+| 2 | Zeitreihen-Analyse | Geplant |
+| 3 | Unsicherheitsrechnung | Geplant |
+| 4 | Icon-Vereinheitlichung | Geplant |
+| 5 | UX-Verbesserungen | Geplant |
+| 6 | Performance-Optimierungen | Geplant |
+
+---
+
 *Dokumentation generiert für RGA Analyser v1.0*
+*Letzte Aktualisierung: 2026-01-07*

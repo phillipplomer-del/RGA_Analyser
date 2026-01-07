@@ -2,6 +2,10 @@
   "name": "spectrum",
   "private": true,
   "version": "1.0.0",
+  "author": {
+    "name": "Phillip Plomer",
+    "email": "phillip.plomer@icloud.com"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

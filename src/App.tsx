@@ -415,7 +415,7 @@ function App() {
       {/* Footer */}
       <footer className="bg-surface-card border-t border-subtle py-3 mt-8 ml-16">
         <div className="max-w-7xl mx-auto px-6 text-center text-caption text-text-muted flex items-center justify-center gap-4">
-          <span>Spectrum v1.0.0 &middot; Aqua Design System</span>
+          <span>&copy; {new Date().getFullYear()} Phillip Plomer &middot; Spectrum v1.0.0</span>
           <a
             href="https://paypal.me/PhillipPlomer/1EUR"
             target="_blank"
