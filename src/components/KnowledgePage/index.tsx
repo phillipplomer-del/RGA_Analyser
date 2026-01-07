@@ -3,8 +3,13 @@ import { useAppStore } from '@/store/useAppStore'
 import { KnowledgePanel } from '@/components/KnowledgePanel'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LanguageToggle } from '@/components/LanguageToggle'
+import { ActionsSidebar } from '@/components/ActionsSidebar'
 
-export function KnowledgePage() {
+interface KnowledgePageProps {
+  onShowRateOfRise?: () => void
+}
+
+export function KnowledgePage({ onShowRateOfRise }: KnowledgePageProps) {
   const { i18n } = useTranslation()
   const { setShowKnowledgePage, theme } = useAppStore()
   const isGerman = i18n.language === 'de'
@@ -12,7 +17,7 @@ export function KnowledgePage() {
   return (
     <div className={`fixed inset-0 z-50 bg-surface-page ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Header */}
-      <header className="bg-surface-card shadow-card border-b border-subtle">
+      <header className="bg-surface-card shadow-card border-b border-subtle ml-16">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -43,11 +48,17 @@ export function KnowledgePage() {
       </header>
 
       {/* Main Content */}
-      <main className="h-[calc(100vh-80px)] overflow-hidden">
+      <main className="h-[calc(100vh-80px)] overflow-hidden ml-16">
         <div className="max-w-7xl mx-auto h-full">
           <KnowledgePanel />
         </div>
       </main>
+
+      {/* Navigation Sidebar */}
+      <ActionsSidebar
+        minimal
+        onShowRateOfRise={onShowRateOfRise}
+      />
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import type { Timestamp } from 'firebase/firestore'
 import type { DiagnosisSummary, LimitRange, DiagnosticResultSummary, NormalizedData, Peak, LimitCheck, QualityCheck } from './rga'
+import type { RoRClassification, PressureDataPoint } from './rateOfRise'
 
 // User document in Firestore
 export interface FirestoreUser {
@@ -95,5 +96,84 @@ export interface CloudSpectrumMeta {
     peakCount: number
     qualityChecksPassed: boolean
     overallStatus: 'clean' | 'warning' | 'critical'
+  }
+}
+
+// ============================================================================
+// Rate-of-Rise Firebase Types
+// ============================================================================
+
+// Rate-of-Rise test document (main document - smaller for list queries)
+export interface FirestoreRoRTest {
+  filename: string
+  uploadedAt: Timestamp
+  measurementDate: Timestamp | null
+  metadata: {
+    manufacturer: string
+    device: string
+    serialNumber: string
+    sensor: string
+    measurementInterval: number
+    duration: number
+  }
+  analysisSnapshot: {
+    dpdt: number
+    leakRate: number | null
+    leakRateFormatted: string | null
+    volume: number | null
+    classificationType: RoRClassification['type']
+    classificationConfidence: number
+    limitPassed: boolean | null
+    limitValue: number | null
+    limitSource: string | null
+  }
+  tags: string[]
+  notes: string
+  isArchived: boolean
+}
+
+// Full RoR data (subcollection document - larger data)
+export interface FirestoreRoRFullData {
+  dataPoints: PressureDataPoint[]
+  classification: RoRClassification
+  linearFit: {
+    slope: number
+    intercept: number
+    r2: number
+  }
+  baselinePhase: {
+    startIndex: number
+    endIndex: number
+    meanPressure: number
+  }
+  risePhase: {
+    startIndex: number
+    endIndex: number
+  }
+}
+
+// Cloud RoR test metadata for archive list
+export interface CloudRoRTestMeta {
+  id: string
+  filename: string
+  uploadedAt: Date
+  measurementDate: Date | null
+  tags: string[]
+  notes: string
+  isArchived: boolean
+  metadata: {
+    device: string
+    serialNumber: string
+    sensor: string
+    duration: number
+  }
+  analysisSnapshot: {
+    dpdt: number
+    leakRate: number | null
+    leakRateFormatted: string | null
+    classificationType: RoRClassification['type']
+    classificationConfidence: number
+    limitPassed: boolean | null
+    limitSource: string | null
   }
 }

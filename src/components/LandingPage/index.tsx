@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDropzone } from 'react-dropzone'
 import { useAppStore } from '@/store/useAppStore'
-import { parseASCFile } from '@/lib/parser'
-import { analyzeSpectrum } from '@/lib/analysis'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
-import type { MeasurementFile } from '@/types/rga'
 
 // --- Types ---
 interface Peak {
@@ -85,7 +81,7 @@ const PEAKS: Peak[] = [
 
 export function LandingPage() {
   const { t } = useTranslation()
-  const { theme, addFile, setSkipLandingPage } = useAppStore()
+  const { theme, setSkipLandingPage } = useAppStore()
   const isDark = theme === 'dark'
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -97,58 +93,6 @@ export function LandingPage() {
   const scanProgressRef = useRef<number>(0)
 
   const [isRunning, setIsRunning] = useState(true)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  // File handling - supports 1-3 files
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 0) return
-    if (acceptedFiles.length > 3) {
-      setError(t('upload.maxThreeFiles', 'Maximal 3 Dateien erlaubt'))
-      return
-    }
-
-    setIsProcessing(true)
-    setError(null)
-
-    try {
-      // Parse and add each file
-      for (const file of acceptedFiles) {
-        const content = await file.text()
-        const rawData = parseASCFile(content)
-        const analysisResult = analyzeSpectrum(rawData)
-
-        const measurementFile: MeasurementFile = {
-          id: crypto.randomUUID(),
-          order: 0, // Will be set by store based on date
-          filename: file.name,
-          rawData,
-          analysisResult,
-          uploadedAt: new Date(),
-        }
-
-        addFile(measurementFile)
-      }
-    } catch (err) {
-      if (err instanceof Error && 'code' in err) {
-        const analysisErr = err as { message: string; details?: string }
-        setError(analysisErr.details || analysisErr.message)
-      } else if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError(t('upload.error'))
-      }
-    } finally {
-      setIsProcessing(false)
-    }
-  }, [addFile, t])
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { 'text/plain': ['.asc'] },
-    multiple: true,
-    maxFiles: 3,
-  })
 
   // Helper Math
   const gaussian = (x: number, center: number, height: number, width: number) => {
@@ -421,51 +365,27 @@ export function LandingPage() {
           </div>
         </div>
 
-        {/* Upload Dropzone - Top Right */}
+        {/* Launch App Button - Top Right */}
         <div className="flex-1 flex items-start justify-end pt-4">
-          <div
-            {...getRootProps()}
-            className={`pointer-events-auto cursor-pointer transition-all duration-300 ease-smooth
-              backdrop-blur-md border-2 border-dashed rounded-[20px] p-6 w-72
+          <button
+            onClick={() => setSkipLandingPage(true)}
+            className={`pointer-events-auto relative group overflow-hidden rounded-full px-8 py-4
+              transition-all duration-300 ease-smooth
               ${isDark
-                ? `bg-[#252518]/60 ${isDragActive
-                    ? 'border-[#E0BD00] bg-[#252518]/80 scale-105 shadow-[0_0_30px_rgba(224,189,0,0.3)]'
-                    : 'border-[rgba(248,248,240,0.2)] hover:border-[#E0BD00]/50 hover:bg-[#252518]/70'}`
-                : `bg-white/60 ${isDragActive
-                    ? 'border-[#0097E0] bg-white/80 scale-105 shadow-[0_0_30px_rgba(0,151,224,0.3)]'
-                    : 'border-[rgba(31,36,48,0.15)] hover:border-[#0097E0]/50 hover:bg-white/70'}`}
-              ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
+                ? 'shadow-[0_10px_25px_rgba(158,224,0,0.3)] hover:translate-y-[-2px] hover:scale-[1.02]'
+                : 'shadow-[0_10px_25px_rgba(0,222,224,0.3)] hover:translate-y-[-2px] hover:scale-[1.02]'
+              }`}
           >
-            <input {...getInputProps()} />
-            <div className="text-center">
-              {/* Upload Icon */}
-              <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center transition-all duration-300
-                ${isDark
-                  ? 'bg-gradient-to-br from-[#E0BD00] to-[#9EE000] shadow-[0_10px_25px_rgba(224,189,0,0.3)]'
-                  : 'bg-gradient-to-br from-[#00E097] to-[#0097E0] shadow-[0_10px_25px_rgba(0,151,224,0.3)]'}`}>
-                <svg className={`w-6 h-6 ${isDark ? 'text-[#1A1A12]' : 'text-white'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-              </div>
-
-              <p className={`font-display font-semibold text-base mb-1 transition-colors duration-300
-                ${isDark ? 'text-[#F8F8F0]' : 'text-[#1F2430]'}`}>
-                {isProcessing ? t('upload.processing') : t('upload.dropzone')}
-              </p>
-              <p className={`text-[11px] transition-colors duration-300
-                ${isDark ? 'text-[#C8C8A0]' : 'text-[#6B7280]'}`}>
-                {t('upload.formats')}
-              </p>
-              <p className={`text-[10px] mt-1 transition-colors duration-300
-                ${isDark ? 'text-[#9EE000]' : 'text-[#0097E0]'}`}>
-                {t('upload.multiFile', '1-3 Dateien (Vergleich ab 2)')}
-              </p>
-
-              {error && (
-                <p className="mt-2 text-[11px] text-[#FF6B6B]">{error}</p>
-              )}
-            </div>
-          </div>
+            <div className={`absolute inset-0 transition-colors duration-300
+              ${isDark
+                ? 'bg-gradient-to-r from-[#E0BD00] via-[#9EE000] to-[#45F600]'
+                : 'bg-gradient-to-r from-[#00E097] via-[#00DEE0] to-[#0097E0]'}`}
+            />
+            <span className={`relative z-10 font-display text-lg font-bold tracking-wide transition-colors duration-300
+              ${isDark ? 'text-[#1A1A12]' : 'text-white'}`}>
+              {t('landing.launchApp', 'LAUNCH APP')}
+            </span>
+          </button>
         </div>
 
         {/* Bottom HUD */}
@@ -482,23 +402,6 @@ export function LandingPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Launch App Button */}
-            <button
-              onClick={() => setSkipLandingPage(true)}
-              className={`pointer-events-auto relative group overflow-hidden rounded-full px-6 py-2.5
-                transition-all duration-300 ease-smooth
-                ${isDark
-                  ? 'bg-[#252518] border border-[rgba(248,248,240,0.1)] hover:border-[#E0BD00]/50'
-                  : 'bg-white border border-[rgba(31,36,48,0.1)] hover:border-[#0097E0]/50'
-                }
-                hover:translate-y-[-2px] hover:scale-[1.02]`}
-            >
-              <span className={`relative z-10 font-body text-sm font-semibold tracking-wide transition-colors duration-300
-                ${isDark ? 'text-[#F8F8F0]' : 'text-[#1F2430]'}`}>
-                {t('landing.launchApp', 'LAUNCH APP')}
-              </span>
-            </button>
-
             {/* Pause/Resume Button */}
             <button
               onClick={() => setIsRunning(prev => !prev)}

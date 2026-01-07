@@ -11,14 +11,16 @@ import { SpectrumArchive } from '@/components/SpectrumArchive'
 import { DeviceCalibrationModal } from '@/components/DeviceCalibrationModal'
 
 interface ActionsSidebarProps {
-  files: MeasurementFile[]
-  analysis: AnalysisResult
-  chartRef: React.RefObject<HTMLDivElement | null>
+  files?: MeasurementFile[]
+  analysis?: AnalysisResult
+  chartRef?: React.RefObject<HTMLDivElement | null>
   comparisonData?: {
     beforeAnalysis: AnalysisResult
     afterAnalysis: AnalysisResult
     comparisonResult: ComparisonResult
   }
+  onShowRateOfRise?: () => void
+  minimal?: boolean // Show only navigation, hide analysis panels
 }
 
 type PanelType = 'limits' | 'calibration' | 'ai' | 'export'
@@ -46,7 +48,7 @@ const PANEL_ICONS: Record<PanelType, React.ReactNode> = {
   ),
 }
 
-export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: ActionsSidebarProps) {
+export function ActionsSidebar({ files = [], analysis, chartRef, comparisonData, onShowRateOfRise, minimal = false }: ActionsSidebarProps) {
   const { t } = useTranslation()
   const { sidebarActivePanel, setSidebarActivePanel, setShowKnowledgePage, currentUser, setShowLoginModal } = useAppStore()
 
@@ -54,7 +56,9 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
   const [showArchive, setShowArchive] = useState(false)
   const [showDeviceCalibration, setShowDeviceCalibration] = useState(false)
 
-  const isExpanded = sidebarActivePanel !== null
+  // In minimal mode or when no files, don't expand panels
+  const hasData = files.length > 0 && analysis
+  const isExpanded = sidebarActivePanel !== null && hasData && !minimal
 
   // Get current N₂ current from loaded file (m/z 28) for device calibration modal
   const currentN2Current = files.length > 0
@@ -103,7 +107,8 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
         {/* Spacer for header */}
         <div className="h-16" />
 
-        {panels.map(({ key, label }) => (
+        {/* Only show analysis panels when data is loaded and not in minimal mode */}
+        {hasData && !minimal && panels.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => handlePanelClick(key)}
@@ -125,18 +130,20 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
         {/* Divider */}
         <div className="w-8 h-px bg-border-subtle my-2" />
 
-        {/* Cloud Save Button */}
-        <button
-          onClick={handleCloudSave}
-          className={`w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
-            ${currentUser ? 'text-aqua-500 hover:text-aqua-400' : 'text-text-secondary hover:text-text-primary'} hover:bg-surface-card`}
-          title={t('cloud.save')}
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-          </svg>
-          <span className="text-[10px] font-medium">Cloud</span>
-        </button>
+        {/* Cloud Save Button - only when files are loaded */}
+        {hasData && (
+          <button
+            onClick={handleCloudSave}
+            className={`w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
+              ${currentUser ? 'text-aqua-500 hover:text-aqua-400' : 'text-text-secondary hover:text-text-primary'} hover:bg-surface-card`}
+            title={t('cloud.save')}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <span className="text-[10px] font-medium">Cloud</span>
+          </button>
+        )}
 
         {/* Archive Button */}
         <button
@@ -153,6 +160,19 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
 
         {/* Divider */}
         <div className="w-8 h-px bg-border-subtle my-2" />
+
+        {/* Rate of Rise Button - always visible */}
+        <button
+          onClick={onShowRateOfRise}
+          className="w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
+            text-aqua-500 hover:text-aqua-400 hover:bg-surface-card"
+          title={t('sidebar.rateOfRise', 'Rate of Rise')}
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+          <span className="text-[10px] font-medium">{t('sidebar.rateOfRise', 'RoR')}</span>
+        </button>
 
         {/* Knowledge Base Button */}
         <button
@@ -197,7 +217,7 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
             {sidebarActivePanel === 'limits' && (
               <LimitsPanel files={files} />
             )}
-            {sidebarActivePanel === 'calibration' && (
+            {sidebarActivePanel === 'calibration' && analysis && (
               <div className="p-4">
                 <CalibrationPanel
                   calibration={analysis.calibration}
@@ -208,7 +228,7 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
                 />
               </div>
             )}
-            {sidebarActivePanel === 'ai' && (
+            {sidebarActivePanel === 'ai' && analysis && (
               <div className="p-4">
                 <AIPanel
                   analysis={analysis}
@@ -218,7 +238,7 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
                 />
               </div>
             )}
-            {sidebarActivePanel === 'export' && (
+            {sidebarActivePanel === 'export' && analysis && chartRef && (
               <div className="p-4">
                 <ExportPanel
                   analysis={analysis}

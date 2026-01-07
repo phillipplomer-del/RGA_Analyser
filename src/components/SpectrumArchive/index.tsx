@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils/cn'
 import { useAppStore } from '@/store/useAppStore'
@@ -12,6 +12,24 @@ interface SpectrumArchiveProps {
 export function SpectrumArchive({ onClose }: SpectrumArchiveProps) {
   const { t } = useTranslation()
   const { currentUser, addFile, setCloudSpectra, cloudSpectra } = useAppStore()
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
+  // Handle backdrop click
+  const handleBackdropClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }, [onClose])
 
   const [isLoading, setIsLoading] = useState(true)
   const [showArchived, setShowArchived] = useState(false)
@@ -95,7 +113,10 @@ export function SpectrumArchive({ onClose }: SpectrumArchiveProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      onClick={handleBackdropClick}
+    >
       <div className="bg-surface-card rounded-card shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-aqua-500 to-aqua-600 px-6 py-4 flex-shrink-0">
@@ -110,9 +131,12 @@ export function SpectrumArchive({ onClose }: SpectrumArchiveProps) {
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white text-xl font-bold"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+              title={t('common.close', 'Schließen')}
             >
-              ×
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
 

@@ -210,5 +210,65 @@
     "noSpectra": "Keine gespeicherten Spektren",
     "archived": "Archiviert",
     "restore": "Wiederherstellen"
+  },
+  "rateOfRise": {
+    "title": "Druckanstiegstest",
+    "subtitle": "Rate-of-Rise Analyse",
+    "dataPoints": "Datenpunkte",
+    "upload": {
+      "title": "TPG362 CSV laden",
+      "hint": "Pfeiffer Vacuum Drucklogger-Daten für Druckanstiegstest-Analyse",
+      "formats": "TPG362 CSV-Dateien (.csv)"
+    },
+    "metadata": {
+      "title": "Geräte-Info",
+      "device": "Gerät",
+      "serial": "Seriennummer",
+      "sensor": "Sensor",
+      "interval": "Messintervall",
+      "duration": "Messdauer",
+      "date": "Datum"
+    },
+    "params": {
+      "title": "Parameter",
+      "volume": "Kammervolumen",
+      "volumeUnit": "Liter",
+      "volumeHint": "Für Leckraten-Berechnung Q = V × dp/dt",
+      "limit": "Leckraten-Grenzwert",
+      "limitSelect": "Grenzwert wählen...",
+      "limitCustom": "Benutzerdefiniert...",
+      "limitSource": "Quelle"
+    },
+    "chart": {
+      "linear": "Linear",
+      "log": "Log",
+      "showFit": "Fit-Linie",
+      "showPhases": "Phasen anzeigen"
+    },
+    "results": {
+      "title": "Ergebnisse",
+      "dpdt": "Druckanstiegsrate",
+      "leakRate": "Leckrate",
+      "heEquivalent": "He-äquiv.",
+      "fitR2": "Fit R²",
+      "baseline": "Basisdruck (p₀)",
+      "baselineDuration": "Baseline-Dauer",
+      "riseDuration": "Anstiegs-Dauer",
+      "dataPoints": "Datenpunkte (Fit)"
+    },
+    "classification": {
+      "title": "Klassifikation",
+      "confidence": "Konfidenz",
+      "evidence": "EVIDENZ",
+      "recommendations": "EMPFEHLUNGEN"
+    },
+    "limitCheck": {
+      "title": "Grenzwert-Prüfung",
+      "passed": "BESTANDEN",
+      "failed": "NICHT BESTANDEN",
+      "limit": "Grenzwert",
+      "source": "Quelle",
+      "factor": "Faktor"
+    }
   }
 }

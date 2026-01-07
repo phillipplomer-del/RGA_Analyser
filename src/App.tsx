@@ -15,6 +15,7 @@ import { ComparisonPanel } from '@/components/ComparisonPanel'
 import { PeakComparisonTable } from '@/components/PeakComparisonTable'
 import { ActionsSidebar } from '@/components/ActionsSidebar'
 import { KnowledgePage } from '@/components/KnowledgePage'
+import { RateOfRisePage } from '@/components/RateOfRise'
 import { SimpleLoginModal } from '@/components/Auth/SimpleLoginModal'
 import { UserBadge } from '@/components/Auth/UserBadge'
 import { SpectrumArchive } from '@/components/SpectrumArchive'
@@ -42,6 +43,7 @@ function App() {
   } = useAppStore()
   const chartRef = useRef<HTMLDivElement>(null)
   const [showArchive, setShowArchive] = useState(false)
+  const [showRateOfRise, setShowRateOfRise] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
 
@@ -109,7 +111,12 @@ function App() {
 
   // Show Knowledge Page when requested
   if (showKnowledgePage) {
-    return <KnowledgePage />
+    return <KnowledgePage onShowRateOfRise={() => setShowRateOfRise(true)} />
+  }
+
+  // Show Rate of Rise Page when requested
+  if (showRateOfRise) {
+    return <RateOfRisePage onBack={() => setShowRateOfRise(false)} />
   }
 
   // Show Landing Page when no files and not skipped
@@ -122,7 +129,7 @@ function App() {
     return (
       <div className={`min-h-screen bg-surface-page ${theme === 'dark' ? 'dark' : ''}`}>
         {/* Header */}
-        <header className="bg-surface-card shadow-card sticky top-0 z-50">
+        <header className="bg-surface-card shadow-card sticky top-0 z-50 ml-16">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <div>
               <h1 className="font-display font-bold text-h1 gradient-text">
@@ -158,8 +165,9 @@ function App() {
         </header>
 
         {/* Empty State Content */}
-        <main className="max-w-4xl mx-auto px-6 py-16">
-          <div className="text-center mb-12">
+        <main className="max-w-7xl mx-auto px-6 py-6 ml-16">
+          <div className="max-w-4xl mx-auto py-10">
+            <div className="text-center mb-12">
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-aqua-500 to-mint-500 flex items-center justify-center">
               <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -233,6 +241,7 @@ function App() {
               </div>
             </button>
           </div>
+          </div>
         </main>
 
         {/* Login Modal */}
@@ -247,6 +256,12 @@ function App() {
         {showArchive && (
           <SpectrumArchive onClose={() => setShowArchive(false)} />
         )}
+
+        {/* Navigation Sidebar - minimal mode */}
+        <ActionsSidebar
+          minimal
+          onShowRateOfRise={() => setShowRateOfRise(true)}
+        />
       </div>
     )
   }
@@ -404,6 +419,7 @@ function App() {
           afterAnalysis: files[files.length - 1].analysisResult,
           comparisonResult: comparisonResult
         } : undefined}
+        onShowRateOfRise={() => setShowRateOfRise(true)}
       />
 
       {/* Login Modal */}

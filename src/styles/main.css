@@ -27,6 +27,23 @@
   --color-state-danger: #F87171;
   --color-state-info: #0097E0;
 
+  /* Additional Colors for UI Components */
+  --color-coral-400: #FB7185;
+  --color-coral-500: #F43F5E;
+  --color-coral-600: #E11D48;
+
+  --color-mint-400: #34D399;
+  --color-mint-500: #10B981;
+  --color-mint-600: #059669;
+
+  --color-amber-400: #FBBF24;
+  --color-amber-500: #F59E0B;
+  --color-amber-600: #D97706;
+
+  --color-aqua-400: #5EEEF0;
+  --color-aqua-500: #00DEE0;
+  --color-aqua-600: #00B8BA;
+
   /* Chart Colors für RGA */
   --color-chart-spectrum: #3b82f6;
   --color-chart-gsi-limit: #f59e0b;
@@ -82,6 +99,23 @@
   --color-state-warning: #E0BD00;
   --color-state-danger: #FF6B6B;
   --color-state-info: #9EE000;
+
+  /* Additional Colors (Dark Mode) */
+  --color-coral-400: #FDA4AF;
+  --color-coral-500: #FB7185;
+  --color-coral-600: #F43F5E;
+
+  --color-mint-400: #6EE7B7;
+  --color-mint-500: #34D399;
+  --color-mint-600: #10B981;
+
+  --color-amber-400: #FCD34D;
+  --color-amber-500: #FBBF24;
+  --color-amber-600: #F59E0B;
+
+  --color-aqua-400: #7DFEFF;
+  --color-aqua-500: #5EEEF0;
+  --color-aqua-600: #00DEE0;
 
   --color-chart-bar-start: #E0DB4B;
   --color-chart-bar-end: #9EE000;

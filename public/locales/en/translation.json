@@ -210,5 +210,65 @@
     "noSpectra": "No saved spectra",
     "archived": "Archived",
     "restore": "Restore"
+  },
+  "rateOfRise": {
+    "title": "Pressure Rise Test",
+    "subtitle": "Rate-of-Rise Analysis",
+    "dataPoints": "Data Points",
+    "upload": {
+      "title": "Load TPG362 CSV",
+      "hint": "Pfeiffer Vacuum pressure logger data for pressure rise test analysis",
+      "formats": "TPG362 CSV files (.csv)"
+    },
+    "metadata": {
+      "title": "Device Info",
+      "device": "Device",
+      "serial": "Serial Number",
+      "sensor": "Sensor",
+      "interval": "Measurement Interval",
+      "duration": "Duration",
+      "date": "Date"
+    },
+    "params": {
+      "title": "Parameters",
+      "volume": "Chamber Volume",
+      "volumeUnit": "Liters",
+      "volumeHint": "For leak rate calculation Q = V × dp/dt",
+      "limit": "Leak Rate Limit",
+      "limitSelect": "Select limit...",
+      "limitCustom": "Custom...",
+      "limitSource": "Source"
+    },
+    "chart": {
+      "linear": "Linear",
+      "log": "Log",
+      "showFit": "Fit Line",
+      "showPhases": "Show Phases"
+    },
+    "results": {
+      "title": "Results",
+      "dpdt": "Pressure Rise Rate",
+      "leakRate": "Leak Rate",
+      "heEquivalent": "He equivalent",
+      "fitR2": "Fit R²",
+      "baseline": "Baseline Pressure (p₀)",
+      "baselineDuration": "Baseline Duration",
+      "riseDuration": "Rise Duration",
+      "dataPoints": "Data Points (Fit)"
+    },
+    "classification": {
+      "title": "Classification",
+      "confidence": "Confidence",
+      "evidence": "EVIDENCE",
+      "recommendations": "RECOMMENDATIONS"
+    },
+    "limitCheck": {
+      "title": "Limit Check",
+      "passed": "PASSED",
+      "failed": "FAILED",
+      "limit": "Limit",
+      "source": "Source",
+      "factor": "Factor"
+    }
   }
 }
