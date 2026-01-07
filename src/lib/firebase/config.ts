@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore'
+import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,11 +17,8 @@ if (!firebaseConfig.apiKey) {
 
 const app = initializeApp(firebaseConfig)
 
-// Initialize Firestore with persistent cache (new API)
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager()
-  })
-})
+// Initialize Firestore without persistent cache to avoid IndexedDB issues
+// in certain browser environments (incognito, Safari privacy mode, etc.)
+export const db = getFirestore(app)
 
 export default app
