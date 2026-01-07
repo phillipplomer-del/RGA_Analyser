@@ -111,8 +111,24 @@ export function getCurrentUser(): AppUser | null {
   const sessionData = localStorage.getItem(USER_SESSION_KEY)
   if (sessionData) {
     try {
-      return JSON.parse(sessionData) as AppUser
+      const parsed = JSON.parse(sessionData)
+
+      // Migration: Old sessions have firstName/lastName, new ones have name
+      if (parsed.firstName && parsed.lastName && !parsed.name) {
+        // Clear old incompatible session
+        localStorage.removeItem(USER_SESSION_KEY)
+        return null
+      }
+
+      // Validate that required fields exist
+      if (!parsed.id || !parsed.name) {
+        localStorage.removeItem(USER_SESSION_KEY)
+        return null
+      }
+
+      return parsed as AppUser
     } catch {
+      localStorage.removeItem(USER_SESSION_KEY)
       return null
     }
   }
