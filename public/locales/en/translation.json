@@ -124,5 +124,43 @@
     "reset": "Reset",
     "delete": "Delete",
     "copy": "Copy"
+  },
+  "auth": {
+    "title": "Sign In",
+    "subtitle": "Save your analyses to the cloud",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "John",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Doe",
+    "pin": "PIN Code",
+    "pinPlaceholder": "4-6 digits",
+    "pinHint": "Choose a 4-6 digit PIN to log in",
+    "submit": "Sign In / Register",
+    "skip": "Skip",
+    "loading": "Loading...",
+    "loggedIn": "Signed in",
+    "logout": "Sign Out",
+    "info": "New user? Just enter your name and PIN!",
+    "error": {
+      "invalidFirstName": "Please enter a valid first name",
+      "invalidLastName": "Please enter a valid last name",
+      "invalidPin": "PIN must be 4-6 digits",
+      "pinMismatch": "Wrong PIN for this name",
+      "generic": "An error occurred"
+    }
+  },
+  "cloud": {
+    "save": "Save to Cloud",
+    "archive": "Archive",
+    "saveSuccess": "Spectrum saved",
+    "loadSuccess": "Spectrum loaded",
+    "deleteConfirm": "Really delete spectrum?",
+    "tags": "Tags",
+    "tagsPlaceholder": "Add tag...",
+    "notes": "Notes",
+    "notesPlaceholder": "Notes about the spectrum...",
+    "noSpectra": "No saved spectra",
+    "archived": "Archived",
+    "restore": "Restore"
   }
 }

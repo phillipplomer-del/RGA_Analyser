@@ -14,6 +14,8 @@ import { ComparisonPanel } from '@/components/ComparisonPanel'
 import { PeakComparisonTable } from '@/components/PeakComparisonTable'
 import { ActionsSidebar } from '@/components/ActionsSidebar'
 import { KnowledgePage } from '@/components/KnowledgePage'
+import { SimpleLoginModal } from '@/components/Auth/SimpleLoginModal'
+import { UserBadge } from '@/components/Auth/UserBadge'
 import { compareSpectra } from '@/lib/comparison'
 
 function App() {
@@ -25,6 +27,9 @@ function App() {
     comparisonResult,
     setComparisonResult,
     showKnowledgePage,
+    currentUser,
+    showLoginModal,
+    setShowLoginModal,
   } = useAppStore()
   const chartRef = useRef<HTMLDivElement>(null)
 
@@ -71,6 +76,17 @@ function App() {
             <FileManager />
 
             <div className="flex items-center gap-2">
+              {currentUser ? (
+                <UserBadge />
+              ) : (
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="px-4 py-2 text-caption font-medium text-aqua-600 hover:text-aqua-500
+                    bg-aqua-500/10 hover:bg-aqua-500/20 rounded-chip transition-colors"
+                >
+                  {t('auth.title')}
+                </button>
+              )}
               <button
                 onClick={reset}
                 className="px-4 py-2 text-caption font-medium text-text-secondary hover:text-text-primary
@@ -192,6 +208,14 @@ function App() {
           comparisonResult: comparisonResult
         } : undefined}
       />
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <SimpleLoginModal
+          onClose={() => setShowLoginModal(false)}
+          isOptional={true}
+        />
+      )}
     </div>
   )
 }

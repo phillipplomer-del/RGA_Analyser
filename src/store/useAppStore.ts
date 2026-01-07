@@ -1,7 +1,9 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import type { MeasurementFile, ComparisonResult, LimitProfile } from '@/types/rga'
+import type { AppUser, CloudSpectrumMeta } from '@/types/firebase'
 import { DEFAULT_PRESETS, getNextProfileColor } from '@/lib/limits/profiles'
+import { getCurrentUser } from '@/lib/firebase/simpleAuth'
 
 const MAX_FILES = 3
 
@@ -21,6 +23,12 @@ interface AppState {
   isAnalyzing: boolean
   error: string | null
 
+  // Auth & Cloud
+  currentUser: AppUser | null
+  isAuthLoading: boolean
+  cloudSpectra: CloudSpectrumMeta[]
+  isSyncing: boolean
+
   // Limit Profiles
   limitProfiles: LimitProfile[]
   activeLimitProfileIds: string[]
@@ -31,6 +39,7 @@ interface AppState {
   chartOptions: ChartOptions
   sidebarActivePanel: 'limits' | 'ai' | 'export' | null
   showKnowledgePage: boolean
+  showLoginModal: boolean
 
   // Actions - Files
   addFile: (file: MeasurementFile) => void
@@ -40,6 +49,14 @@ interface AppState {
   setAiInterpretation: (interpretation: string | null) => void
   setIsAnalyzing: (isAnalyzing: boolean) => void
   setError: (error: string | null) => void
+
+  // Actions - Auth & Cloud
+  setCurrentUser: (user: AppUser | null) => void
+  setAuthLoading: (loading: boolean) => void
+  setCloudSpectra: (spectra: CloudSpectrumMeta[]) => void
+  setSyncing: (syncing: boolean) => void
+  setShowLoginModal: (show: boolean) => void
+  initializeAuth: () => void
 
   // Actions - Limit Profiles
   addLimitProfile: (profile: Omit<LimitProfile, 'id' | 'createdAt' | 'updatedAt'>) => string
@@ -67,6 +84,12 @@ const initialState = {
   isAnalyzing: false,
   error: null,
 
+  // Auth & Cloud
+  currentUser: getCurrentUser(),
+  isAuthLoading: false,
+  cloudSpectra: [] as CloudSpectrumMeta[],
+  isSyncing: false,
+
   // Limit Profiles - initialize with presets, GSI and CERN active by default
   limitProfiles: DEFAULT_PRESETS,
   activeLimitProfileIds: ['gsi-7.3e', 'cern-3076004'],
@@ -82,6 +105,7 @@ const initialState = {
   },
   sidebarActivePanel: null as 'limits' | 'ai' | 'export' | null,
   showKnowledgePage: false,
+  showLoginModal: false,
 }
 
 // Sort files by measurement date and assign order
@@ -148,6 +172,17 @@ export const useAppStore = create<AppState>()(
         setIsAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
 
         setError: (error) => set({ error, isAnalyzing: false }),
+
+        // Auth & Cloud Actions
+        setCurrentUser: (user) => set({ currentUser: user }),
+        setAuthLoading: (loading) => set({ isAuthLoading: loading }),
+        setCloudSpectra: (spectra) => set({ cloudSpectra: spectra }),
+        setSyncing: (syncing) => set({ isSyncing: syncing }),
+        setShowLoginModal: (show) => set({ showLoginModal: show }),
+        initializeAuth: () => {
+          const user = getCurrentUser()
+          set({ currentUser: user, isAuthLoading: false })
+        },
 
         // Limit Profile Actions
         addLimitProfile: (profile) => {

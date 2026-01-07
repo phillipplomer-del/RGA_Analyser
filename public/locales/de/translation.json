@@ -124,5 +124,43 @@
     "reset": "Zurücksetzen",
     "delete": "Löschen",
     "copy": "Kopieren"
+  },
+  "auth": {
+    "title": "Anmelden",
+    "subtitle": "Speichere deine Analysen in der Cloud",
+    "firstName": "Vorname",
+    "firstNamePlaceholder": "Max",
+    "lastName": "Nachname",
+    "lastNamePlaceholder": "Mustermann",
+    "pin": "PIN-Code",
+    "pinPlaceholder": "4-6 Ziffern",
+    "pinHint": "Wähle eine 4-6 stellige PIN zum Einloggen",
+    "submit": "Anmelden / Registrieren",
+    "skip": "Überspringen",
+    "loading": "Wird geladen...",
+    "loggedIn": "Angemeldet",
+    "logout": "Abmelden",
+    "info": "Neuer Nutzer? Einfach Namen und PIN eingeben!",
+    "error": {
+      "invalidFirstName": "Bitte gib einen gültigen Vornamen ein",
+      "invalidLastName": "Bitte gib einen gültigen Nachnamen ein",
+      "invalidPin": "PIN muss 4-6 Ziffern haben",
+      "pinMismatch": "Falscher PIN für diesen Namen",
+      "generic": "Ein Fehler ist aufgetreten"
+    }
+  },
+  "cloud": {
+    "save": "In Cloud speichern",
+    "archive": "Archiv",
+    "saveSuccess": "Spektrum gespeichert",
+    "loadSuccess": "Spektrum geladen",
+    "deleteConfirm": "Spektrum wirklich löschen?",
+    "tags": "Tags",
+    "tagsPlaceholder": "Tag hinzufügen...",
+    "notes": "Notizen",
+    "notesPlaceholder": "Notizen zum Spektrum...",
+    "noSpectra": "Keine gespeicherten Spektren",
+    "archived": "Archiviert",
+    "restore": "Wiederherstellen"
   }
 }

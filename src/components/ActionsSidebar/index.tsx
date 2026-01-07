@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store/useAppStore'
 import type { MeasurementFile, AnalysisResult, ComparisonResult } from '@/types/rga'
 import { AIPanel } from '@/components/AIPanel'
 import { ExportPanel } from '@/components/ExportPanel'
 import { LimitsPanel } from '@/components/LimitsPanel'
+import { SaveSpectrumModal } from '@/components/SaveSpectrumModal'
+import { SpectrumArchive } from '@/components/SpectrumArchive'
 
 interface ActionsSidebarProps {
   files: MeasurementFile[]
@@ -38,9 +41,28 @@ const PANEL_ICONS: Record<PanelType, React.ReactNode> = {
 
 export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: ActionsSidebarProps) {
   const { t } = useTranslation()
-  const { sidebarActivePanel, setSidebarActivePanel, setShowKnowledgePage } = useAppStore()
+  const { sidebarActivePanel, setSidebarActivePanel, setShowKnowledgePage, currentUser, setShowLoginModal } = useAppStore()
+
+  const [showSaveModal, setShowSaveModal] = useState(false)
+  const [showArchive, setShowArchive] = useState(false)
 
   const isExpanded = sidebarActivePanel !== null
+
+  const handleCloudSave = () => {
+    if (!currentUser) {
+      setShowLoginModal(true)
+      return
+    }
+    setShowSaveModal(true)
+  }
+
+  const handleArchiveOpen = () => {
+    if (!currentUser) {
+      setShowLoginModal(true)
+      return
+    }
+    setShowArchive(true)
+  }
 
   const handlePanelClick = (panel: PanelType) => {
     if (sidebarActivePanel === panel) {
@@ -85,6 +107,35 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
 
         {/* Spacer */}
         <div className="flex-1" />
+
+        {/* Divider */}
+        <div className="w-8 h-px bg-border-subtle my-2" />
+
+        {/* Cloud Save Button */}
+        <button
+          onClick={handleCloudSave}
+          className={`w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
+            ${currentUser ? 'text-aqua-500 hover:text-aqua-400' : 'text-text-secondary hover:text-text-primary'} hover:bg-surface-card`}
+          title={t('cloud.save')}
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          <span className="text-[10px] font-medium">Cloud</span>
+        </button>
+
+        {/* Archive Button */}
+        <button
+          onClick={handleArchiveOpen}
+          className={`w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
+            ${currentUser ? 'text-text-secondary hover:text-text-primary' : 'text-text-muted'} hover:bg-surface-card`}
+          title={t('cloud.archive')}
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+          </svg>
+          <span className="text-[10px] font-medium">{t('cloud.archive')}</span>
+        </button>
 
         {/* Divider */}
         <div className="w-8 h-px bg-border-subtle my-2" />
@@ -152,6 +203,19 @@ export function ActionsSidebar({ files, analysis, chartRef, comparisonData }: Ac
             )}
           </div>
         </div>
+      )}
+
+      {/* Save Spectrum Modal */}
+      {showSaveModal && files.length > 0 && (
+        <SaveSpectrumModal
+          file={files[0]}
+          onClose={() => setShowSaveModal(false)}
+        />
+      )}
+
+      {/* Archive Modal */}
+      {showArchive && (
+        <SpectrumArchive onClose={() => setShowArchive(false)} />
       )}
     </div>
   )
