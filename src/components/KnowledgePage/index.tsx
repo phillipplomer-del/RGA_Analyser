@@ -16,7 +16,7 @@ export function KnowledgePage({ onShowRateOfRise }: KnowledgePageProps) {
   const isGerman = i18n.language === 'de'
 
   return (
-    <div className={`fixed inset-0 z-50 bg-surface-page ${theme === 'dark' ? 'dark' : ''}`}>
+    <div className={`fixed inset-0 z-50 bg-surface-page flex flex-col ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Header */}
       <header className="bg-surface-card shadow-card border-b border-subtle ml-16">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -49,14 +49,14 @@ export function KnowledgePage({ onShowRateOfRise }: KnowledgePageProps) {
       </header>
 
       {/* Main Content */}
-      <main className="h-[calc(100vh-80px)] overflow-hidden ml-16">
+      <main className="flex-1 overflow-hidden ml-16">
         <div className="max-w-7xl mx-auto h-full">
           <KnowledgePanel />
         </div>
       </main>
 
       {/* Footer */}
-      <Footer className="ml-16" />
+      <Footer className="ml-16 flex-shrink-0" />
 
       {/* Navigation Sidebar */}
       <ActionsSidebar

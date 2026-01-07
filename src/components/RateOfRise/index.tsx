@@ -100,7 +100,7 @@ export function RateOfRisePage({ onBack }: RateOfRisePageProps) {
   })
 
   return (
-    <div className={`min-h-screen bg-surface-page ${theme === 'dark' ? 'dark' : ''}`}>
+    <div className={`min-h-screen bg-surface-page flex flex-col ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Header */}
       <header className="bg-surface-card shadow-card sticky top-0 z-50 ml-16">
         <div className="max-w-[1800px] mx-auto px-6 py-4 flex items-center justify-between">
@@ -224,7 +224,7 @@ export function RateOfRisePage({ onBack }: RateOfRisePageProps) {
       </header>
 
       {/* Main Content */}
-      <main className={`mx-auto px-6 py-6 ml-16 ${!data ? 'max-w-7xl' : 'max-w-[1800px]'}`}>
+      <main className={`flex-1 mx-auto px-6 py-6 ml-16 ${!data ? 'max-w-7xl' : 'max-w-[1800px]'}`}>
         {!data ? (
           // Empty State - same layout as RGA
           <div className="max-w-4xl mx-auto py-10">

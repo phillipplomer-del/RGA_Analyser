@@ -24,7 +24,7 @@ export function FunctionSelector({
   const { theme, setSkipLandingPage } = useAppStore()
 
   return (
-    <div className={`min-h-screen bg-surface-page ${theme === 'dark' ? 'dark' : ''}`}>
+    <div className={`min-h-screen bg-surface-page flex flex-col ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Header */}
       <header className="bg-surface-card shadow-card sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -51,7 +51,7 @@ export function FunctionSelector({
       </header>
 
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-6 py-12">
+      <main className="flex-1 max-w-5xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
           <h2 className="font-display font-bold text-3xl text-text-primary mb-3">
             {t('selector.title', 'Funktion wählen')}

@@ -143,7 +143,7 @@ function App() {
   // Empty state - RGA section selected but no files loaded
   if (files.length === 0 && showRGASection) {
     return (
-      <div className={`min-h-screen bg-surface-page ${theme === 'dark' ? 'dark' : ''}`}>
+      <div className={`min-h-screen bg-surface-page flex flex-col ${theme === 'dark' ? 'dark' : ''}`}>
         {/* Header */}
         <header className="bg-surface-card shadow-card sticky top-0 z-50 ml-16">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -181,7 +181,7 @@ function App() {
         </header>
 
         {/* Empty State Content */}
-        <main className="max-w-7xl mx-auto px-6 py-6 ml-16">
+        <main className="flex-1 max-w-7xl mx-auto px-6 py-6 ml-16">
           <div className="max-w-4xl mx-auto py-10">
             <div className="text-center mb-12">
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-aqua-500 to-mint-500 flex items-center justify-center">
@@ -272,6 +272,9 @@ function App() {
         {showArchive && (
           <SpectrumArchive onClose={() => setShowArchive(false)} />
         )}
+
+        {/* Footer */}
+        <Footer className="ml-16" />
 
         {/* Navigation Sidebar - minimal mode */}
         <ActionsSidebar
