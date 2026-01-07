@@ -533,6 +533,7 @@
       <a href="#upload" class="nav-link">Datei-Upload</a>
       <a href="#spectrum" class="nav-link">Spektrum</a>
       <a href="#peaks" class="nav-link">Peak-Tabelle</a>
+      <a href="#diagnosis" class="nav-link">Diagnose</a>
       <a href="#quality" class="nav-link">Qualitätsprüfung</a>
       <a href="#ai" class="nav-link">KI-Analyse</a>
       <a href="#export" class="nav-link">Export</a>
@@ -569,6 +570,10 @@
           <div class="feature-item">
             <h4>✅ Qualitätsprüfung</h4>
             <p>Automatische Prüfung nach GSI/CERN Vakuumstandards</p>
+          </div>
+          <div class="feature-item">
+            <h4>🩺 Automatische Diagnose</h4>
+            <p>Erkennung von Luftlecks, Ölkontamination, Wasserprobleme und mehr</p>
           </div>
           <div class="feature-item">
             <h4>🤖 KI-Interpretation</h4>
@@ -727,6 +732,82 @@
       </div>
     </section>
 
+    <!-- Diagnosis -->
+    <section id="diagnosis">
+      <div class="card">
+        <h2><span class="icon">🩺</span> Automatische Diagnose</h2>
+        <p>Die Diagnose-Engine analysiert Ihr Spektrum automatisch und erkennt typische Probleme in Vakuumsystemen.</p>
+
+        <h3>Systemzustände</h3>
+        <table>
+          <tr>
+            <th>Zustand</th>
+            <th>Beschreibung</th>
+            <th>Typische Merkmale</th>
+          </tr>
+          <tr>
+            <td><strong>Ausgeheizt (Baked)</strong></td>
+            <td>Idealer UHV-Zustand</td>
+            <td>H₂ dominiert, niedriges H₂O, keine Kontaminationen</td>
+          </tr>
+          <tr>
+            <td><strong>Nicht ausgeheizt (Unbaked)</strong></td>
+            <td>System nach Belüftung</td>
+            <td>Erhöhtes H₂O (Masse 18), hohes N₂/CO (Masse 28)</td>
+          </tr>
+          <tr>
+            <td><strong>Kontaminiert</strong></td>
+            <td>Verunreinigungen vorhanden</td>
+            <td>Kohlenwasserstoffe, ungewöhnliche Peaks</td>
+          </tr>
+          <tr>
+            <td><strong>Luftleck</strong></td>
+            <td>Undichtigkeit im System</td>
+            <td>N₂/O₂ Verhältnis ~4:1, erhöhtes Ar (Masse 40)</td>
+          </tr>
+        </table>
+
+        <h3>Erkannte Probleme</h3>
+        <div class="feature-grid">
+          <div class="feature-item">
+            <h4>💨 Luftleck</h4>
+            <p>Erkennung über N₂/O₂-Verhältnis und Argon-Präsenz bei Masse 40</p>
+          </div>
+          <div class="feature-item">
+            <h4>💧 Wasserprobleme</h4>
+            <p>Hohe Feuchtigkeit durch unzureichendes Ausheizen oder virtuelle Lecks</p>
+          </div>
+          <div class="feature-item">
+            <h4>🛢️ Ölkontamination</h4>
+            <p>Pumpenöl-Rückströmung erkennbar an charakteristischen Kohlenwasserstoff-Patterns (41/43, 55/57, 69/71)</p>
+          </div>
+          <div class="feature-item">
+            <h4>⚡ Filament-Degradation</h4>
+            <p>Erhöhtes CO₂ (Masse 44) und CO (Masse 28) durch Oxidation des Ionisationsfilaments</p>
+          </div>
+          <div class="feature-item">
+            <h4>🧪 Lösemittelreste</h4>
+            <p>Aceton, Isopropanol oder andere Reinigungsmittel im System</p>
+          </div>
+          <div class="feature-item">
+            <h4>🔥 Ausgasung</h4>
+            <p>Adsorbierte Gase werden von Oberflächen freigesetzt</p>
+          </div>
+        </div>
+
+        <h3>Schweregrade</h3>
+        <p>
+          <span class="badge danger">Kritisch</span> Sofortige Maßnahmen erforderlich - Messung/Prozess gefährdet<br>
+          <span class="badge warning">Warnung</span> Problem erkannt - sollte behoben werden<br>
+          <span class="badge success">Info</span> Hinweis zur Systemoptimierung
+        </p>
+
+        <div class="info-box">
+          <p><strong>Tipp:</strong> Jede Diagnose enthält eine Konfidenz-Angabe (%) und konkrete Handlungsempfehlungen.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Quality -->
     <section id="quality">
       <div class="card">
@@ -855,18 +936,27 @@
           <li>Vektorbasiertes Spektrum (kleine Dateigröße, hohe Qualität)</li>
           <li>Peak-Tabelle mit den Top 12 Peaks</li>
           <li>Qualitätsprüfungen mit Pass/Fail Status</li>
+          <li><strong>Automatische Diagnose</strong> mit Empfehlungen</li>
           <li>KI-Interpretation auf separater Seite (wenn vorhanden)</li>
         </ul>
 
         <h3>Animiertes HTML</h3>
-        <p>Die HTML-Präsentation bietet:</p>
+        <p>Die HTML-Präsentation bietet eine geführte Tour durch Ihr Spektrum:</p>
         <ul>
-          <li>Abspielen/Pause Steuerung für die Animation</li>
+          <li>Abspielen/Pause/Neustart Steuerung</li>
           <li>Geschwindigkeitsregler (0.5x - 2x)</li>
-          <li>Interaktive Optionen (Log-Skala, GSI/CERN Limits)</li>
-          <li>Peak-Annotationen während der Animation</li>
-          <li>KI-Interpretation am Ende</li>
+          <li>Interaktive Optionen (Log-Skala, GSI/CERN Limits ein-/ausblenden)</li>
+          <li><strong>Automatischer Zoom</strong> auf wichtige Massenbereiche (H₂, H₂O, N₂/O₂, CO₂)</li>
+          <li><strong>Highlight-Kreis</strong> markiert den aktuell erklärten Peak mit pulsierender Animation</li>
+          <li>Peak-Labels mit Gas-Identifikation und Prozentangabe</li>
+          <li>Abschließende Status-Zusammenfassung (GSI/CERN bestanden?)</li>
+          <li><strong>Automatische Diagnose</strong> mit Systemzustand und Empfehlungen</li>
+          <li>KI-Interpretation (wenn vorhanden)</li>
         </ul>
+
+        <div class="info-box">
+          <p><strong>Tipp:</strong> Die HTML-Datei ist komplett eigenständig und kann ohne Internetverbindung geöffnet werden - ideal für Präsentationen.</p>
+        </div>
       </div>
     </section>
 
@@ -958,7 +1048,7 @@
   </main>
 
   <footer>
-    <p>Spectrum v1.0.0 • Aqua Design System • © 2025</p>
+    <p>Spectrum v1.1.0 • Aqua Design System • © 2025</p>
     <p style="margin-top: 0.5rem;">Erstellt für die Analyse von UHV-Restgasspektren</p>
   </footer>
 
