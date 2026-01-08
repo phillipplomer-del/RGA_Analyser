@@ -44,3 +44,5 @@ coverage
 *.pdf
 *.asc
 env-local-KOPIE.txt
+STRATEGY.md
+SUMMARY.md

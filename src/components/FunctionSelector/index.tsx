@@ -1,6 +1,10 @@
 /**
  * Function Selector Page
  * Second landing page to choose between main app functions
+ *
+ * Feature Gating:
+ * - Default: Only RGA analysis visible (publicly known at Pfeiffer)
+ * - Dev Mode (?dev=1): All features visible (RoR, Outgassing, Knowledge)
  */
 
 import { useTranslation } from 'react-i18next'
@@ -9,6 +13,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { ActionsSidebar } from '@/components/ActionsSidebar'
 import { Footer } from '@/components/ui/Footer'
+import { isDevMode } from '@/lib/featureFlags'
 
 interface FunctionSelectorProps {
   onSelectRGA: () => void
@@ -25,6 +30,7 @@ export function FunctionSelector({
 }: FunctionSelectorProps) {
   const { t } = useTranslation()
   const { theme, setSkipLandingPage } = useAppStore()
+  const devMode = isDevMode()
 
   return (
     <div className={`min-h-screen bg-surface-page flex flex-col ${theme === 'dark' ? 'dark' : ''}`}>
@@ -80,8 +86,8 @@ export function FunctionSelector({
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* RGA Card */}
+        <div className={`grid gap-6 ${devMode ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-1 max-w-md mx-auto'}`}>
+          {/* RGA Card - Always visible */}
           <button
             onClick={onSelectRGA}
             className="group p-8 rounded-card bg-surface-card border border-subtle
@@ -113,101 +119,107 @@ export function FunctionSelector({
             </div>
           </button>
 
-          {/* RoR Card */}
-          <button
-            onClick={onSelectRoR}
-            className="group p-8 rounded-card bg-surface-card border border-subtle
-              hover:border-amber-500/50 hover:shadow-lg transition-all text-left"
-          >
-            <div className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-amber-500 to-coral-500
-              flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-            </div>
-            <h3 className="font-display font-bold text-xl text-text-primary mb-2">
-              {t('selector.ror.title', 'Rate of Rise')}
-            </h3>
-            <p className="text-caption text-text-secondary mb-4">
-              {t('selector.ror.description', 'Druckanstiegstest zur Leckratenbestimmung mit automatischer Phasenerkennung und Klassifikation.')}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-2 py-1 text-micro bg-amber-500/10 text-amber-600 rounded-full">
-                CSV-Dateien
-              </span>
-              <span className="px-2 py-1 text-micro bg-amber-500/10 text-amber-600 rounded-full">
-                Leckrate
-              </span>
-              <span className="px-2 py-1 text-micro bg-amber-500/10 text-amber-600 rounded-full">
-                dp/dt
-              </span>
-            </div>
-          </button>
+          {/* RoR Card - Dev Mode only */}
+          {devMode && (
+            <button
+              onClick={onSelectRoR}
+              className="group p-8 rounded-card bg-surface-card border border-subtle
+                hover:border-amber-500/50 hover:shadow-lg transition-all text-left"
+            >
+              <div className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-amber-500 to-coral-500
+                flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <h3 className="font-display font-bold text-xl text-text-primary mb-2">
+                {t('selector.ror.title', 'Rate of Rise')}
+              </h3>
+              <p className="text-caption text-text-secondary mb-4">
+                {t('selector.ror.description', 'Druckanstiegstest zur Leckratenbestimmung mit automatischer Phasenerkennung und Klassifikation.')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2 py-1 text-micro bg-amber-500/10 text-amber-600 rounded-full">
+                  CSV-Dateien
+                </span>
+                <span className="px-2 py-1 text-micro bg-amber-500/10 text-amber-600 rounded-full">
+                  Leckrate
+                </span>
+                <span className="px-2 py-1 text-micro bg-amber-500/10 text-amber-600 rounded-full">
+                  dp/dt
+                </span>
+              </div>
+            </button>
+          )}
 
-          {/* Outgassing Card */}
-          <button
-            onClick={onSelectOutgassing}
-            className="group p-8 rounded-card bg-surface-card border border-subtle
-              hover:border-violet-500/50 hover:shadow-lg transition-all text-left"
-          >
-            <div className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-500
-              flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-              </svg>
-            </div>
-            <h3 className="font-display font-bold text-xl text-text-primary mb-2">
-              {t('selector.outgassing.title', 'Ausgasungs-Simulator')}
-            </h3>
-            <p className="text-caption text-text-secondary mb-4">
-              {t('selector.outgassing.description', 'Multi-Material Ausgasungsberechnung zur Unterscheidung von Lecks und Ausgasung.')}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-2 py-1 text-micro bg-violet-500/10 text-violet-600 rounded-full">
-                Materialien
-              </span>
-              <span className="px-2 py-1 text-micro bg-violet-500/10 text-violet-600 rounded-full">
-                Gaslast
-              </span>
-              <span className="px-2 py-1 text-micro bg-violet-500/10 text-violet-600 rounded-full">
-                Leck vs. Ausgasung
-              </span>
-            </div>
-          </button>
+          {/* Outgassing Card - Dev Mode only */}
+          {devMode && (
+            <button
+              onClick={onSelectOutgassing}
+              className="group p-8 rounded-card bg-surface-card border border-subtle
+                hover:border-violet-500/50 hover:shadow-lg transition-all text-left"
+            >
+              <div className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-500
+                flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+              </div>
+              <h3 className="font-display font-bold text-xl text-text-primary mb-2">
+                {t('selector.outgassing.title', 'Ausgasungs-Simulator')}
+              </h3>
+              <p className="text-caption text-text-secondary mb-4">
+                {t('selector.outgassing.description', 'Multi-Material Ausgasungsberechnung zur Unterscheidung von Lecks und Ausgasung.')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2 py-1 text-micro bg-violet-500/10 text-violet-600 rounded-full">
+                  Materialien
+                </span>
+                <span className="px-2 py-1 text-micro bg-violet-500/10 text-violet-600 rounded-full">
+                  Gaslast
+                </span>
+                <span className="px-2 py-1 text-micro bg-violet-500/10 text-violet-600 rounded-full">
+                  Leck vs. Ausgasung
+                </span>
+              </div>
+            </button>
+          )}
 
-          {/* Knowledge Card */}
-          <button
-            onClick={onSelectKnowledge}
-            className="group p-8 rounded-card bg-surface-card border border-subtle
-              hover:border-mint-500/50 hover:shadow-lg transition-all text-left"
-          >
-            <div className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-mint-500 to-aqua-500
-              flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-            <h3 className="font-display font-bold text-xl text-text-primary mb-2">
-              {t('selector.knowledge.title', 'Wissensdatenbank')}
-            </h3>
-            <p className="text-caption text-text-secondary mb-4">
-              {t('selector.knowledge.description', 'Umfassendes Nachschlagewerk zu Vakuumtechnik, Massenspektrometrie und Lecksuche.')}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-2 py-1 text-micro bg-mint-500/10 text-mint-600 rounded-full">
-                Referenz
-              </span>
-              <span className="px-2 py-1 text-micro bg-mint-500/10 text-mint-600 rounded-full">
-                Peaktabelle
-              </span>
-              <span className="px-2 py-1 text-micro bg-mint-500/10 text-mint-600 rounded-full">
-                Leitfaden
-              </span>
-            </div>
-          </button>
+          {/* Knowledge Card - Dev Mode only */}
+          {devMode && (
+            <button
+              onClick={onSelectKnowledge}
+              className="group p-8 rounded-card bg-surface-card border border-subtle
+                hover:border-mint-500/50 hover:shadow-lg transition-all text-left"
+            >
+              <div className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-mint-500 to-aqua-500
+                flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 className="font-display font-bold text-xl text-text-primary mb-2">
+                {t('selector.knowledge.title', 'Wissensdatenbank')}
+              </h3>
+              <p className="text-caption text-text-secondary mb-4">
+                {t('selector.knowledge.description', 'Umfassendes Nachschlagewerk zu Vakuumtechnik, Massenspektrometrie und Lecksuche.')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2 py-1 text-micro bg-mint-500/10 text-mint-600 rounded-full">
+                  Referenz
+                </span>
+                <span className="px-2 py-1 text-micro bg-mint-500/10 text-mint-600 rounded-full">
+                  Peaktabelle
+                </span>
+                <span className="px-2 py-1 text-micro bg-mint-500/10 text-mint-600 rounded-full">
+                  Leitfaden
+                </span>
+              </div>
+            </button>
+          )}
         </div>
 
         {/* Info Text */}

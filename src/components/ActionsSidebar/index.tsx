@@ -9,6 +9,7 @@ import { CalibrationPanel } from '@/components/CalibrationPanel'
 import { SaveSpectrumModal } from '@/components/SaveSpectrumModal'
 import { SpectrumArchive } from '@/components/SpectrumArchive'
 import { DeviceCalibrationModal } from '@/components/DeviceCalibrationModal'
+import { isDevMode } from '@/lib/featureFlags'
 
 interface ActionsSidebarProps {
   files?: MeasurementFile[]
@@ -51,6 +52,7 @@ const PANEL_ICONS: Record<PanelType, React.ReactNode> = {
 export function ActionsSidebar({ files = [], analysis, chartRef, comparisonData, onShowRateOfRise, minimal = false }: ActionsSidebarProps) {
   const { t } = useTranslation()
   const { sidebarActivePanel, setSidebarActivePanel, setShowKnowledgePage, currentUser, setShowLoginModal } = useAppStore()
+  const devMode = isDevMode()
 
   const [showSaveModal, setShowSaveModal] = useState(false)
   const [showArchive, setShowArchive] = useState(false)
@@ -158,34 +160,38 @@ export function ActionsSidebar({ files = [], analysis, chartRef, comparisonData,
           <span className="text-[10px] font-medium">{t('cloud.archive')}</span>
         </button>
 
-        {/* Divider */}
-        <div className="w-8 h-px bg-border-subtle my-2" />
+        {/* Divider - only show if dev features are visible */}
+        {devMode && <div className="w-8 h-px bg-border-subtle my-2" />}
 
-        {/* Rate of Rise Button - always visible */}
-        <button
-          onClick={onShowRateOfRise}
-          className="w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
-            text-aqua-500 hover:text-aqua-400 hover:bg-surface-card"
-          title={t('sidebar.rateOfRise', 'Rate of Rise')}
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-          </svg>
-          <span className="text-[10px] font-medium">{t('sidebar.rateOfRise', 'RoR')}</span>
-        </button>
+        {/* Rate of Rise Button - Dev Mode only */}
+        {devMode && (
+          <button
+            onClick={onShowRateOfRise}
+            className="w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
+              text-aqua-500 hover:text-aqua-400 hover:bg-surface-card"
+            title={t('sidebar.rateOfRise', 'Rate of Rise')}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+            <span className="text-[10px] font-medium">{t('sidebar.rateOfRise', 'RoR')}</span>
+          </button>
+        )}
 
-        {/* Knowledge Base Button */}
-        <button
-          onClick={() => setShowKnowledgePage(true)}
-          className="w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
-            text-text-secondary hover:text-text-primary hover:bg-surface-card"
-          title={t('sidebar.knowledge', 'Knowledge')}
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-          </svg>
-          <span className="text-[10px] font-medium">{t('sidebar.knowledge', 'Wissen')}</span>
-        </button>
+        {/* Knowledge Base Button - Dev Mode only */}
+        {devMode && (
+          <button
+            onClick={() => setShowKnowledgePage(true)}
+            className="w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
+              text-text-secondary hover:text-text-primary hover:bg-surface-card"
+            title={t('sidebar.knowledge', 'Knowledge')}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <span className="text-[10px] font-medium">{t('sidebar.knowledge', 'Wissen')}</span>
+          </button>
+        )}
 
         {/* Bottom padding */}
         <div className="h-4" />
