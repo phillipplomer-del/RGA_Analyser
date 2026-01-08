@@ -15,6 +15,25 @@ Diese Dokumentation beschreibt die Struktur und den Inhalt der RGA-Wissensdatenb
 | `gasLibrary.ts` | Gas-Bibliothek mit ~50 Spezies |
 | `massReference.ts` | Massenreferenz m/z 1-100 |
 | `index.ts` | Sensitivitätsfaktoren, Isotope, Diagnose-Funktionen |
+| `outgassingRates.ts` | Ausgasungsraten-Datenbank mit 17 Materialien |
+| `isotopePatterns.ts` | Isotopenverhältnisse und Fragment-Muster für Peak-Identifikation |
+
+**Pfad:** `src/lib/diagnosis/`
+
+| Datei | Beschreibung |
+|-------|--------------|
+| `types.ts` | TypeScript-Typen für Diagnosen |
+| `detectors.ts` | Implementierung der 20 Diagnose-Algorithmen |
+| `index.ts` | API-Funktionen und Export |
+| `confidenceScore.ts` | **Datenqualitäts-Score System** (kontextabhängig) |
+
+**Pfad:** `src/components/DiagnosisPanel/`
+
+| Datei | Beschreibung |
+|-------|--------------|
+| `index.tsx` | Haupt-Panel für automatische Diagnosen |
+| `DataQualityScoreCard.tsx` | **Datenqualitäts-Anzeige** mit expandierbaren Details |
+| `OutgassingContext.tsx` | Ausgasungs-Kontext bei H₂O-Diagnosen |
 
 ### 2. Dokumentations-Wissen
 
@@ -287,13 +306,7 @@ Relative Sensitivitätsfaktoren (RSF) bezogen auf N₂ = 1.0:
 
 ## Diagnose-Engine
 
-### Pfad: `src/lib/diagnosis/`
-
-| Datei | Beschreibung |
-|-------|--------------|
-| `types.ts` | TypeScript-Typen für Diagnosen |
-| `detectors.ts` | Implementierung der 20 Diagnose-Algorithmen |
-| `index.ts` | API-Funktionen und Export |
+> Pfade und Dateien: siehe [Speicherorte](#speicherorte)
 
 ### Diagnose-Typen (DiagnosisType)
 
@@ -462,6 +475,201 @@ const DEFAULT_THRESHOLDS = {
 
 ---
 
+## Datenqualitäts-Score System (Konfidenz-Score)
+
+### Pfad: `src/lib/diagnosis/confidenceScore.ts`
+
+> **Implementiert:** Feature 1.5.3 (2026-01-08)
+
+### Funktion
+
+Das Datenqualitäts-Score System bewertet die Qualität der RGA-Messdaten und gibt an, wie zuverlässig die automatischen Diagnosen sind. Es berücksichtigt dabei den **Systemkontext** (baked/unbaked, UHV-Druck), um kontextabhängig zu bewerten.
+
+### Qualitätsfaktoren
+
+| Faktor | Gewicht | Beschreibung |
+|--------|---------|--------------|
+| **Signal-Rausch-Verhältnis** | 1.5 | SNR in dB, kontextabhängig bewertet |
+| **Peak-Erkennung** | 1.2 | Anzahl signifikanter Peaks, **invertiert für baked** |
+| **Massenbereich** | 0.9 | Abdeckung kritischer Massen (m/z 2, 14, 16, 17, 18, 28, 32, 40, 44) |
+| **Dynamikbereich** | 0.8 | Dekaden zwischen Min/Max, UHV-angepasst |
+| **H₂-Referenz** | 0.7 | Prüft H₂ vs H₂O Verhältnis |
+| **Temperatur** | 0.6 | 20-25°C optimal (wenn im Dateinamen angegeben) |
+
+### Kontextabhängige Bewertung (WICHTIG!)
+
+#### Peak-Erkennung: Baked vs. Unbaked
+
+Das System erkennt automatisch den Systemzustand und passt die Bewertung an:
+
+| Kontext | Wenige Peaks (≤3) | Viele Peaks (>8) |
+|---------|-------------------|------------------|
+| **Unbaked** | ⚠️ Schlechte Datenqualität | ✅ Erwartetes Verhalten |
+| **Baked/UHV** | ✅ **Exzellent** - sauberes System! | ⚠️ Mögliche Kontamination |
+
+**Signifikanz-Schwelle:**
+- **Unbaked:** 1% (0.01) des Maximums
+- **Baked/UHV:** 0.1% (0.001) - weil H₂ so dominant ist, erscheinen andere Peaks relativ klein
+
+#### Automatische Systemzustand-Erkennung
+
+Der Kontext wird aus drei Quellen ermittelt:
+
+1. **Dateiname:** Regex-Patterns für Deutsch und Englisch
+   ```
+   "nach Ausheizen", "nach ausheizen", "after bakeout", "baked" → BAKED
+   "vor Ausheizen", "before bake out", "unbaked" → UNBAKED
+   ```
+
+2. **Spektrum-Charakteristik:** (wenn Dateiname keinen Hinweis gibt)
+   ```
+   H₂ > H₂O × 3              → BAKED
+   H₂ > H₂O UND ≤7 Peaks     → BAKED
+   ≤3 Peaks UND H₂ > 10%     → BAKED (UHV)
+   H₂O > H₂                  → UNBAKED
+   ```
+
+3. **Totaldruck aus Dateiname:** z.B. `2,1e-9mbar` → UHV-Kontext
+
+### TypeScript Interfaces
+
+```typescript
+interface DataQualityScore {
+  overallScore: number           // 0-1
+  grade: 'A' | 'B' | 'C' | 'D' | 'F'
+  gradeDescription: string       // z.B. "Exzellente Datenqualität"
+  factors: QualityFactor[]       // Einzelne Bewertungen
+  criticalIssues: number
+  improvements: string[]         // Verbesserungsvorschläge
+  diagnosisReliability: 'high' | 'medium' | 'low' | 'very_low'
+}
+
+interface QualityFactor {
+  id: string                     // z.B. 'snr', 'peaks', 'dynamic_range'
+  name: string                   // Deutscher Name
+  nameEn: string                 // Englischer Name
+  score: number                  // 0-1
+  weight: number                 // Gewichtung
+  status: 'excellent' | 'good' | 'acceptable' | 'poor' | 'critical'
+  description: string            // Erklärt WARUM dieser Score
+  recommendation?: string        // Verbesserungsvorschlag
+}
+
+interface MeasurementContext {
+  systemState: SystemState       // BAKED | UNBAKED | UNKNOWN
+  totalPressure?: number         // mbar
+  temperature?: number           // °C
+}
+```
+
+### Bewertungsstufen (Grades)
+
+| Grade | Score | Beschreibung | Diagnose-Zuverlässigkeit |
+|-------|-------|--------------|--------------------------|
+| **A** | ≥90% | Exzellente Datenqualität | Hoch |
+| **B** | ≥75% | Gute Datenqualität | Hoch |
+| **C** | ≥55% | Akzeptable Datenqualität | Mittel |
+| **D** | ≥35% | Eingeschränkte Datenqualität | Niedrig |
+| **F** | <35% | Unzureichende Datenqualität | Sehr niedrig |
+
+### Schwellenwerte pro Faktor
+
+#### Signal-Rausch-Verhältnis (SNR)
+
+| Status | Standard | Baked/UHV |
+|--------|----------|-----------|
+| Excellent | ≥60 dB | ≥45 dB |
+| Good | ≥40 dB | ≥30 dB |
+| Acceptable | ≥25 dB | ≥18 dB |
+| Poor | ≥15 dB | ≥10 dB |
+
+#### Peak-Erkennung (kontextabhängig)
+
+**Baked/UHV System:**
+| Peaks | Score | Beschreibung |
+|-------|-------|--------------|
+| ≤3 | 100% | Sauberes UHV-System |
+| ≤5 | 85% | Gutes Vakuum nach Ausheizen |
+| ≤8 | 60% | Noch Restgas vorhanden |
+| >8 | 40% | Mögliches Leck oder Kontamination |
+
+**Unbaked System:**
+| Peaks | Score | Beschreibung |
+|-------|-------|--------------|
+| ≥5 signifikante + ≥10 total | 100% | Vollständige Peak-Erkennung |
+| ≥3 signifikante | 80% | Gute Erkennung |
+| ≥2 signifikante | 55% | Möglicherweise UHV |
+| 1 signifikant | 30% | Sehr wenige Peaks |
+| 0 signifikante | 10% | Keine Peaks - Detektor prüfen! |
+
+### UI-Komponente
+
+**Pfad:** `src/components/DiagnosisPanel/DataQualityScoreCard.tsx`
+
+Features:
+- Kompakte Anzeige mit Grade-Badge (A-F, farbcodiert)
+- Aufklappbar für Details
+- Pro Faktor: Fortschrittsbalken + expandierbare Beschreibung
+- Zeigt Verbesserungsvorschläge bei niedrigen Scores
+- Warnung bei kritischen Problemen
+
+### API-Funktionen
+
+```typescript
+// Hauptfunktion - berechnet Score mit Kontext
+calculateDataQualityScore({
+  analysis: AnalysisResult,
+  temperature?: number,
+  context?: MeasurementContext
+}): DataQualityScore
+
+// Hilfsfunktionen
+formatScorePercent(0.85)      // → "85%"
+getStatusColor('excellent')    // → "#10B981" (grün)
+getGradeColor('A')            // → "#10B981" (grün)
+
+// Für spätere Verwendung vorbereitet
+assessCalibrationAge(lastCalibration: Date): QualityFactor
+```
+
+### Integration
+
+Das System ist in die Analyse-Pipeline integriert (`src/lib/analysis/index.ts`):
+
+```typescript
+// Kontext aus Dateinamen parsen
+const filenameMetadata = parseFilenameExtended(filename)
+
+// Score berechnen mit Kontext
+const dataQualityScore = calculateDataQualityScore({
+  analysis: analysisResult,
+  temperature: filenameMetadata.temperature,
+  context: {
+    systemState: filenameMetadata.systemState,
+    totalPressure: filenameMetadata.totalPressure,
+    temperature: filenameMetadata.temperature
+  }
+})
+```
+
+### Beispiel: Baked-System Bewertung
+
+Für ein Spektrum `2_Kammer1_nach Ausheizen_Test8_1000v_48h_20C_2,1e-9mbar.asc`:
+
+| Faktor | Score | Begründung |
+|--------|-------|------------|
+| SNR | 85% | 35 dB - gut für UHV |
+| Peak-Erkennung | **100%** | 5 Peaks - sauberes UHV-System |
+| Dynamikbereich | 85% | 3.5 Dekaden - gut für UHV |
+| Massenbereich | 100% | m/z 1-100 abgedeckt |
+| H₂-Referenz | **100%** | H₂ > H₂O - erfolgreich ausgeheizt |
+| Temperatur | 100% | 20°C optimal |
+| **Gesamt** | **A (93%)** | Exzellente Datenqualität |
+
+Ohne kontextabhängige Bewertung würde das gleiche Spektrum **D (40%)** erhalten, weil "zu wenige Peaks"!
+
+---
+
 ## Limit-Profile (Grenzwert-Kriterien)
 
 ### Pfad: `src/lib/limits/profiles.ts`
@@ -608,6 +816,117 @@ interface LimitRange {
 
 ---
 
+## Ausgasungsraten-Datenbank (NEU - 2026-01-08)
+
+### Pfad: `src/lib/knowledge/outgassingRates.ts`
+
+### Physikalische Grundlage
+
+**Zeitverhalten der Ausgasung:**
+- **Reales Leck:** dp/dt = konstant (linearer Druckanstieg)
+- **Ausgasung:** dp/dt ~ 1/t (abnehmender Druckanstieg)
+- **Virtuelles Leck:** Anfangs schnell, dann abflachend (exponentiell)
+
+**Formel für Ausgasungsrate:**
+```
+q(t) = q₁ × (t₁/t)^n
+
+Wobei:
+- q₁ = Ausgasungsrate nach Referenzzeit t₁ (typisch 1h)
+- n ≈ 0.5-1.0 je nach Material (meist ~1 für Metalle, ~0.5-0.7 für Polymere)
+```
+
+### OutgassingMaterial Interface
+
+```typescript
+interface OutgassingMaterial {
+  id: string
+  name: string                             // Deutscher Name
+  nameEn: string                           // Englischer Name
+  category: 'metal' | 'elastomer' | 'ceramic' | 'polymer'
+  q1h_unbaked: number                      // Nach 1h bei RT [mbar·L/(s·cm²)]
+  q1h_baked?: number                       // Nach Bakeout
+  bakeoutTemp?: number                     // °C
+  q10h_unbaked: number                     // Nach 10h
+  q10h_baked?: number
+  timeExponent: number                     // n für q(t) = q₁ × (1/t)^n
+  activationEnergy?: number                // [eV]
+  dominantSpecies: ('H2O' | 'H2' | 'CO' | 'CO2' | 'CH4' | 'other')[]
+  notes?: string[]
+  source: string
+}
+```
+
+### Enthaltene Materialien (17 Spezies)
+
+#### Metalle
+
+| Material | q1h (unbaked) | q1h (baked) | Bakeout | n | Hauptspezies |
+|----------|---------------|-------------|---------|---|--------------|
+| SS 304/304L (gereinigt) | 2×10⁻⁷ | 1×10⁻¹⁰ | 250°C | 1.0 | H₂O, H₂ |
+| SS 316LN (elektropoliert) | 7×10⁻⁸ | 7×10⁻¹¹ | 200°C | 1.0 | H₂O, H₂ |
+| Aluminium 6061 | 5×10⁻⁸ | 1.2×10⁻¹³ | 120°C | 0.9 | H₂O |
+| OFHC Kupfer | 1×10⁻⁸ | 5×10⁻¹² | 200°C | 0.9 | H₂O, H₂ |
+| Titan (Grade 2) | 3×10⁻⁸ | 1×10⁻¹² | 350°C | 1.0 | H₂O, H₂ |
+| Inconel 625 | 1×10⁻⁷ | 5×10⁻¹¹ | 300°C | 1.0 | H₂O, H₂ |
+| Molybdän | 5×10⁻⁹ | 1×10⁻¹² | 400°C | 1.0 | H₂, CO |
+
+#### Elastomere
+
+| Material | q1h (unbaked) | q1h (baked) | Max Temp | n | Hauptspezies |
+|----------|---------------|-------------|----------|---|--------------|
+| Viton A (FKM) | 1×10⁻⁶ | 4×10⁻⁸ | 100°C | 0.5 | H₂O, CO₂ |
+| Viton E60C (UHV) | 5×10⁻⁷ | 1×10⁻⁸ | 150°C | 0.6 | H₂O |
+| Kalrez (FFKM) | 1×10⁻⁸ | 1×10⁻¹⁰ | 200°C | 0.7 | H₂O |
+| EPDM | 1×10⁻⁵ | - | - | 0.4 | H₂O, other |
+| Buna-N (NBR) | 5×10⁻⁶ | - | - | 0.5 | H₂O, other |
+| Silikon (VMQ) | 2×10⁻⁵ | - | - | 0.4 | H₂O, other |
+
+#### Keramik & Polymere
+
+| Material | q1h (unbaked) | q1h (baked) | Bakeout | n | Hauptspezies |
+|----------|---------------|-------------|---------|---|--------------|
+| Aluminiumoxid (Al₂O₃) | 3×10⁻⁹ | 1×10⁻¹¹ | 300°C | 0.8 | H₂O |
+| PEEK | 5×10⁻⁷ | 1×10⁻⁸ | 150°C | 0.6 | H₂O, CO₂ |
+| Kapton | 3×10⁻⁷ | 5×10⁻⁹ | 200°C | 0.7 | H₂O |
+| Macor | 5×10⁻⁹ | 5×10⁻¹¹ | 300°C | 0.8 | H₂O |
+
+### Kammer-Presets
+
+| Preset | Volumen | Pumpleistung | Materialien |
+|--------|---------|--------------|-------------|
+| DN100 CF Standard | 10 L | 100 L/s | SS316LN (2000 cm²) + Viton (15 cm²) + Al₂O₃ (50 cm²) |
+| DN100 CF UHV | 10 L | 100 L/s | SS316LN baked + Kalrez baked + Al₂O₃ baked |
+| DN160 Analysekammer | 30 L | 300 L/s | SS304 (5000 cm²) + Viton (25 cm²) |
+| Load-Lock | 5 L | 50 L/s | SS304 (800 cm²) + Viton (10 cm²) |
+
+### Wichtige Erkenntnis
+
+**Viton dominiert oft die Ausgasung, obwohl es nur ~1% der Oberfläche ausmacht!**
+
+Beispiel DN100 CF nach 10h (unbaked):
+- Edelstahl 316LN: 7×10⁻⁹ × 2000 cm² = 1.4×10⁻⁵ mbar·L/s (82%)
+- Viton: 2×10⁻⁷ × 15 cm² = 3×10⁻⁶ mbar·L/s (18%)
+
+Nach Bakeout wird der Unterschied krasser: Edelstahl verbessert sich um Faktor 1000, Viton nur um Faktor 10-25.
+
+### API Funktionen
+
+| Funktion | Beschreibung |
+|----------|--------------|
+| `calculateOutgassingRate(material, time, isBaked)` | Berechnet q(t) für ein Material |
+| `calculateTotalOutgassing(materials, V, S, t)` | Multi-Material Gesamtgaslast |
+| `formatScientific(value, precision)` | Formatiert Werte in wissenschaftlicher Notation |
+| `compareWithMeasuredRise(measured, expected)` | Vergleicht gemessenen mit erwartetem dp/dt |
+
+### Integration in andere Module
+
+**Rate-of-Rise:** `OutgassingComparisonCard` zeigt Vergleich zwischen gemessenem dp/dt und erwarteter Ausgasung
+
+**RGA-Diagnose:** `OutgassingContext` erscheint bei H₂O/Kontaminations-Diagnosen und zeigt Kontext aus dem Simulator
+
+---
+
 ## Erweiterte Massenreferenz
 
 ### Alle dokumentierten Massen (m/z 1-97)
@@ -696,12 +1015,91 @@ interface LimitRange {
 
 ---
 
+## Isotopen-Datenbank (isotopePatterns.ts)
+
+> **Neu implementiert:** 2026-01-08
+
+### Funktion
+
+Die Isotopen-Datenbank ermöglicht die präzise Identifikation von Elementen durch Vergleich gemessener Isotopenverhältnisse mit erwarteten natürlichen Häufigkeiten.
+
+### Enthaltene Elemente
+
+| Element | Symbol | Haupt-Isotope | Diagnostisches Verhältnis | Anwendung |
+|---------|--------|---------------|---------------------------|-----------|
+| Argon | Ar | ³⁶Ar, ³⁸Ar, ⁴⁰Ar | ⁴⁰Ar/³⁶Ar ≈ 295.5 | Luftleck-Bestätigung |
+| Chlor | Cl | ³⁵Cl, ³⁷Cl | ³⁵Cl/³⁷Cl ≈ 3.13 | Chlorierte Lösemittel |
+| Brom | Br | ⁷⁹Br, ⁸¹Br | ⁷⁹Br/⁸¹Br ≈ 1.03 | Bromverbindungen |
+| Schwefel | S | ³²S, ³³S, ³⁴S, ³⁶S | ³²S/³⁴S ≈ 22.4 | Unterscheidung von O₂ |
+| Kohlenstoff | C | ¹²C, ¹³C | ¹²C/¹³C ≈ 92.5 | CO₂-Bestätigung (m44/m45) |
+| Stickstoff | N | ¹⁴N, ¹⁵N | ¹⁴N¹⁴N/¹⁴N¹⁵N ≈ 142.9 | N₂ vs. KW-Kontamination |
+| Sauerstoff | O | ¹⁶O, ¹⁷O, ¹⁸O | ¹⁶O₂/¹⁶O¹⁸O ≈ 487 | Luftleck-Bestätigung |
+| Silizium | Si | ²⁸Si, ²⁹Si, ³⁰Si | ²⁸Si/²⁹Si ≈ 19.7 | Silikon-Kontamination |
+| Krypton | Kr | ⁷⁸-⁸⁶Kr | ⁸⁴Kr/⁸⁶Kr ≈ 3.29 | Atmosphärisches Edelgas |
+| Xenon | Xe | ¹²⁹-¹³⁶Xe | ¹³²Xe/¹²⁹Xe ≈ 1.02 | Seltenes Edelgas |
+
+### API-Funktionen
+
+```typescript
+// Isotopenverhältnis für ein Element abrufen
+getIsotopeRatio('Ar') // → IsotopeRatio mit allen Ar-Isotopen
+
+// Alle Fragmente bei einer bestimmten Masse
+getFragmentsAtMass(28) // → [N₂⁺, CO⁺, Si⁺, ...]
+
+// Fragment-Muster für ein Molekül
+getFragmentPattern('CO₂') // → Vollständiges Fragmentierungsmuster
+
+// Isotopen-Peak-Intensität berechnen
+calculateIsotopePeakIntensity(1.0, 'Ar', 40, 36) // → 0.00337
+
+// Isotopenverhältnis prüfen
+checkIsotopeRatio(295.5, 'Ar', '40/36') // → { matches: true, deviation: 0%, ... }
+
+// Peak-Identifikation
+identifyPeak(28) // → [{ assignment: N₂⁺, confidence: 0.7 }, ...]
+
+// Luftleck-Detektion via Isotopenmuster
+detectAirLeak(peaksMap) // → { isAirLeak: true, confidence: 0.85, evidence: [...] }
+
+// Öl-Kontamination via Fragmentmuster
+detectOilContamination(peaksMap) // → { isOilContaminated: true, oilType: 'mineral', ... }
+```
+
+### Fragment-Muster-Datenbank
+
+Die Datenbank enthält vollständige Fragmentierungsmuster für häufige Moleküle:
+
+| Molekül | Formel | MW | Base Peak | Wichtige Fragmente |
+|---------|--------|-----|-----------|-------------------|
+| Wasser | H₂O | 18 | m/z 18 | 17 (23%), 16 (1%) |
+| Stickstoff | N₂ | 28 | m/z 28 | 14 (7.2%), 29 (0.73%) |
+| Kohlendioxid | CO₂ | 44 | m/z 44 | 28 (11%), 16 (8%), 12 (6%) |
+| Argon | Ar | 40 | m/z 40 | 20 (12%), 36 (0.34%) |
+| Methan | CH₄ | 16 | m/z 16 | 15 (85%), 14 (9%), 13 (4%) |
+| Kohlenmonoxid | CO | 28 | m/z 28 | 12 (4.5%), 16 (2%) |
+| Sauerstoff | O₂ | 32 | m/z 32 | 16 (3.7%), 34 (0.4%) |
+| Schwefelwasserstoff | H₂S | 34 | m/z 34 | 33 (42%), 32 (22%) |
+| Aceton | C₃H₆O | 58 | m/z 43 | 58 (30%), 15 (25%) |
+
+### Integration in Diagnose-Engine
+
+Der neue Detektor `verifyIsotopeRatios()` verstärkt bestehende Diagnosen durch Isotopen-Verifizierung:
+
+```typescript
+DiagnosisType.ISOTOPE_VERIFICATION
+// Prüft: Ar (40/36), Cl (35/37), Br (79/81), CO₂ (44/45), S/O₂ (32/34)
+// Erhöht Diagnose-Konfidenz um 15-30% bei Übereinstimmung
+```
+
+---
+
 ## Quellen
 
 Die Wissensdatenbank basiert auf:
 - CERN CAS Tutorial (Vacuum Technology)
 - CERN ACC-V-ES-0001 (Technical Specification)
-- CERN-ACC-2014-0270
+- CERN-ACC-2014-0270 (Chiggiato)
 - NIST WebBook (Massenspektren)
 - Pfeiffer Vacuum (Application Notes, Know-How Book)
 - Hiden Analytical (RGA Application Notes)
@@ -709,3 +1107,10 @@ Die Wissensdatenbank basiert auf:
 - MKS Instruments (Technical Notes)
 - GSI Spezifikation 7.3e (2019)
 - DESY Vakuumspezifikationen
+
+### Ausgasungs-Quellen (NEU)
+- VACOM White Paper WP00002 (Edelstahl-Ausgasung)
+- de Csernatony, Vacuum 16/17 (1966/1967) - Elastomer-Daten
+- Edwards Application Notes (Öl, Pumpen)
+- Meyer Tool & Allectra Datasheets (O-Ringe)
+- PMC5226402 (Elektropolierte Oberflächen)

@@ -17,6 +17,18 @@ export {
   DIAGNOSIS_METADATA
 } from './types'
 
+// Re-export confidence score system
+export {
+  calculateDataQualityScore,
+  formatScorePercent,
+  getStatusColor,
+  getGradeColor,
+  type DataQualityScore,
+  type QualityFactor,
+  type QualityAssessmentInput,
+  type MeasurementContext
+} from './confidenceScore'
+
 // Import detectors
 import {
   detectAirLeak,

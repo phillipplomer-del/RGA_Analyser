@@ -43,14 +43,25 @@
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
-| 1.5.1 | **Ausgasungs-Simulator** | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#1-ausgasungs-simulator) | 1-2 Wochen | Multi-Material, Zeitverlauf, Leck vs. Ausgasung unterscheiden |
-| 1.5.2 | **Isotopen-Analyse** | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#2-erweiterte-isotopen-analyse) | 4-6h | Peak-Datenbank mit Diagnose & Empfehlungen |
-| 1.5.3 | **Konfidenz-Score System** | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#8-konfidenz-score-system) | 4-6h | Qualitätsbewertung der Analyse |
+| 1.5.1 | **Ausgasungs-Simulator** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#1-ausgasungs-simulator) | ~4h | Multi-Material, integriert in RoR + RGA Diagnose |
+| 1.5.2 | **Isotopen-Analyse** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#2-erweiterte-isotopen-analyse) | 4-6h | isotopePatterns.ts + verifyIsotopeRatios Detektor |
+| 1.5.3 | **Konfidenz-Score System** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#8-konfidenz-score-system) | 4-6h | 6 aktive Faktoren, Temp aus Dateinamen. **TODO:** Kalibrieralter aus Geräteprofil/Cloud |
 | 1.5.4 | ESD-Artefakt-Erkennung | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#3-esd-artefakt-erkennung) | 2-4h | Falsch-Peaks durch elektrostatische Entladungen |
 | 1.5.5 | Helium-Lecktest Integration | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#4-helium-lecktest-integration) | 2-4h | m/z=4 Signal → Leckrate Umrechnung |
 | 1.5.6 | Erweiterte Öl-Diagnose | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#5-erweiterte-öl-diagnose) | 2-4h | Öl-Signaturen nach Typ erkennen |
 | 1.5.7 | Peak-Deconvolution | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#6-massenauflösung-und-peak-überlappung) | 4-8h | Überlappende Peaks trennen (m/z=28: N₂ vs CO) |
 | 1.5.8 | Pfeiffer-Kalibrierung | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#7-pfeiffer-spezifische-erweiterungen) | 2h | Gerätespezifische Kalibrierungsfaktoren |
+
+### Priorität 1.6: Lecksuche-Planer (NEU)
+
+> Intelligenter Assistent für Lecksuchmethoden-Auswahl nach DIN EN 1779
+
+| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|------------|---------|---------|
+| 1.6.1 | **Lecksuche-Planer MVP** | ⬜ | [LEAK_SEARCH_PLANNER_IMPLEMENTATION.md](./LEAK_SEARCH_PLANNER_IMPLEMENTATION.md) | 8h | Wizard, Methodenauswahl, Virtual-Leak Risiko |
+| 1.6.2 | Pumpen & Equipment | ⬜ | [LEAK_SEARCH_PLANNER_IMPLEMENTATION.md](./LEAK_SEARCH_PLANNER_IMPLEMENTATION.md) | 4h | Pumpenberechnung, Leitwert, Checklisten |
+| 1.6.3 | RGA-Integration | ⬜ | [LEAK_SEARCH_PLANNER_IMPLEMENTATION.md](./LEAK_SEARCH_PLANNER_IMPLEMENTATION.md) | 2h | Deep-Links, Validierung nach Lecksuche |
+| 1.6.4 | Shared Geometrie-Komponente | ⬜ | [LEAK_SEARCH_PLANNER_IMPLEMENTATION.md](./LEAK_SEARCH_PLANNER_IMPLEMENTATION.md) | 2h | `<ChamberGeometryInput />` extrahieren |
 
 ### Priorität 2: Kernfunktionen
 
@@ -108,6 +119,9 @@
 | Rate-of-Rise Feature | 2026-01 | [done/RATE_OF_RISE_FEATURE_SPEC.md](./done/RATE_OF_RISE_FEATURE_SPEC.md) | Leckraten-Analyse |
 | Knowledge Section | 2026-01 | - | Intro-Texte, RoR Tab |
 | **Datenqualität (Prio 0)** | 2026-01-08 | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | RSF, 4 Gase, 4 Massen, 4 Detektoren, 2 Profile |
+| **Ausgasungs-Simulator** | 2026-01-08 | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) | Multi-Material, Leck-vs-Ausgasung, RoR+RGA Integration |
+| **Isotopen-Analyse** | 2026-01-08 | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) | 10 Elemente, Fragment-Muster, verifyIsotopeRatios Detektor |
+| **Konfidenz-Score System** | 2026-01-08 | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) | 6 aktive Faktoren (SNR, Peaks, Dynamik, Temp, Massenbereich, H₂), Grade A-F. Kalibrieralter vorbereitet (weight=0) |
 
 ---
 
@@ -181,6 +195,16 @@ Für neue Features verwenden:
 - **Bedarf:** ⭐⭐⭐⭐⭐ (Unterscheidung Leck vs. Ausgasung ist kritisch!)
 - **Fazit:** **Ausgasungs-Simulator zuerst** - löst häufigstes Anwenderproblem
 
+### LEAK_SEARCH_PLANNER_IMPLEMENTATION.md (NEU)
+- **Umsetzbarkeit:** ⭐⭐⭐⭐ (Wiederverwendung bestehender Komponenten)
+- **Komplexität:** ⭐⭐⭐ (4 Phasen, 12-16h)
+- **Bedarf:** ⭐⭐⭐⭐⭐ (Keine vergleichbare Software am Markt!)
+- **Markt-Analyse:**
+  - Kein dediziertes Planungstool nach DIN EN 1779 verfügbar
+  - Hersteller bieten nur gerätespezifische Software
+  - Leak Test Equipment Market: $15.8B bis 2035, 8.26% CAGR
+- **Fazit:** **Alleinstellungsmerkmal** - 5. Funktion neben RGA, RoR, Outgassing, Wissen
+
 ---
 
 ## Changelog
@@ -193,6 +217,10 @@ Für neue Features verwenden:
 | 2026-01-07 | **Priorität 0 hinzugefügt:** Datenqualität aus IMPLEMENTATION_SPEC.md |
 | 2026-01-08 | ✅ **Priorität 0 komplett abgeschlossen:** RSF, Gase, Massen, Detektoren, Profile |
 | 2026-01-08 | **Priorität 1.5 hinzugefügt:** 8 wissenschaftliche Analysewerkzeuge aus RGA_APP_VERBESSERUNGEN.md |
+| 2026-01-08 | ✅ **Ausgasungs-Simulator (1.5.1) implementiert:** 17 Materialien, Multi-Material-Berechnung, Integration in Rate-of-Rise (Vergleichskarte) und RGA-Diagnose (Kontext-Panel) |
+| 2026-01-08 | ✅ **Isotopen-Analyse (1.5.2) implementiert:** 10 Elemente, Fragment-Muster, verifyIsotopeRatios Detektor |
+| 2026-01-08 | **Priorität 1.6 hinzugefügt:** Lecksuche-Planer nach DIN EN 1779 (Marktlücke identifiziert!) |
+| 2026-01-08 | ✅ **Konfidenz-Score System (1.5.3) implementiert:** 6 Faktoren aktiv (SNR, Peaks, Dynamik, Temp, Massenbereich, H₂), Kalibrieralter vorbereitet |
 
 ---
 
@@ -200,11 +228,13 @@ Für neue Features verwenden:
 
 1. [x] ~~**RSF-Korrekturen sofort umsetzen**~~ ✅ Erledigt 2026-01-08
 2. [x] ~~Neue Gase + Massen + Detektoren hinzufügen~~ ✅ Erledigt 2026-01-08
-3. [ ] Error Handling Grundgerüst starten
-4. [ ] Firebase Auth Migration planen (Breaking Change kommunizieren)
-5. [ ] **Ausgasungs-Simulator** (Priorität 1.5.1) - Unterscheidung Leck vs. Ausgasung
-6. [ ] **Isotopen-Analyse** (Priorität 1.5.2) - Peak-Diagnose mit Empfehlungen
-7. [ ] Zeitreihen Parser als größeres Feature
+3. [x] ~~**Ausgasungs-Simulator** (Priorität 1.5.1)~~ ✅ Erledigt 2026-01-08
+4. [x] ~~**Isotopen-Analyse** (Priorität 1.5.2)~~ ✅ Erledigt 2026-01-08
+5. [x] ~~**Konfidenz-Score System** (Priorität 1.5.3)~~ ✅ Erledigt 2026-01-08
+6. [ ] **Lecksuche-Planer MVP** (Priorität 1.6.1) - Wizard, Methodenauswahl, Virtual-Leak Risiko
+7. [ ] Error Handling Grundgerüst starten
+8. [ ] Firebase Auth Migration planen (Breaking Change kommunizieren)
+9. [ ] Zeitreihen Parser als größeres Feature
 
 ---
 

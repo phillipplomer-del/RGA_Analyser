@@ -1,16 +1,19 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DiagnosticResultSummary, DiagnosisSummary } from '@/types/rga'
+import type { DataQualityScore } from '@/lib/diagnosis/confidenceScore'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { cn } from '@/lib/utils/cn'
 import { OutgassingContext } from './OutgassingContext'
+import { DataQualityScoreCard } from './DataQualityScoreCard'
 
 interface DiagnosisPanelProps {
   diagnostics: DiagnosticResultSummary[]
   summary: DiagnosisSummary
+  dataQualityScore?: DataQualityScore
 }
 
-export function DiagnosisPanel({ diagnostics, summary }: DiagnosisPanelProps) {
+export function DiagnosisPanel({ diagnostics, summary, dataQualityScore }: DiagnosisPanelProps) {
   const { i18n } = useTranslation()
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   const isGerman = i18n.language === 'de'
@@ -85,6 +88,11 @@ export function DiagnosisPanel({ diagnostics, summary }: DiagnosisPanelProps) {
           </div>
         }
       />
+
+      {/* Data Quality Score */}
+      {dataQualityScore && (
+        <DataQualityScoreCard score={dataQualityScore} />
+      )}
 
       {/* Summary Stats */}
       {(summary.criticalCount > 0 || summary.warningCount > 0) && (

@@ -4,7 +4,7 @@ Eine umfassende Webanwendung zur Analyse von Restgasanalyse (RGA) Spektren mit a
 
 ---
 
-**Stand:** 2026-01-07 | **Version:** 1.0.0
+**Stand:** 2026-01-08 | **Version:** 1.1.0
 
 ---
 
@@ -24,6 +24,7 @@ Eine umfassende Webanwendung zur Analyse von Restgasanalyse (RGA) Spektren mit a
 12. [Druckkalibrierung](#12-druckkalibrierung)
 13. [Benutzeroberfläche](#13-benutzeroberfläche)
 14. [Rate of Rise](#14-rate-of-rise)
+15. [Wissenschaftliche Analysewerkzeuge](#15-wissenschaftliche-analysewerkzeuge)
 
 ---
 
@@ -95,7 +96,7 @@ Eine umfassende Webanwendung zur Analyse von Restgasanalyse (RGA) Spektren mit a
 
 ## 4. Automatische Diagnose
 
-### 18 Diagnose-Detektoren
+### 22 Diagnose-Detektoren
 
 | # | Detektor | Schweregrad |
 |---|----------|-------------|
@@ -117,6 +118,10 @@ Eine umfassende Webanwendung zur Analyse von Restgasanalyse (RGA) Spektren mit a
 | 16 | Methan-Kontamination | Info |
 | 17 | Schwefel-Kontamination | Warnung |
 | 18 | Aromatische Kohlenwasserstoffe | Warnung |
+| 19 | Polymer-Ausgasung (Phthalate) | Warnung |
+| 20 | Weichmacher-Kontamination | Warnung |
+| 21 | Prozessgas-Rückstände (Halbleiter) | Warnung |
+| 22 | Kühlwasser-Leck | Kritisch |
 
 ### Diagnose-Ausgabe
 - **Konfidenzwert**: 0-1 Skala
@@ -126,9 +131,42 @@ Eine umfassende Webanwendung zur Analyse von Restgasanalyse (RGA) Spektren mit a
 - **Spezifische Empfehlungen zur Behebung**
 - **Systemzustand**: ungebacken, gebacken, kontaminiert, Luftleck
 
+### Isotopen-Analyse
+- **10 Elemente**: C, N, O, S, Cl, Ar, Ne, Si, Xe, Kr
+- Automatische Prüfung natürlicher Isotopenverhältnisse
+- Fragment-Muster für Überlappungserkennung (CO vs N₂, CO₂ vs C₃H₈)
+- Anomalie-Erkennung für künstliche Anreicherung
+
 ---
 
 ## 5. Qualitätsprüfungen
+
+### Datenqualitäts-Bewertung (Data Quality Score)
+
+Kontextabhängige Bewertung der Messqualität mit 6 Faktoren:
+
+| Faktor | Gewicht | Beschreibung |
+|--------|---------|--------------|
+| **Signal-Rausch-Verhältnis** | 1.5× | SNR in dB, kontextabhängige Schwellen |
+| **Peak-Erkennung** | 1.2× | Kontextabhängig: Baked = wenige Peaks gut, Unbaked = viele Peaks normal |
+| **Massenbereich** | 1.0× | Abdeckung kritischer Massen (2, 14, 16, 17, 18, 28, 32, 40, 44) |
+| **Dynamischer Bereich** | 1.0× | Dekaden zwischen Min/Max Signal |
+| **H₂-Referenz** | 0.8× | Referenzpeak-Qualität |
+| **Temperatur** | 0.5× | Extraktion aus Dateinamen |
+
+**Noten-System:**
+| Note | Score | Diagnose-Zuverlässigkeit |
+|------|-------|--------------------------|
+| A | ≥90% | Hoch - Diagnosen vertrauenswürdig |
+| B | ≥75% | Hoch - Diagnosen vertrauenswürdig |
+| C | ≥60% | Mittel - Hauptdiagnosen zuverlässig |
+| D | ≥40% | Niedrig - Diagnosen mit Vorsicht interpretieren |
+| F | <40% | Sehr niedrig - Neue Messung empfohlen |
+
+**Automatische Kontext-Erkennung:**
+- Dateinamen-Analyse ("nach Ausheizen", "after bakeout" → BAKED)
+- Spektrum-Charakteristik (H₂ > H₂O × 3 → BAKED)
+- Totaldruck-Analyse (< 1×10⁻⁹ mbar → UHV-Kontext)
 
 ### 14 Automatische Prüfungen
 
@@ -383,8 +421,11 @@ Eine umfassende Webanwendung zur Analyse von Restgasanalyse (RGA) Spektren mit a
 Der RGA Analyser bietet eine **professionelle Plattform** zur Vakuumsystem-Diagnose mit:
 
 - **Automatische Analyse** von RGA-Spektren
-- **18 Diagnose-Detektoren** für Kontaminationserkennung
+- **22 Diagnose-Detektoren** für Kontaminationserkennung
 - **14 Qualitätsprüfungen** nach Industriestandards
+- **Datenqualitäts-Bewertung** mit kontextabhängiger Analyse (A-F Noten)
+- **Ausgasungs-Simulator** für Multi-Material-Berechnungen
+- **Isotopen-Analyse** für 10 Elemente
 - **6 voreingestellte Limit-Profile** (GSI, CERN, DESY)
 - **Cloud-Speicherung** für Spektrum-Archivierung
 - **KI-Integration** für erweiterte Interpretation
@@ -460,14 +501,51 @@ Eigenständiges Modul zur **Leckratenbestimmung** mittels Druckanstiegstest (Rat
 
 ---
 
+## 15. Wissenschaftliche Analysewerkzeuge
+
+### Ausgasungs-Simulator
+
+Berechnung erwarteter Ausgasungsraten für verschiedene Materialien.
+
+| Feature | Beschreibung |
+|---------|--------------|
+| **17 Materialien** | Edelstahl, Aluminium, Kupfer, PEEK, Viton, etc. |
+| **Multi-Material** | Mehrere Materialien kombinieren |
+| **Ausgasungsraten** | q(t) = q₀ × t⁻¹ Modell |
+| **Leck vs. Ausgasung** | Vergleich im Rate-of-Rise Modul |
+
+**Materialkategorien:**
+- Metalle: Edelstahl (304, 316LN), Aluminium (6061, 6063), Kupfer (OFHC), Ti-6Al-4V
+- Polymere: PEEK, Viton, NBR, EPDM, PTFE, Kapton
+- Keramiken: Al₂O₃, Macor
+- Sonstige: Glas (Borosilikat)
+
+**Integration:**
+- Rate-of-Rise: Vergleichskarte Leck vs. Ausgasung
+- RGA-Diagnose: Kontext-Panel mit Ausgasungs-Erwartungen
+
+### Isotopen-Analyse
+
+Siehe [Abschnitt 4.3 Isotopen-Analyse](#isotopen-analyse)
+
+### Datenqualitäts-Bewertung
+
+Siehe [Abschnitt 5.1 Data Quality Score](#datenqualitäts-bewertung-data-quality-score)
+
+---
+
 ## Geplante Features
 
 Siehe **[NextFeatures/FEATURE_BACKLOG.md](./NextFeatures/FEATURE_BACKLOG.md)** für die priorisierte Liste geplanter Erweiterungen:
 
 | Priorität | Feature | Status |
 |-----------|---------|--------|
+| 1.5.1 | Ausgasungs-Simulator | ✅ Implementiert |
+| 1.5.2 | Isotopen-Analyse | ✅ Implementiert |
+| 1.5.3 | Datenqualitäts-Bewertung | ✅ Implementiert |
 | 1 | Error Handling System | Geplant |
 | 1 | Firebase Auth Migration | Geplant |
+| 1.6 | Lecksuche-Planer (DIN EN 1779) | Geplant |
 | 2 | Zeitreihen-Analyse | Geplant |
 | 3 | Unsicherheitsrechnung | Geplant |
 | 4 | Icon-Vereinheitlichung | Geplant |
@@ -476,5 +554,5 @@ Siehe **[NextFeatures/FEATURE_BACKLOG.md](./NextFeatures/FEATURE_BACKLOG.md)** f
 
 ---
 
-*Dokumentation generiert für RGA Analyser v1.0*
-*Letzte Aktualisierung: 2026-01-07*
+*Dokumentation generiert für RGA Analyser v1.1*
+*Letzte Aktualisierung: 2026-01-08*

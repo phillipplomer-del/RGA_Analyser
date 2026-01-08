@@ -553,6 +553,265 @@ function CriteriaTab({
           ))}
         </div>
       </section>
+
+      {/* Data Quality Score System */}
+      <section>
+        <h3 className="font-semibold text-text-primary mb-3">
+          {isGerman ? 'Datenqualitäts-Bewertung' : 'Data Quality Assessment'}
+        </h3>
+        <p className="text-caption text-text-muted mb-3">
+          {isGerman
+            ? 'Das Datenqualitäts-Score System bewertet die Zuverlässigkeit der RGA-Messdaten und gibt an, wie vertrauenswürdig die automatischen Diagnosen sind. Die Bewertung ist kontextabhängig und berücksichtigt den Systemzustand (ausgeheizt/nicht ausgeheizt) sowie den Druckbereich.'
+            : 'The data quality score system evaluates the reliability of RGA measurement data and indicates how trustworthy the automatic diagnoses are. The assessment is context-dependent and considers the system state (baked/unbaked) as well as the pressure range.'}
+        </p>
+
+        {/* Quality Factors - Detailed */}
+        <div className="space-y-3 mb-4">
+          <h4 className="text-caption font-medium text-text-primary">
+            {isGerman ? 'Qualitätsfaktoren im Detail' : 'Quality Factors in Detail'}
+          </h4>
+
+          {/* SNR */}
+          <div className="bg-surface-card-muted rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-mono text-aqua-500 text-sm">1.5×</span>
+              <span className="font-medium text-text-primary">
+                {isGerman ? 'Signal-Rausch-Verhältnis (SNR)' : 'Signal-to-Noise Ratio (SNR)'}
+              </span>
+            </div>
+            <p className="text-caption text-text-muted mb-2">
+              {isGerman
+                ? 'Misst das Verhältnis zwischen dem stärksten Signal und dem Grundrauschen in Dezibel (dB). Ein höherer Wert bedeutet klarere Signale und zuverlässigere Peak-Erkennung.'
+                : 'Measures the ratio between the strongest signal and background noise in decibels (dB). Higher values mean clearer signals and more reliable peak detection.'}
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-micro">
+              <div>
+                <span className="text-text-muted block">{isGerman ? 'Standard-System:' : 'Standard system:'}</span>
+                <span className="text-text-secondary">≥60 dB = Exzellent, ≥40 dB = Gut, ≥25 dB = OK</span>
+              </div>
+              <div>
+                <span className="text-text-muted block">{isGerman ? 'Baked/UHV-System:' : 'Baked/UHV system:'}</span>
+                <span className="text-text-secondary">≥45 dB = Exzellent, ≥30 dB = Gut, ≥18 dB = OK</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Peak Detection */}
+          <div className="bg-state-warning/10 border border-state-warning/30 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-mono text-aqua-500 text-sm">1.2×</span>
+              <span className="font-medium text-text-primary">
+                {isGerman ? 'Peak-Erkennung' : 'Peak Detection'}
+              </span>
+              <span className="text-micro bg-state-warning/20 text-state-warning px-1.5 py-0.5 rounded">
+                {isGerman ? 'Kontextabhängig!' : 'Context-dependent!'}
+              </span>
+            </div>
+            <p className="text-caption text-text-muted mb-2">
+              {isGerman
+                ? 'Zählt die Anzahl signifikanter Peaks im Spektrum. WICHTIG: Die Bewertung ist invertiert je nach Systemzustand! Ein sauberes UHV-System nach dem Ausheizen sollte WENIGE Peaks haben.'
+                : 'Counts the number of significant peaks in the spectrum. IMPORTANT: The evaluation is inverted depending on system state! A clean UHV system after bakeout should have FEW peaks.'}
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-caption mt-2">
+              <div className="bg-bg-secondary rounded p-2">
+                <span className="font-medium text-state-success block mb-1">
+                  {isGerman ? '✓ Nach Ausheizen (Baked/UHV)' : '✓ After Bakeout (Baked/UHV)'}
+                </span>
+                <ul className="text-micro text-text-secondary space-y-0.5">
+                  <li>≤3 Peaks = 100% ({isGerman ? 'Sauber!' : 'Clean!'})</li>
+                  <li>≤5 Peaks = 85% ({isGerman ? 'Gut' : 'Good'})</li>
+                  <li>≤8 Peaks = 60% ({isGerman ? 'Restgas' : 'Residual'})</li>
+                  <li>&gt;8 Peaks = 40% ({isGerman ? 'Kontamination?' : 'Contamination?'})</li>
+                </ul>
+              </div>
+              <div className="bg-bg-secondary rounded p-2">
+                <span className="font-medium text-text-primary block mb-1">
+                  {isGerman ? 'Nicht ausgeheizt (Unbaked)' : 'Not Baked (Unbaked)'}
+                </span>
+                <ul className="text-micro text-text-secondary space-y-0.5">
+                  <li>≥5 sig. Peaks = 100% ({isGerman ? 'Normal' : 'Normal'})</li>
+                  <li>≥3 sig. Peaks = 80%</li>
+                  <li>≥2 sig. Peaks = 55%</li>
+                  <li>1 Peak = 30% ({isGerman ? 'Detektor prüfen!' : 'Check detector!'})</li>
+                </ul>
+              </div>
+            </div>
+            <p className="text-micro text-state-warning mt-2">
+              {isGerman
+                ? '⚠️ Signifikanz-Schwelle: Baked = 0.1% (H₂ dominant!), Unbaked = 1%'
+                : '⚠️ Significance threshold: Baked = 0.1% (H₂ dominant!), Unbaked = 1%'}
+            </p>
+          </div>
+
+          {/* Mass Range */}
+          <div className="bg-surface-card-muted rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-mono text-aqua-500 text-sm">0.9×</span>
+              <span className="font-medium text-text-primary">
+                {isGerman ? 'Massenbereich-Abdeckung' : 'Mass Range Coverage'}
+              </span>
+            </div>
+            <p className="text-caption text-text-muted mb-2">
+              {isGerman
+                ? 'Prüft, ob alle kritischen Massen für eine vollständige Diagnose im Scan enthalten sind. Ohne diese Massen können bestimmte Diagnosen nicht gestellt werden.'
+                : 'Checks if all critical masses for a complete diagnosis are included in the scan. Without these masses, certain diagnoses cannot be made.'}
+            </p>
+            <div className="flex flex-wrap gap-1 mt-2">
+              {[2, 14, 16, 17, 18, 28, 32, 40, 44].map(m => (
+                <span key={m} className="px-2 py-0.5 bg-aqua-500/10 text-aqua-500 rounded font-mono text-micro">
+                  m/z {m}
+                </span>
+              ))}
+            </div>
+            <p className="text-micro text-text-muted mt-2">
+              {isGerman
+                ? 'H₂(2), N⁺(14), O⁺(16), OH⁺(17), H₂O(18), N₂/CO(28), O₂(32), Ar(40), CO₂(44)'
+                : 'H₂(2), N⁺(14), O⁺(16), OH⁺(17), H₂O(18), N₂/CO(28), O₂(32), Ar(40), CO₂(44)'}
+            </p>
+          </div>
+
+          {/* Dynamic Range */}
+          <div className="bg-surface-card-muted rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-mono text-aqua-500 text-sm">0.8×</span>
+              <span className="font-medium text-text-primary">
+                {isGerman ? 'Dynamikbereich' : 'Dynamic Range'}
+              </span>
+            </div>
+            <p className="text-caption text-text-muted mb-2">
+              {isGerman
+                ? 'Misst die Anzahl der Dekaden (Größenordnungen) zwischen kleinstem und größtem Signal. Ein größerer Dynamikbereich ermöglicht die Erkennung sowohl starker als auch schwacher Peaks.'
+                : 'Measures the number of decades (orders of magnitude) between smallest and largest signal. A larger dynamic range enables detection of both strong and weak peaks.'}
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-micro">
+              <div>
+                <span className="text-text-muted block">{isGerman ? 'Standard:' : 'Standard:'}</span>
+                <span className="text-text-secondary">≥5 Dekaden = Exzellent, ≥4 = Gut, ≥3 = OK</span>
+              </div>
+              <div>
+                <span className="text-text-muted block">{isGerman ? 'Baked/UHV:' : 'Baked/UHV:'}</span>
+                <span className="text-text-secondary">≥4 Dekaden = Exzellent, ≥3 = Gut, ≥2 = OK</span>
+              </div>
+            </div>
+          </div>
+
+          {/* H2 Reference */}
+          <div className="bg-surface-card-muted rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-mono text-aqua-500 text-sm">0.7×</span>
+              <span className="font-medium text-text-primary">
+                {isGerman ? 'H₂-Referenz' : 'H₂ Reference'}
+              </span>
+            </div>
+            <p className="text-caption text-text-muted mb-2">
+              {isGerman
+                ? 'Bewertet das Verhältnis von H₂ zu H₂O. Nach erfolgreichem Ausheizen sollte H₂ dominieren (permeiert durch Edelstahl), während H₂O niedrig sein sollte.'
+                : 'Evaluates the ratio of H₂ to H₂O. After successful bakeout, H₂ should dominate (permeates through stainless steel), while H₂O should be low.'}
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-micro">
+              <div>
+                <span className="text-text-muted block">{isGerman ? 'Baked-System:' : 'Baked system:'}</span>
+                <span className="text-text-secondary">H₂ &gt; H₂O = 100% ({isGerman ? 'Erfolgreich!' : 'Success!'})</span>
+              </div>
+              <div>
+                <span className="text-text-muted block">{isGerman ? 'Unbaked-System:' : 'Unbaked system:'}</span>
+                <span className="text-text-secondary">H₂ dominant = 100% ({isGerman ? 'Typisch Edelstahl' : 'Typical SS'})</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Temperature (optional) */}
+          <div className="bg-surface-card-muted rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-mono text-aqua-500 text-sm">0.6×</span>
+              <span className="font-medium text-text-primary">
+                {isGerman ? 'Temperatur' : 'Temperature'}
+              </span>
+              <span className="text-micro text-text-muted">({isGerman ? 'wenn im Dateinamen' : 'if in filename'})</span>
+            </div>
+            <p className="text-caption text-text-muted">
+              {isGerman
+                ? 'Bewertet die Messtemperatur aus dem Dateinamen (z.B. "20C"). Ideale RGA-Betriebstemperatur: 20-25°C. Extreme Temperaturen können die Messung beeinflussen.'
+                : 'Evaluates measurement temperature from filename (e.g., "20C"). Ideal RGA operating temperature: 20-25°C. Extreme temperatures can affect measurement.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Grades */}
+        <div className="bg-surface-card-muted rounded-lg p-3 mb-3">
+          <h4 className="text-caption font-medium text-text-primary mb-2">
+            {isGerman ? 'Bewertungsstufen & Diagnose-Zuverlässigkeit' : 'Grading Scale & Diagnosis Reliability'}
+          </h4>
+          <div className="space-y-2">
+            {[
+              { grade: 'A', color: '#10B981', min: '≥90%', reliability: isGerman ? 'Hoch' : 'High', desc: isGerman ? 'Exzellente Datenqualität - Diagnosen hochzuverlässig' : 'Excellent data quality - diagnoses highly reliable' },
+              { grade: 'B', color: '#3B82F6', min: '≥75%', reliability: isGerman ? 'Hoch' : 'High', desc: isGerman ? 'Gute Datenqualität - Diagnosen zuverlässig' : 'Good data quality - diagnoses reliable' },
+              { grade: 'C', color: '#F59E0B', min: '≥55%', reliability: isGerman ? 'Mittel' : 'Medium', desc: isGerman ? 'Akzeptable Datenqualität - Diagnosen mit Vorbehalt' : 'Acceptable data quality - diagnoses with reservations' },
+              { grade: 'D', color: '#F97316', min: '≥35%', reliability: isGerman ? 'Niedrig' : 'Low', desc: isGerman ? 'Eingeschränkte Datenqualität - Diagnosen unsicher' : 'Limited data quality - diagnoses uncertain' },
+              { grade: 'F', color: '#EF4444', min: '<35%', reliability: isGerman ? 'Sehr niedrig' : 'Very low', desc: isGerman ? 'Unzureichende Datenqualität - Diagnosen nicht zuverlässig' : 'Insufficient data quality - diagnoses unreliable' },
+            ].map(g => (
+              <div key={g.grade} className="flex items-center gap-3 p-2 rounded" style={{ backgroundColor: `${g.color}10` }}>
+                <span className="font-bold text-lg w-8" style={{ color: g.color }}>{g.grade}</span>
+                <span className="font-mono text-micro w-12 text-text-muted">{g.min}</span>
+                <span className="text-caption text-text-secondary flex-1">{g.desc}</span>
+                <span className="text-micro px-2 py-0.5 rounded" style={{ backgroundColor: `${g.color}20`, color: g.color }}>
+                  {g.reliability}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Automatic Detection */}
+        <div className="bg-surface-card-muted rounded-lg p-3">
+          <h4 className="text-caption font-medium text-text-primary mb-2">
+            {isGerman ? 'Automatische Systemzustand-Erkennung' : 'Automatic System State Detection'}
+          </h4>
+          <p className="text-caption text-text-muted mb-3">
+            {isGerman
+              ? 'Der Kontext für die Bewertung wird automatisch aus mehreren Quellen ermittelt:'
+              : 'The context for assessment is automatically determined from multiple sources:'}
+          </p>
+
+          <div className="space-y-2">
+            <div className="bg-bg-secondary rounded p-2">
+              <span className="text-aqua-500 font-mono mr-2">1.</span>
+              <span className="font-medium text-text-primary">
+                {isGerman ? 'Dateiname-Analyse' : 'Filename Analysis'}
+              </span>
+              <p className="text-micro text-text-muted mt-1 ml-5">
+                {isGerman
+                  ? 'Regex-Patterns für DE/EN: "nach Ausheizen", "nach ausheizen", "after bakeout", "baked", "post_bake" → BAKED | "vor Ausheizen", "before bake out", "unbaked" → UNBAKED'
+                  : 'Regex patterns for DE/EN: "nach Ausheizen", "nach ausheizen", "after bakeout", "baked", "post_bake" → BAKED | "vor Ausheizen", "before bake out", "unbaked" → UNBAKED'}
+              </p>
+            </div>
+
+            <div className="bg-bg-secondary rounded p-2">
+              <span className="text-aqua-500 font-mono mr-2">2.</span>
+              <span className="font-medium text-text-primary">
+                {isGerman ? 'Spektrum-Charakteristik' : 'Spectrum Characteristics'}
+              </span>
+              <p className="text-micro text-text-muted mt-1 ml-5">
+                {isGerman
+                  ? 'Falls Dateiname keinen Hinweis gibt: H₂ > H₂O × 3 → BAKED | H₂ > H₂O mit ≤7 Peaks → BAKED | ≤3 Peaks mit H₂ > 10% → UHV | H₂O > H₂ → UNBAKED'
+                  : 'If filename gives no hint: H₂ > H₂O × 3 → BAKED | H₂ > H₂O with ≤7 peaks → BAKED | ≤3 peaks with H₂ > 10% → UHV | H₂O > H₂ → UNBAKED'}
+              </p>
+            </div>
+
+            <div className="bg-bg-secondary rounded p-2">
+              <span className="text-aqua-500 font-mono mr-2">3.</span>
+              <span className="font-medium text-text-primary">
+                {isGerman ? 'Totaldruck aus Dateiname' : 'Total Pressure from Filename'}
+              </span>
+              <p className="text-micro text-text-muted mt-1 ml-5">
+                {isGerman
+                  ? 'z.B. "2,1e-9mbar" oder "5e-10mbar" → Druck < 1×10⁻⁹ mbar aktiviert UHV-Kontext mit angepassten Schwellenwerten'
+                  : 'e.g., "2,1e-9mbar" or "5e-10mbar" → Pressure < 1×10⁻⁹ mbar activates UHV context with adjusted thresholds'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

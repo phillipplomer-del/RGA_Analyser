@@ -3,7 +3,7 @@ import type { CalibrationLevel, DeviceCalibration } from '@/types/calibration'
 import { SystemState } from '@/types/calibration'
 import { checkLimits } from '@/lib/limits'
 import { performQualityChecks } from '@/lib/quality'
-import { runFullDiagnosis, createDiagnosisInput, getDiagnosisSummary, DIAGNOSIS_METADATA, type DiagnosticResult } from '@/lib/diagnosis'
+import { runFullDiagnosis, createDiagnosisInput, getDiagnosisSummary, DIAGNOSIS_METADATA, calculateDataQualityScore, type DiagnosticResult } from '@/lib/diagnosis'
 import { calibrate, PressureConversionService, getSEMTracker, parseFilenameExtended } from '@/lib/calibration'
 
 // Known masses and their gas identifications
@@ -156,6 +156,31 @@ export function analyzeSpectrum(raw: RawData, options: AnalysisOptions = {}): An
   semTracker.addEntry(calibrationResult.metadata)
   const semWarning = semTracker.checkAging()
 
+  // 13. Data Quality Score (Konfidenz-Score System 1.5.3)
+  // KONTEXTABHÄNGIG: Berücksichtigt Systemzustand (baked/unbaked) und Druck
+  const analysisResultForQuality = {
+    metadata: raw.metadata,
+    normalizedData,
+    peaks,
+    limitChecks,
+    qualityChecks,
+    totalPressure,
+    dominantGases
+  } as AnalysisResult
+
+  const dataQualityScore = calculateDataQualityScore({
+    analysis: analysisResultForQuality,
+    // Temperatur aus Dateinamen (z.B. "23c" → 23)
+    temperature: filenameMetadata.temperature,
+    // Kontext für kontextabhängige Bewertung
+    context: {
+      systemState: filenameMetadata.systemState,
+      totalPressure: filenameMetadata.totalPressure,
+      temperature: filenameMetadata.temperature
+    }
+    // TODO: lastCalibration aus Geräteprofil oder Cloud-Daten
+  })
+
   return {
     metadata: raw.metadata,
     normalizedData,
@@ -166,6 +191,7 @@ export function analyzeSpectrum(raw: RawData, options: AnalysisOptions = {}): An
     dominantGases,
     diagnostics,
     diagnosisSummary,
+    dataQualityScore,
     // Calibration data
     calibration: calibrationResult,
     pressureData,
