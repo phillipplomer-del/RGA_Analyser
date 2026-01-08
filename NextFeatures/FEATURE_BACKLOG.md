@@ -37,6 +37,21 @@
 | 1.1 | Error Handling Grundgerüst | ⬜ | [ERROR_HANDLING_SPEC.md](./ERROR_HANDLING_SPEC.md) | 1-2 Tage | Toast, Error-Boundary, Error-Store |
 | 1.2 | Firebase Auth Migration | ⬜ | [FIREBASE_AUTH_MIGRATION.md](./FIREBASE_AUTH_MIGRATION.md) | 2-4h | E-Mail + Passwort, Passwort-Reset |
 
+### Priorität 1.5: Wissenschaftliche Analysewerkzeuge (NEU)
+
+> Aus [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) - Vakuum-Experten-Empfehlungen
+
+| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|------------|---------|---------|
+| 1.5.1 | **Ausgasungs-Simulator** | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#1-ausgasungs-simulator) | 1-2 Wochen | Multi-Material, Zeitverlauf, Leck vs. Ausgasung unterscheiden |
+| 1.5.2 | **Isotopen-Analyse** | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#2-erweiterte-isotopen-analyse) | 4-6h | Peak-Datenbank mit Diagnose & Empfehlungen |
+| 1.5.3 | **Konfidenz-Score System** | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#8-konfidenz-score-system) | 4-6h | Qualitätsbewertung der Analyse |
+| 1.5.4 | ESD-Artefakt-Erkennung | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#3-esd-artefakt-erkennung) | 2-4h | Falsch-Peaks durch elektrostatische Entladungen |
+| 1.5.5 | Helium-Lecktest Integration | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#4-helium-lecktest-integration) | 2-4h | m/z=4 Signal → Leckrate Umrechnung |
+| 1.5.6 | Erweiterte Öl-Diagnose | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#5-erweiterte-öl-diagnose) | 2-4h | Öl-Signaturen nach Typ erkennen |
+| 1.5.7 | Peak-Deconvolution | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#6-massenauflösung-und-peak-überlappung) | 4-8h | Überlappende Peaks trennen (m/z=28: N₂ vs CO) |
+| 1.5.8 | Pfeiffer-Kalibrierung | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#7-pfeiffer-spezifische-erweiterungen) | 2h | Gerätespezifische Kalibrierungsfaktoren |
+
 ### Priorität 2: Kernfunktionen
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
@@ -160,6 +175,12 @@ Für neue Features verwenden:
 - **Bedarf:** ⭐⭐ (Nur bei großen Dateien)
 - **Fazit:** Erst bei echten Performance-Problemen
 
+### RGA_APP_VERBESSERUNGEN.md (NEU)
+- **Umsetzbarkeit:** ⭐⭐⭐⭐ (TypeScript-Code bereits vorhanden)
+- **Komplexität:** ⭐⭐⭐⭐ (8 Features, verschiedene Schwierigkeitsgrade)
+- **Bedarf:** ⭐⭐⭐⭐⭐ (Unterscheidung Leck vs. Ausgasung ist kritisch!)
+- **Fazit:** **Ausgasungs-Simulator zuerst** - löst häufigstes Anwenderproblem
+
 ---
 
 ## Changelog
@@ -171,6 +192,7 @@ Für neue Features verwenden:
 | 2026-01-07 | Icon-Vereinheitlichung hinzugefügt (4.1) |
 | 2026-01-07 | **Priorität 0 hinzugefügt:** Datenqualität aus IMPLEMENTATION_SPEC.md |
 | 2026-01-08 | ✅ **Priorität 0 komplett abgeschlossen:** RSF, Gase, Massen, Detektoren, Profile |
+| 2026-01-08 | **Priorität 1.5 hinzugefügt:** 8 wissenschaftliche Analysewerkzeuge aus RGA_APP_VERBESSERUNGEN.md |
 
 ---
 
@@ -180,7 +202,9 @@ Für neue Features verwenden:
 2. [x] ~~Neue Gase + Massen + Detektoren hinzufügen~~ ✅ Erledigt 2026-01-08
 3. [ ] Error Handling Grundgerüst starten
 4. [ ] Firebase Auth Migration planen (Breaking Change kommunizieren)
-5. [ ] Zeitreihen Parser als erstes größeres Feature
+5. [ ] **Ausgasungs-Simulator** (Priorität 1.5.1) - Unterscheidung Leck vs. Ausgasung
+6. [ ] **Isotopen-Analyse** (Priorität 1.5.2) - Peak-Diagnose mit Empfehlungen
+7. [ ] Zeitreihen Parser als größeres Feature
 
 ---
 
