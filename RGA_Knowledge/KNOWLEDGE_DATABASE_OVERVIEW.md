@@ -12,7 +12,7 @@ Diese Dokumentation beschreibt die Struktur und den Inhalt der RGA-Wissensdatenb
 
 | Datei | Beschreibung |
 |-------|--------------|
-| `gasLibrary.ts` | Gas-Bibliothek mit ~45 Spezies |
+| `gasLibrary.ts` | Gas-Bibliothek mit ~50 Spezies |
 | `massReference.ts` | Massenreferenz m/z 1-100 |
 | `index.ts` | Sensitivitätsfaktoren, Isotope, Diagnose-Funktionen |
 
@@ -65,7 +65,7 @@ interface GasSpecies {
 | `nitrogen_compound` | Stickstoffverbindungen | NH₃, NO, N₂O |
 | `silicone` | Silikon/PDMS | PDMS |
 
-### Enthaltene Gase (~45 Spezies)
+### Enthaltene Gase (~50 Spezies)
 
 #### Permanentgase & Edelgase
 - H₂ (Wasserstoff) - m/z 2
@@ -122,6 +122,10 @@ interface GasSpecies {
 - B₂H₆ - m/z 26
 - PH₃ - m/z 34
 - AsH₃ - m/z 76
+- NF₃ (Stickstofftrifluorid) - m/z 52 *(CVD-Kammerreinigung)*
+- WF₆ (Wolframhexafluorid) - m/z 279 *(W-CVD/ALD)*
+- C₂F₆ (Hexafluorethan) - m/z 69 *(Plasma-Ätzen)*
+- GeH₄ (German) - m/z 74 *(SiGe-Abscheidung, pyrophor!)*
 
 #### Schwefel- & Stickstoffverbindungen
 - H₂S - m/z 34
@@ -174,6 +178,10 @@ interface MassAssignment {
 | 69 | CF₃⁺/C₅H₉⁺ | Fomblin vs KW-Öl |
 | 71 | C₅H₁₁⁺ | Turbopumpenöl-Marker |
 | 73 | (CH₃)₃Si⁺ | Silikon/DC705-Marker |
+| 52 | NF₂⁺ | NF₃ Base Peak (CVD-Reinigung) |
+| 119 | C₂F₅⁺ | Unterscheidet C₂F₆ von CF₄ |
+| 127 | SF₅⁺/I⁺ | SF₆ Base Peak |
+| 149 | Phthalat | WEICHMACHER-MARKER (O-Ringe!) |
 
 ---
 
@@ -184,16 +192,17 @@ Relative Sensitivitätsfaktoren (RSF) bezogen auf N₂ = 1.0:
 | Gas | RSF | Gas | RSF |
 |-----|-----|-----|-----|
 | H₂ | 0.44 | CH₄ | 1.6 |
-| He | 0.14 | C₂H₆ | 2.1 |
+| He | 0.14 | C₂H₆ | 2.6 |
 | Ne | 0.23 | C₃H₈ | 2.4 |
 | N₂ | 1.0 | NH₃ | 1.3 |
-| O₂ | 0.86 | H₂S | 1.2 |
-| Ar | 1.2 | SO₂ | 1.4 |
+| O₂ | 0.86 | H₂S | 2.2 |
+| Ar | 1.2 | SO₂ | 2.1 |
 | CO | 1.05 | Methanol | 1.8 |
 | CO₂ | 1.4 | Ethanol | 3.6 |
 | H₂O | 0.9 | Aceton | 3.6 |
 | Kr | 1.7 | IPA | 2.5 |
 | Xe | 3.0 | Benzol | 5.9 |
+| SiH₄ | 1.0 | PH₃ | 2.6 |
 
 ---
 
@@ -283,7 +292,7 @@ Relative Sensitivitätsfaktoren (RSF) bezogen auf N₂ = 1.0:
 | Datei | Beschreibung |
 |-------|--------------|
 | `types.ts` | TypeScript-Typen für Diagnosen |
-| `detectors.ts` | Implementierung der 16 Diagnose-Algorithmen |
+| `detectors.ts` | Implementierung der 20 Diagnose-Algorithmen |
 | `index.ts` | API-Funktionen und Export |
 
 ### Diagnose-Typen (DiagnosisType)
@@ -308,6 +317,10 @@ Relative Sensitivitätsfaktoren (RSF) bezogen auf N₂ = 1.0:
 | `METHANE_CONTAMINATION` | Methan-Kontamination | Methane Contamination | warning | 🔥 |
 | `SULFUR_CONTAMINATION` | Schwefel-Kontamination | Sulfur Contamination | warning | ⚠️ |
 | `AROMATIC_CONTAMINATION` | Aromaten-Kontamination | Aromatic Contamination | warning | ⬡ |
+| `POLYMER_OUTGASSING` | Polymer-Ausgasung | Polymer Outgassing | info | 🔷 |
+| `PLASTICIZER_CONTAMINATION` | Weichmacher-Kontamination | Plasticizer Contamination | warning | ⚠️ |
+| `PROCESS_GAS_RESIDUE` | Prozessgas-Rückstand | Process Gas Residue | warning | ⚗️ |
+| `COOLING_WATER_LEAK` | Kühlwasser-Leck | Cooling Water Leak | critical | 💧 |
 
 ### Schweregrade (DiagnosisSeverity)
 
@@ -402,11 +415,34 @@ Relative Sensitivitätsfaktoren (RSF) bezogen auf N₂ = 1.0:
 - **Benzol:** m/z 78, Phenyl (m77/m78 ≈ 0.22)
 - **Toluol:** m/z 91 (Tropylium), m92/m91 ≈ 0.69
 
+#### 17. Polymer-Ausgasung (POLYMER_OUTGASSING)
+- H₂O dominant (m18 > m28 × 2)
+- Keine Luftleck-Signatur (N₂/O₂ > 5 oder Ar fehlt)
+- Normales H₂O-Verhältnis (m18/m17 = 3.5-5.0)
+- **Typisch für:** PEEK, Kapton, Viton
+
+#### 18. Weichmacher (PLASTICIZER_CONTAMINATION)
+- **Hauptmarker:** Phthalat-Fragment m/z 149
+- **Weitere Marker:** m57, m71, m43 (Alkyl-Fragmente)
+- **Quelle:** O-Ringe, Kunststoffteile
+- **Abhilfe:** O-Ringe in Hexan auskochen (über Nacht)
+
+#### 19. Prozessgas-Rückstand (PROCESS_GAS_RESIDUE)
+- **NF₃ Check:** m52 > 0.01 und m52/m71 > 1.5
+- **SF₆ Check:** m127 > 0.01 und m127/m89 > 3
+- **WF₆ Check:** m279 > 0.005
+- **Bedeutung:** Kammer-Reinigungszyklus unvollständig
+
+#### 20. Kühlwasser-Leck (COOLING_WATER_LEAK)
+- Druck stabilisiert bei 15-30 mbar (H₂O-Sättigungsdampfdruck bei RT)
+- H₂O-Fraktion > 90% des Totaldrucks
+- **Kritisch:** Sofort System belüften!
+
 ### Diagnose-API Funktionen
 
 | Funktion | Beschreibung |
 |----------|--------------|
-| `runFullDiagnosis(input, minConfidence)` | Führt alle 16 Diagnosen durch |
+| `runFullDiagnosis(input, minConfidence)` | Führt alle 20 Diagnosen durch |
 | `runQuickDiagnosis(input)` | Nur kritische Checks (Luftleck, Öl, Fomblin, Chlor) |
 | `createDiagnosisInput(peaks, metadata)` | Erstellt Input aus Peak-Array |
 | `getDiagnosisSummary(results)` | Zusammenfassung der Ergebnisse |
@@ -440,6 +476,8 @@ const DEFAULT_THRESHOLDS = {
 | `cern-unbaked` | CERN Unbaked | Limits für nicht-ausgeheizte Systeme | H₂O |
 | `desy-hc-free` | DESY HC-Free | Kohlenwasserstoff-frei Kriterium | H₂ |
 | `gsi-cryo` | GSI Cryogenic | Strikte Limits für kryogene Strahlrohre | H₂ |
+| `ligo-uhv` | LIGO UHV | Extreme optische Sauberkeit für Gravitationswellen-Detektoren | H₂ |
+| `semi-cvd` | Semiconductor CVD | CVD/ALD Kammer-Baseline (prozessbereit) | H₂ |
 
 ### GSI 7.3e (2019)
 
@@ -519,6 +557,32 @@ const DEFAULT_THRESHOLDS = {
 | 28.5 - 43.5 | 0.5% | |
 | 43.5 - 44.5 | 2% | CO₂ |
 | 44.5 - 100 | 0.05% | Strikte HC-Limits |
+
+### LIGO UHV (Gravitationswellen-Detektoren)
+
+| Massenbereich | Grenzwert | Beschreibung |
+|---------------|-----------|--------------|
+| 0 - 3 | 100% | H₂ Referenz |
+| 3 - 17.5 | 0.1% | Max 0.1% |
+| 17.5 - 18.5 | 1% | H₂O max 1% |
+| 18.5 - 27.5 | 0.1% | |
+| 27.5 - 28.5 | 1% | N₂/CO max 1% |
+| 28.5 - 44.5 | 0.1% | |
+| 44.5 - 100 | 0.01% | HC < 0.01% |
+
+### Semiconductor CVD (Prozess-Baseline)
+
+| Massenbereich | Grenzwert | Beschreibung |
+|---------------|-----------|--------------|
+| 0 - 3 | 50% | H₂ akzeptiert |
+| 3 - 17.5 | 1% | |
+| 17.5 - 18.5 | 0.1% | H₂O < 0.1% kritisch! |
+| 18.5 - 27.5 | 1% | |
+| 27.5 - 28.5 | 1% | N₂/CO < 1% |
+| 28.5 - 31.5 | 1% | |
+| 31.5 - 32.5 | 0.1% | O₂ < 0.1% |
+| 32.5 - 44.5 | 1% | |
+| 44.5 - 100 | 0.01% | HC kritisch |
 
 ### LimitProfile-Struktur
 
