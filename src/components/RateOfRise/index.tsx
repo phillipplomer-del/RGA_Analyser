@@ -18,6 +18,7 @@ import { InputsCard } from './InputsCard'
 import { ResultsCard } from './ResultsCard'
 import { ClassificationCard } from './ClassificationCard'
 import { LimitCheckCard } from './LimitCheckCard'
+import { OutgassingComparisonCard } from './OutgassingComparisonCard'
 import { SaveRoRModal } from './SaveRoRModal'
 import { RoRArchive } from './RoRArchive'
 import { ActionsSidebar } from '@/components/ActionsSidebar'
@@ -26,9 +27,10 @@ import { generateRoRPDF, generateRoRCSV, downloadBlob, downloadCSV } from '@/lib
 
 interface RateOfRisePageProps {
   onBack: () => void
+  onOpenOutgassingSimulator?: () => void
 }
 
-export function RateOfRisePage({ onBack }: RateOfRisePageProps) {
+export function RateOfRisePage({ onBack, onOpenOutgassingSimulator }: RateOfRisePageProps) {
   const { t, i18n } = useTranslation()
   const chartRef = useRef<HTMLDivElement>(null)
 
@@ -103,7 +105,7 @@ export function RateOfRisePage({ onBack }: RateOfRisePageProps) {
     <div className={`min-h-screen bg-surface-page flex flex-col ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Header */}
       <header className="bg-surface-card shadow-card sticky top-0 z-50 ml-16">
-        <div className="max-w-[1800px] mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Back Button */}
             <button
@@ -224,7 +226,7 @@ export function RateOfRisePage({ onBack }: RateOfRisePageProps) {
       </header>
 
       {/* Main Content */}
-      <main className={`flex-1 mx-auto px-6 py-6 ml-16 ${!data ? 'max-w-7xl' : 'max-w-[1800px]'}`}>
+      <main className={`flex-1 ml-16 px-6 py-6 ${data ? 'max-w-[1800px] mx-auto' : ''}`}>
         {!data ? (
           // Empty State - same layout as RGA
           <div className="max-w-4xl mx-auto py-10">
@@ -328,81 +330,101 @@ export function RateOfRisePage({ onBack }: RateOfRisePageProps) {
             </div>
           </div>
         ) : (
-          // Analysis View
-          <div className="flex gap-6">
-            {/* Main Chart Area */}
-            <div className="flex-1 min-w-0">
-              {/* Chart Controls */}
-              <div className="flex items-center gap-4 mb-4">
-                {/* Scale Toggle */}
-                <div className="flex bg-surface-card-muted rounded-lg p-1">
-                  <button
-                    onClick={() => setChartScale('linear')}
-                    className={`px-3 py-1.5 text-caption rounded-md transition-colors ${
-                      chartScale === 'linear'
-                        ? 'bg-surface-card shadow text-text-primary'
-                        : 'text-text-secondary hover:text-text-primary'
-                    }`}
-                  >
-                    {t('rateOfRise.chart.linear', 'Linear')}
-                  </button>
-                  <button
-                    onClick={() => setChartScale('log')}
-                    className={`px-3 py-1.5 text-caption rounded-md transition-colors ${
-                      chartScale === 'log'
-                        ? 'bg-surface-card shadow text-text-primary'
-                        : 'text-text-secondary hover:text-text-primary'
-                    }`}
-                  >
-                    {t('rateOfRise.chart.log', 'Log')}
-                  </button>
+          // Analysis View - 2-row layout
+          <div className="space-y-4">
+            {/* Row 1: Chart + Results */}
+            <div className="flex gap-4">
+              {/* Chart Area - takes 2/3 */}
+              <div className="flex-[2] min-w-0 flex flex-col">
+                {/* Chart Controls */}
+                <div className="flex items-center gap-4 mb-3">
+                  {/* Scale Toggle */}
+                  <div className="flex bg-surface-card-muted rounded-lg p-1">
+                    <button
+                      onClick={() => setChartScale('linear')}
+                      className={`px-3 py-1.5 text-caption rounded-md transition-colors ${
+                        chartScale === 'linear'
+                          ? 'bg-surface-card shadow text-text-primary'
+                          : 'text-text-secondary hover:text-text-primary'
+                      }`}
+                    >
+                      {t('rateOfRise.chart.linear', 'Linear')}
+                    </button>
+                    <button
+                      onClick={() => setChartScale('log')}
+                      className={`px-3 py-1.5 text-caption rounded-md transition-colors ${
+                        chartScale === 'log'
+                          ? 'bg-surface-card shadow text-text-primary'
+                          : 'text-text-secondary hover:text-text-primary'
+                      }`}
+                    >
+                      {t('rateOfRise.chart.log', 'Log')}
+                    </button>
+                  </div>
+
+                  {/* Checkboxes */}
+                  <label className="flex items-center gap-2 text-caption text-text-secondary cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showFitLine}
+                      onChange={(e) => setShowFitLine(e.target.checked)}
+                      className="rounded border-subtle"
+                    />
+                    {t('rateOfRise.chart.showFit', 'Fit-Linie')}
+                  </label>
+
+                  <label className="flex items-center gap-2 text-caption text-text-secondary cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showPhases}
+                      onChange={(e) => setShowPhases(e.target.checked)}
+                      className="rounded border-subtle"
+                    />
+                    {t('rateOfRise.chart.showPhases', 'Phasen anzeigen')}
+                  </label>
+
+                  {/* File Info */}
+                  <div className="ml-auto text-caption text-text-muted">
+                    {data.metadata.filename} · {data.dataPoints.length}{' '}
+                    {t('rateOfRise.dataPoints', 'Datenpunkte')}
+                  </div>
                 </div>
 
-                {/* Checkboxes */}
-                <label className="flex items-center gap-2 text-caption text-text-secondary cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={showFitLine}
-                    onChange={(e) => setShowFitLine(e.target.checked)}
-                    className="rounded border-subtle"
+                {/* Chart */}
+                <div
+                  ref={chartRef}
+                  className="bg-surface-card rounded-card shadow-card p-4 h-[calc(100vh-380px)] min-h-[350px]"
+                >
+                  <RoRChart
+                    data={data}
+                    analysis={analysis}
+                    scale={chartScale}
+                    showFitLine={showFitLine}
+                    showPhases={showPhases}
                   />
-                  {t('rateOfRise.chart.showFit', 'Fit-Linie')}
-                </label>
-
-                <label className="flex items-center gap-2 text-caption text-text-secondary cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={showPhases}
-                    onChange={(e) => setShowPhases(e.target.checked)}
-                    className="rounded border-subtle"
-                  />
-                  {t('rateOfRise.chart.showPhases', 'Phasen anzeigen')}
-                </label>
-
-                {/* File Info */}
-                <div className="ml-auto text-caption text-text-muted">
-                  {data.metadata.filename} · {data.dataPoints.length}{' '}
-                  {t('rateOfRise.dataPoints', 'Datenpunkte')}
                 </div>
               </div>
 
-              {/* Chart */}
-              <div
-                ref={chartRef}
-                className="bg-surface-card rounded-card shadow-card p-6 h-[500px]"
-              >
-                <RoRChart
-                  data={data}
-                  analysis={analysis}
-                  scale={chartScale}
-                  showFitLine={showFitLine}
-                  showPhases={showPhases}
-                />
+              {/* Results Panel - takes 1/3 */}
+              <div className="flex-1 min-w-[280px] max-w-[360px] space-y-3">
+                {/* Results - Primary */}
+                {analysis && (
+                  <>
+                    <ResultsCard analysis={analysis} />
+                    <ClassificationCard
+                      classification={analysis.classification}
+                      isGerman={isGerman}
+                    />
+                    {analysis.limitCheck && (
+                      <LimitCheckCard check={analysis.limitCheck} isGerman={isGerman} />
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Sidebar */}
-            <aside className="w-96 flex-shrink-0 space-y-4 overflow-y-auto max-h-[calc(100vh-180px)]">
+            {/* Row 2: Secondary Info Grid */}
+            <div className="grid grid-cols-3 gap-4">
               {/* Metadata */}
               <MetadataCard metadata={data.metadata} duration={data.duration} />
 
@@ -415,20 +437,14 @@ export function RateOfRisePage({ onBack }: RateOfRisePageProps) {
                 onLimitChange={setLimit}
               />
 
-              {/* Results */}
+              {/* Outgassing Comparison */}
               {analysis && (
-                <>
-                  <ResultsCard analysis={analysis} />
-                  <ClassificationCard
-                    classification={analysis.classification}
-                    isGerman={isGerman}
-                  />
-                  {analysis.limitCheck && (
-                    <LimitCheckCard check={analysis.limitCheck} isGerman={isGerman} />
-                  )}
-                </>
+                <OutgassingComparisonCard
+                  analysis={analysis}
+                  onOpenSimulator={onOpenOutgassingSimulator}
+                />
               )}
-            </aside>
+            </div>
           </div>
         )}
       </main>

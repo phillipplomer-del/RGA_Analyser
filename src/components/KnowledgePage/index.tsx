@@ -8,9 +8,10 @@ import { Footer } from '@/components/ui/Footer'
 
 interface KnowledgePageProps {
   onShowRateOfRise?: () => void
+  onShowOutgassing?: () => void
 }
 
-export function KnowledgePage({ onShowRateOfRise }: KnowledgePageProps) {
+export function KnowledgePage({ onShowRateOfRise, onShowOutgassing }: KnowledgePageProps) {
   const { i18n } = useTranslation()
   const { setShowKnowledgePage, theme } = useAppStore()
   const isGerman = i18n.language === 'de'
@@ -19,14 +20,14 @@ export function KnowledgePage({ onShowRateOfRise }: KnowledgePageProps) {
     <div className={`fixed inset-0 z-50 bg-surface-page flex flex-col ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Header */}
       <header className="bg-surface-card shadow-card border-b border-subtle ml-16">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setShowKnowledgePage(false)}
-              className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-card-muted rounded-lg transition-colors"
+              className="p-2 rounded-lg hover:bg-surface-card-muted transition-colors"
               title={isGerman ? 'Zurück' : 'Back'}
             >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-5 h-5 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
@@ -51,7 +52,7 @@ export function KnowledgePage({ onShowRateOfRise }: KnowledgePageProps) {
       {/* Main Content */}
       <main className="flex-1 overflow-hidden ml-16">
         <div className="max-w-7xl mx-auto h-full">
-          <KnowledgePanel />
+          <KnowledgePanel onShowOutgassing={onShowOutgassing} />
         </div>
       </main>
 

@@ -3,7 +3,7 @@
  * D3.js visualization of pressure vs time with phases and fit line
  */
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import type { RateOfRiseData, RateOfRiseAnalysis, PressureDataPoint } from '@/types/rateOfRise'
 import { formatDuration } from '@/lib/rateOfRise/parser'
@@ -25,15 +25,32 @@ export function RoRChart({
 }: RoRChartProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+
+  // ResizeObserver for responsive chart
+  useEffect(() => {
+    if (!containerRef.current) return
+    const container = containerRef.current
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect
+        setDimensions({ width, height })
+      }
+    })
+
+    resizeObserver.observe(container)
+    return () => resizeObserver.disconnect()
+  }, [])
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || data.dataPoints.length === 0) return
+    if (dimensions.width === 0 || dimensions.height === 0) return
 
-    const container = containerRef.current
     const svg = d3.select(svgRef.current)
 
-    // Get dimensions
-    const { width, height } = container.getBoundingClientRect()
+    // Get dimensions from state
+    const { width, height } = dimensions
     const margin = { top: 20, right: 30, bottom: 50, left: 80 }
     const innerWidth = width - margin.left - margin.right
     const innerHeight = height - margin.top - margin.bottom
@@ -212,7 +229,7 @@ export function RoRChart({
 
     // Tooltip
     const tooltip = d3
-      .select(container)
+      .select(containerRef.current)
       .append('div')
       .attr('class', 'absolute hidden bg-surface-card shadow-lg rounded-lg p-2 text-xs pointer-events-none z-10')
       .style('border', '1px solid var(--color-border-subtle)')
@@ -298,7 +315,7 @@ export function RoRChart({
     return () => {
       tooltip.remove()
     }
-  }, [data, analysis, scale, showFitLine, showPhases])
+  }, [data, analysis, scale, showFitLine, showPhases, dimensions])
 
   return (
     <div ref={containerRef} className="w-full h-full relative">

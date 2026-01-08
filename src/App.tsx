@@ -17,6 +17,7 @@ import { PeakComparisonTable } from '@/components/PeakComparisonTable'
 import { ActionsSidebar } from '@/components/ActionsSidebar'
 import { KnowledgePage } from '@/components/KnowledgePage'
 import { RateOfRisePage } from '@/components/RateOfRise'
+import { OutgassingPage } from '@/components/OutgassingSimulator/OutgassingPage'
 import { SimpleLoginModal } from '@/components/Auth/SimpleLoginModal'
 import { UserBadge } from '@/components/Auth/UserBadge'
 import { SpectrumArchive } from '@/components/SpectrumArchive'
@@ -45,6 +46,7 @@ function App() {
   const chartRef = useRef<HTMLDivElement>(null)
   const [showArchive, setShowArchive] = useState(false)
   const [showRateOfRise, setShowRateOfRise] = useState(false)
+  const [showOutgassing, setShowOutgassing] = useState(false)
   const [showRGASection, setShowRGASection] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -113,13 +115,33 @@ function App() {
 
   // Show Knowledge Page when requested
   if (showKnowledgePage) {
-    return <KnowledgePage onShowRateOfRise={() => setShowRateOfRise(true)} />
+    return <KnowledgePage
+      onShowRateOfRise={() => setShowRateOfRise(true)}
+      onShowOutgassing={() => {
+        useAppStore.getState().setShowKnowledgePage(false)
+        setShowOutgassing(true)
+      }}
+    />
   }
 
   // Show Rate of Rise Page when requested
   if (showRateOfRise) {
-    return <RateOfRisePage onBack={() => {
-      setShowRateOfRise(false)
+    return <RateOfRisePage
+      onBack={() => {
+        setShowRateOfRise(false)
+        setShowRGASection(false)
+      }}
+      onOpenOutgassingSimulator={() => {
+        setShowRateOfRise(false)
+        setShowOutgassing(true)
+      }}
+    />
+  }
+
+  // Show Outgassing Page when requested
+  if (showOutgassing) {
+    return <OutgassingPage onBack={() => {
+      setShowOutgassing(false)
       setShowRGASection(false)
     }} />
   }
@@ -130,12 +152,13 @@ function App() {
   }
 
   // Show Function Selector when app is launched but no function selected yet
-  if (skipLandingPage && !showRGASection && files.length === 0) {
+  if (skipLandingPage && !showRGASection && files.length === 0 && !showOutgassing) {
     return (
       <FunctionSelector
         onSelectRGA={() => setShowRGASection(true)}
         onSelectRoR={() => setShowRateOfRise(true)}
         onSelectKnowledge={() => useAppStore.getState().setShowKnowledgePage(true)}
+        onSelectOutgassing={() => setShowOutgassing(true)}
       />
     )
   }
@@ -146,14 +169,36 @@ function App() {
       <div className={`min-h-screen bg-surface-page flex flex-col ${theme === 'dark' ? 'dark' : ''}`}>
         {/* Header */}
         <header className="bg-surface-card shadow-card sticky top-0 z-50 ml-16">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div>
-              <h1 className="font-display font-bold text-h1 gradient-text">
-                {t('app.title')}
-              </h1>
-              <p className="text-caption text-text-secondary">
-                {t('app.subtitle')}
-              </p>
+          <div className="px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {/* Back Button */}
+              <button
+                onClick={() => setShowRGASection(false)}
+                className="p-2 rounded-lg hover:bg-surface-card-muted transition-colors"
+                title={t('common.back', 'Zurück')}
+              >
+                <svg
+                  className="w-5 h-5 text-text-secondary"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+              </button>
+              <div>
+                <h1 className="font-display font-bold text-h2 gradient-text">
+                  {t('app.title')}
+                </h1>
+                <p className="text-caption text-text-secondary">
+                  {t('app.subtitle')}
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               {currentUser ? (
@@ -167,13 +212,6 @@ function App() {
                   {t('auth.title')}
                 </button>
               )}
-              <button
-                onClick={() => setShowRGASection(false)}
-                className="px-4 py-2 text-caption font-medium text-text-secondary hover:text-text-primary
-                  bg-surface-card-muted hover:bg-surface-card rounded-chip transition-colors"
-              >
-                {t('common.back', 'Zurück')}
-              </button>
               <LanguageToggle />
               <ThemeToggle />
             </div>
@@ -181,7 +219,7 @@ function App() {
         </header>
 
         {/* Empty State Content */}
-        <main className="flex-1 max-w-7xl mx-auto px-6 py-6 ml-16">
+        <main className="flex-1 ml-16 px-6 py-6">
           <div className="max-w-4xl mx-auto py-10">
             <div className="text-center mb-12">
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-aqua-500 to-mint-500 flex items-center justify-center">
@@ -293,14 +331,36 @@ function App() {
     <div className={`min-h-screen bg-surface-page ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Header */}
       <header className="bg-surface-card shadow-card sticky top-0 z-50 ml-16">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="font-display font-bold text-h1 gradient-text">
-              {t('app.title')}
-            </h1>
-            <p className="text-caption text-text-secondary">
-              {t('app.subtitle')}
-            </p>
+        <div className="px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {/* Back Button */}
+            <button
+              onClick={reset}
+              className="p-2 rounded-lg hover:bg-surface-card-muted transition-colors"
+              title={t('common.back', 'Zurück')}
+            >
+              <svg
+                className="w-5 h-5 text-text-secondary"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+            </button>
+            <div>
+              <h1 className="font-display font-bold text-h2 gradient-text">
+                {t('app.title')}
+              </h1>
+              <p className="text-caption text-text-secondary">
+                {t('app.subtitle')}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             {/* File Manager - shows loaded files */}

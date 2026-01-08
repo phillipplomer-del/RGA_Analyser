@@ -4,14 +4,16 @@ import { cn } from '@/lib/utils/cn'
 import { GAS_LIBRARY, type GasSpecies } from '@/lib/knowledge/gasLibrary'
 import { MASS_REFERENCE } from '@/lib/knowledge/massReference'
 import { DIAGNOSTIC_MASS_GROUPS, SENSITIVITY_FACTORS, ISOTOPE_RATIOS } from '@/lib/knowledge'
+import { OUTGASSING_MATERIALS } from '@/lib/knowledge/outgassingRates'
 
-type TabKey = 'criteria' | 'gases' | 'masses' | 'patterns' | 'calibration' | 'rateOfRise' | 'references'
+type TabKey = 'criteria' | 'gases' | 'masses' | 'patterns' | 'calibration' | 'outgassing' | 'rateOfRise' | 'references'
 
 interface KnowledgePanelProps {
   compact?: boolean
+  onShowOutgassing?: () => void
 }
 
-export function KnowledgePanel({ compact }: KnowledgePanelProps) {
+export function KnowledgePanel({ compact, onShowOutgassing }: KnowledgePanelProps) {
   const { i18n } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabKey>('criteria')
   const [expandedGas, setExpandedGas] = useState<string | null>(null)
@@ -25,6 +27,7 @@ export function KnowledgePanel({ compact }: KnowledgePanelProps) {
     { key: 'masses', label: 'Massen', labelEn: 'Masses' },
     { key: 'patterns', label: 'Muster', labelEn: 'Patterns' },
     { key: 'calibration', label: 'Kalibrierung', labelEn: 'Calibration' },
+    { key: 'outgassing', label: 'Ausgasung', labelEn: 'Outgassing' },
     { key: 'rateOfRise', label: 'Rate of Rise', labelEn: 'Rate of Rise' },
     { key: 'references', label: 'Referenzen', labelEn: 'References' },
   ]
@@ -74,6 +77,7 @@ export function KnowledgePanel({ compact }: KnowledgePanelProps) {
         )}
         {activeTab === 'patterns' && <PatternsTab isGerman={isGerman} />}
         {activeTab === 'calibration' && <CalibrationTab isGerman={isGerman} />}
+        {activeTab === 'outgassing' && <OutgassingInfoTab isGerman={isGerman} onShowOutgassing={onShowOutgassing} />}
         {activeTab === 'rateOfRise' && <RateOfRiseTab isGerman={isGerman} />}
         {activeTab === 'references' && <ReferencesTab isGerman={isGerman} />}
       </div>
@@ -2616,6 +2620,197 @@ function RoRTroubleshooting({ isGerman }: { isGerman: boolean }) {
             ? '💡 Tipp: Bei wiederholt inkonsistenten Ergebnissen sollte eine RGA-Analyse zur Identifikation der dominanten Gasart durchgeführt werden.'
             : '💡 Tip: For repeatedly inconsistent results, an RGA analysis should be performed to identify the dominant gas species.'}
         </p>
+      </div>
+    </div>
+  )
+}
+
+// ============================================
+// OUTGASSING INFO TAB
+// ============================================
+function OutgassingInfoTab({ isGerman, onShowOutgassing }: { isGerman: boolean; onShowOutgassing?: () => void }) {
+  // Group materials by category
+  const metalMaterials = OUTGASSING_MATERIALS.filter(m => m.category === 'metal')
+  const elastomerMaterials = OUTGASSING_MATERIALS.filter(m => m.category === 'elastomer')
+  const ceramicMaterials = OUTGASSING_MATERIALS.filter(m => m.category === 'ceramic')
+
+  const formatRate = (rate: number) => {
+    if (rate === 0) return '-'
+    const exp = Math.floor(Math.log10(rate))
+    const mantissa = rate / Math.pow(10, exp)
+    return `${mantissa.toFixed(1)}×10${exp < 0 ? '⁻' : ''}${Math.abs(exp).toString().split('').map(d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[parseInt(d)]).join('')}`
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header with link to simulator */}
+      <div className="bg-aqua-500/10 border border-aqua-500/30 rounded-lg p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-aqua-400">
+              {isGerman ? 'Ausgasungs-Simulator' : 'Outgassing Simulator'}
+            </h3>
+            <p className="text-sm text-text-secondary mt-1">
+              {isGerman
+                ? 'Berechnet erwartete Ausgasungsraten für Multi-Material-Systeme. Unterscheidet Leck von Ausgasung.'
+                : 'Calculates expected outgassing rates for multi-material systems. Distinguishes leak from outgassing.'}
+            </p>
+          </div>
+          {onShowOutgassing && (
+            <button
+              onClick={onShowOutgassing}
+              className="shrink-0 px-4 py-2 bg-aqua-500 text-white rounded-lg hover:bg-aqua-600 transition-colors text-sm font-medium"
+            >
+              {isGerman ? '→ Zum Simulator' : '→ Open Simulator'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Physics explanation */}
+      <div>
+        <h4 className="text-sm font-semibold text-text-primary mb-2">
+          {isGerman ? 'Physikalische Grundlagen' : 'Physical Principles'}
+        </h4>
+        <div className="bg-surface-secondary rounded-lg p-3 space-y-2 text-sm">
+          <p className="font-mono text-aqua-400">q(t) = q₁ × (t₁/t)ⁿ</p>
+          <ul className="text-text-secondary space-y-1 ml-4">
+            <li>• q₁ = {isGerman ? 'Ausgasungsrate nach Referenzzeit t₁' : 'Outgassing rate after reference time t₁'}</li>
+            <li>• n ≈ 1.0 {isGerman ? 'für Metalle' : 'for metals'}, n ≈ 0.5-0.7 {isGerman ? 'für Polymere' : 'for polymers'}</li>
+          </ul>
+          <div className="border-t border-subtle pt-2 mt-2">
+            <p className="text-text-secondary">
+              <span className="text-yellow-400">⚠️</span> {isGerman
+                ? 'Viton dominiert oft die Ausgasung, obwohl es nur 0.7% der Oberfläche ausmacht!'
+                : 'Viton often dominates outgassing despite being only 0.7% of surface area!'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Materials Database */}
+      <div>
+        <h4 className="text-sm font-semibold text-text-primary mb-2">
+          {isGerman ? 'Materialien-Datenbank' : 'Materials Database'} ({OUTGASSING_MATERIALS.length})
+        </h4>
+
+        {/* Metals */}
+        <div className="mb-4">
+          <h5 className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-2">
+            {isGerman ? 'Metalle' : 'Metals'}
+          </h5>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-left text-text-secondary border-b border-subtle">
+                  <th className="py-1.5 pr-2">{isGerman ? 'Material' : 'Material'}</th>
+                  <th className="py-1.5 px-2">q₁ₕ</th>
+                  <th className="py-1.5 px-2">q₁₀ₕ</th>
+                  <th className="py-1.5 px-2">{isGerman ? 'Bakeout' : 'Bakeout'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {metalMaterials.map(m => (
+                  <tr key={m.id} className="border-b border-subtle/50">
+                    <td className="py-1.5 pr-2 text-text-primary">{isGerman ? m.name : m.nameEn}</td>
+                    <td className="py-1.5 px-2 font-mono text-aqua-400">{formatRate(m.q1h_unbaked)}</td>
+                    <td className="py-1.5 px-2 font-mono text-text-secondary">{formatRate(m.q10h_unbaked)}</td>
+                    <td className="py-1.5 px-2">{m.bakeoutTemp ? `${m.bakeoutTemp}°C` : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Elastomers */}
+        <div className="mb-4">
+          <h5 className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-2">
+            {isGerman ? 'Elastomere' : 'Elastomers'}
+          </h5>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-left text-text-secondary border-b border-subtle">
+                  <th className="py-1.5 pr-2">{isGerman ? 'Material' : 'Material'}</th>
+                  <th className="py-1.5 px-2">q₁ₕ</th>
+                  <th className="py-1.5 px-2">q₁₀ₕ</th>
+                  <th className="py-1.5 px-2">{isGerman ? 'Bakeout' : 'Bakeout'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {elastomerMaterials.map(m => (
+                  <tr key={m.id} className="border-b border-subtle/50">
+                    <td className="py-1.5 pr-2 text-text-primary">{isGerman ? m.name : m.nameEn}</td>
+                    <td className="py-1.5 px-2 font-mono text-yellow-400">{formatRate(m.q1h_unbaked)}</td>
+                    <td className="py-1.5 px-2 font-mono text-text-secondary">{formatRate(m.q10h_unbaked)}</td>
+                    <td className="py-1.5 px-2">{m.bakeoutTemp ? `${m.bakeoutTemp}°C` : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Ceramics */}
+        <div>
+          <h5 className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-2">
+            {isGerman ? 'Keramik' : 'Ceramics'}
+          </h5>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-left text-text-secondary border-b border-subtle">
+                  <th className="py-1.5 pr-2">{isGerman ? 'Material' : 'Material'}</th>
+                  <th className="py-1.5 px-2">q₁ₕ</th>
+                  <th className="py-1.5 px-2">q₁₀ₕ</th>
+                  <th className="py-1.5 px-2">{isGerman ? 'Bakeout' : 'Bakeout'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ceramicMaterials.map(m => (
+                  <tr key={m.id} className="border-b border-subtle/50">
+                    <td className="py-1.5 pr-2 text-text-primary">{isGerman ? m.name : m.nameEn}</td>
+                    <td className="py-1.5 px-2 font-mono text-green-400">{formatRate(m.q1h_unbaked)}</td>
+                    <td className="py-1.5 px-2 font-mono text-text-secondary">{formatRate(m.q10h_unbaked)}</td>
+                    <td className="py-1.5 px-2">{m.bakeoutTemp ? `${m.bakeoutTemp}°C` : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <p className="text-xs text-text-tertiary mt-3">
+          {isGerman
+            ? 'Einheit: mbar·l/(s·cm²). Quellen: VACOM, CERN, de Csernatony'
+            : 'Unit: mbar·l/(s·cm²). Sources: VACOM, CERN, de Csernatony'}
+        </p>
+      </div>
+
+      {/* Comparison: Leak vs Outgassing */}
+      <div>
+        <h4 className="text-sm font-semibold text-text-primary mb-2">
+          {isGerman ? 'Leck vs. Ausgasung unterscheiden' : 'Distinguishing Leak vs. Outgassing'}
+        </h4>
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+            <h5 className="font-semibold text-red-400 mb-1">{isGerman ? 'Reales Leck' : 'Real Leak'}</h5>
+            <ul className="text-text-secondary space-y-1">
+              <li>• dp/dt = {isGerman ? 'konstant' : 'constant'}</li>
+              <li>• {isGerman ? 'Linearer Druckanstieg' : 'Linear pressure rise'}</li>
+              <li>• He-Lecktest: {isGerman ? 'positiv' : 'positive'}</li>
+            </ul>
+          </div>
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+            <h5 className="font-semibold text-blue-400 mb-1">{isGerman ? 'Ausgasung' : 'Outgassing'}</h5>
+            <ul className="text-text-secondary space-y-1">
+              <li>• dp/dt ~ 1/t</li>
+              <li>• {isGerman ? 'Abnehmender Druckanstieg' : 'Decreasing pressure rise'}</li>
+              <li>• He-Lecktest: {isGerman ? 'negativ' : 'negative'}</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   )

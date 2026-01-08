@@ -40,7 +40,9 @@ import {
   detectPolymerOutgassing,
   detectPlasticizerContamination,
   detectProcessGasResidue,
-  detectCoolingWaterLeak
+  detectCoolingWaterLeak,
+  // Isotopen-Analyse
+  verifyIsotopeRatios
 } from './detectors'
 
 import type { DiagnosticResult, DiagnosisInput } from './types'
@@ -69,7 +71,9 @@ export {
   detectPolymerOutgassing,
   detectPlasticizerContamination,
   detectProcessGasResidue,
-  detectCoolingWaterLeak
+  detectCoolingWaterLeak,
+  // Isotopen-Analyse
+  verifyIsotopeRatios
 }
 
 /**
@@ -97,7 +101,9 @@ const ALL_DETECTORS = [
   detectPolymerOutgassing,
   detectPlasticizerContamination,
   detectProcessGasResidue,
-  detectCoolingWaterLeak
+  detectCoolingWaterLeak,
+  // Isotopen-Analyse
+  verifyIsotopeRatios
 ]
 
 /**

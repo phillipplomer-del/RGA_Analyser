@@ -31,7 +31,9 @@ export enum DiagnosisType {
   POLYMER_OUTGASSING = 'POLYMER_OUTGASSING',
   PLASTICIZER_CONTAMINATION = 'PLASTICIZER_CONTAMINATION',
   PROCESS_GAS_RESIDUE = 'PROCESS_GAS_RESIDUE',
-  COOLING_WATER_LEAK = 'COOLING_WATER_LEAK'
+  COOLING_WATER_LEAK = 'COOLING_WATER_LEAK',
+  // Isotopen-Analyse
+  ISOTOPE_VERIFICATION = 'ISOTOPE_VERIFICATION'
 }
 
 /**
@@ -230,5 +232,11 @@ export const DIAGNOSIS_METADATA: Record<DiagnosisType, {
     icon: '🚰',
     color: '#EF4444',
     priority: 22
+  },
+  // Isotopen-Analyse
+  [DiagnosisType.ISOTOPE_VERIFICATION]: {
+    icon: '🔬',
+    color: '#6366F1',
+    priority: 23
   }
 }

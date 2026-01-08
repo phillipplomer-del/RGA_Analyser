@@ -33,7 +33,7 @@ interface ColorScheme {
 // --- Configuration Constants ---
 const RESOLUTION = 1000
 const MAX_MASS = 100
-const SCAN_SPEED = 0.002
+const SCAN_SPEED = 0.001
 const PADDING = { top: 100, right: 0, bottom: 120, left: 60 }
 
 // Dark Mode - Warm Tones (Gold, Lime, Green)
@@ -363,6 +363,21 @@ export function LandingPage() {
             <div className="pointer-events-auto">
               <ThemeToggle />
             </div>
+            {/* Pause/Resume Button */}
+            <button
+              onClick={() => setIsRunning(prev => !prev)}
+              className={`pointer-events-auto px-4 py-2 rounded-chip text-caption font-medium transition-colors
+                ${isRunning
+                  ? isDark
+                    ? 'text-[#9EE000] bg-[#9EE000]/10 hover:bg-[#9EE000]/20'
+                    : 'text-aqua-600 bg-aqua-500/10 hover:bg-aqua-500/20'
+                  : isDark
+                    ? 'text-[#F8F8F0] bg-[#252518] border border-[rgba(248,248,240,0.1)]'
+                    : 'text-[#1F2430] bg-white border border-[rgba(31,36,48,0.1)]'
+                }`}
+            >
+              {isRunning ? 'PAUSE' : 'RESUME'}
+            </button>
             <div className={`backdrop-blur-md border rounded-[14px] px-4 py-2 flex gap-4 items-center transition-colors duration-300
               ${isDark
                 ? 'bg-[#252518]/80 border-[rgba(248,248,240,0.1)] shadow-[0_12px_30px_rgba(0,0,0,0.4)]'
@@ -420,36 +435,6 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Pause/Resume Button */}
-            <button
-              onClick={() => setIsRunning(prev => !prev)}
-              className={`pointer-events-auto relative group overflow-hidden rounded-full px-6 py-2.5
-                transition-all duration-300 ease-smooth
-                ${isRunning
-                  ? isDark
-                    ? 'shadow-[0_10px_25px_rgba(158,224,0,0.3)] hover:translate-y-[-2px] hover:scale-[1.02]'
-                    : 'shadow-[0_10px_25px_rgba(0,222,224,0.3)] hover:translate-y-[-2px] hover:scale-[1.02]'
-                  : isDark
-                    ? 'bg-[#252518] border border-[rgba(248,248,240,0.1)]'
-                    : 'bg-white border border-[rgba(31,36,48,0.1)]'
-                }`}
-            >
-              {isRunning && (
-                <div className={`absolute inset-0 transition-colors duration-300
-                  ${isDark
-                    ? 'bg-gradient-to-r from-[#E0BD00] via-[#9EE000] to-[#45F600]'
-                    : 'bg-gradient-to-r from-[#00E097] via-[#00DEE0] to-[#0097E0]'}`}
-                />
-              )}
-              <span className={`relative z-10 font-body text-sm font-semibold tracking-wide transition-colors duration-300
-                ${isRunning
-                  ? isDark ? 'text-[#1A1A12]' : 'text-white'
-                  : isDark ? 'text-[#F8F8F0]' : 'text-[#1F2430]'}`}>
-                {isRunning ? 'PAUSE' : 'RESUME'}
-              </span>
-            </button>
-          </div>
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { DiagnosticResultSummary, DiagnosisSummary } from '@/types/rga'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { cn } from '@/lib/utils/cn'
+import { OutgassingContext } from './OutgassingContext'
 
 interface DiagnosisPanelProps {
   diagnostics: DiagnosticResultSummary[]
@@ -114,6 +115,9 @@ export function DiagnosisPanel({ diagnostics, summary }: DiagnosisPanelProps) {
           )}
         </div>
       )}
+
+      {/* Outgassing Context - shown when relevant */}
+      <OutgassingContext diagnostics={diagnostics} />
 
       {/* No diagnostics */}
       {diagnostics.length === 0 && (

@@ -25,10 +25,16 @@ function reconstructLines(content: string): string[] {
   }
 
   // Metadata fields to extract (in order they typically appear)
+  // Include both German and English field names for international TPG362 exports
   const metadataFields = [
+    // German
     'Hersteller:', 'Gerät:', 'Geraet:', 'Artikelnummer:', 'Seriennummer:',
     'Firmware Version:', 'Dateiname:', 'Datum / Zeit:', 'Messintervall:',
-    'Sensor 1:', 'Sensor 2:'
+    'Sensor 1:', 'Sensor 2:',
+    // English
+    'Producer:', 'Device:', 'Product number:', 'Serial number:',
+    'Firmware version:', 'Filename:', 'Date: / time:', 'Sampletime:',
+    'Channel 1:', 'Channel 2:'
   ]
 
   // Extract metadata fields
@@ -45,8 +51,9 @@ function reconstructLines(content: string): string[] {
     }
   }
 
-  // Find the data header (Datum;Zeit;Sensor)
-  const headerMatch = content.match(/(Datum;Zeit;[^;]+;[^;]*;?)/)
+  // Find the data header (Datum;Zeit;Sensor or Date;Time;Channel)
+  const headerMatch = content.match(/(Datum;Zeit;[^;]+;[^;]*;?)/) ||
+                      content.match(/(Date;Time;[^;]+;[^;]*;?)/)
   if (headerMatch) {
     lines.push(headerMatch[1])
   }
@@ -71,7 +78,9 @@ export function parseTPG362CSV(content: string): ParseResult {
 
     // Check if file is single-line (no proper line breaks)
     // TPG362 exports sometimes have all data on one line
-    if (lines.length < 20 && content.includes('sep=;') && content.includes('Datum;Zeit;')) {
+    // Check for both German (Datum;Zeit;) and English (Date;Time;) headers
+    const hasDataHeader = content.includes('Datum;Zeit;') || content.includes('Date;Time;')
+    if (lines.length < 20 && content.includes('sep=;') && hasDataHeader) {
       lines = reconstructLines(content)
     }
 
@@ -88,8 +97,10 @@ export function parseTPG362CSV(content: string): ParseResult {
       }
     }
 
-    // Check for Pfeiffer manufacturer
-    const manufacturerLine = lines.find((l) => l.startsWith('Hersteller:'))
+    // Check for Pfeiffer manufacturer (German: Hersteller, English: Producer)
+    const manufacturerLine = lines.find((l) =>
+      l.startsWith('Hersteller:') || l.startsWith('Producer:')
+    )
     if (!manufacturerLine?.includes('Pfeiffer')) {
       return {
         success: false,
@@ -114,13 +125,26 @@ export function parseTPG362CSV(content: string): ParseResult {
       }
     }
 
-    // Parse data points
+    // Parse data points and detect if Channel 2 is used as primary
     const dataPoints: PressureDataPoint[] = []
     let firstTimestamp: Date | null = null
+    let usesChannel2AsPrimary = false
 
     for (let i = headerIndex + 1; i < lines.length; i++) {
       const line = lines[i].trim()
       if (!line || line.startsWith(';')) continue
+
+      // Detect if first valid data row uses Channel 2 as primary
+      if (dataPoints.length === 0 && !usesChannel2AsPrimary) {
+        const parts = line.split(';')
+        if (parts.length >= 4) {
+          const rawP1 = parseGermanFloat(parts[2])
+          const rawP2 = parseGermanFloat(parts[3])
+          if ((!rawP1 || rawP1 <= 0 || isNaN(rawP1)) && rawP2 && rawP2 > 0) {
+            usesChannel2AsPrimary = true
+          }
+        }
+      }
 
       const point = parseDataLine(line, dataPoints.length)
       if (point) {
@@ -138,6 +162,13 @@ export function parseTPG362CSV(content: string): ParseResult {
         success: false,
         error: `Zu wenige Datenpunkte (${dataPoints.length}) / Too few data points`,
       }
+    }
+
+    // If Channel 2 is used as primary, swap sensor types in metadata
+    if (usesChannel2AsPrimary && metadata.sensor2Type) {
+      const temp = metadata.sensor1Type
+      metadata.sensor1Type = metadata.sensor2Type
+      metadata.sensor2Type = temp !== 'UNKNOWN' ? temp : null
     }
 
     // Calculate derived values
@@ -179,35 +210,39 @@ function parseMetadata(lines: string[]): TPGMetadata {
     return parts[1]?.trim() || ''
   }
 
-  const getLineValue = (prefix: string): string => {
-    const line = lines.find((l) => l.startsWith(prefix))
-    return line ? getValue(line) : ''
+  // Helper to get value from German or English field name
+  const getLineValue = (...prefixes: string[]): string => {
+    for (const prefix of prefixes) {
+      const line = lines.find((l) => l.startsWith(prefix))
+      if (line) return getValue(line)
+    }
+    return ''
   }
 
   // Parse measurement interval (e.g., "10s" -> 10)
-  const intervalStr = getLineValue('Messintervall:')
+  const intervalStr = getLineValue('Messintervall:', 'Sampletime:')
   const interval = parseInt(intervalStr.replace(/[^\d]/g, '')) || 10
 
   // Parse recording start date/time
-  const dateStr = getLineValue('Datum / Zeit:')
+  const dateStr = getLineValue('Datum / Zeit:', 'Date: / time:')
   const recordingStart = parseDateTimeString(dateStr)
 
-  // Parse sensor types
-  const sensor1Str = getLineValue('Sensor 1:')
-  const sensor2Str = getLineValue('Sensor 2:')
+  // Parse sensor types (German: Sensor, English: Channel)
+  const sensor1Str = getLineValue('Sensor 1:', 'Channel 1:')
+  const sensor2Str = getLineValue('Sensor 2:', 'Channel 2:')
 
   return {
-    manufacturer: getLineValue('Hersteller:'),
-    device: getLineValue('Gerät:') || getLineValue('Geraet:'),
-    articleNumber: getLineValue('Artikelnummer:'),
-    serialNumber: getLineValue('Seriennummer:'),
-    firmwareVersion: getLineValue('Firmware Version:'),
-    filename: getLineValue('Dateiname:'),
+    manufacturer: getLineValue('Hersteller:', 'Producer:'),
+    device: getLineValue('Gerät:', 'Geraet:', 'Device:'),
+    articleNumber: getLineValue('Artikelnummer:', 'Product number:'),
+    serialNumber: getLineValue('Seriennummer:', 'Serial number:'),
+    firmwareVersion: getLineValue('Firmware Version:', 'Firmware version:'),
+    filename: getLineValue('Dateiname:', 'Filename:'),
     recordingStart,
     measurementInterval: interval,
     sensor1Type: parseSensorType(sensor1Str),
     sensor2Type:
-      sensor2Str && !sensor2Str.includes('KEIN')
+      sensor2Str && !sensor2Str.includes('KEIN') && !sensor2Str.toLowerCase().includes('nosensor')
         ? parseSensorType(sensor2Str)
         : null,
   }
@@ -216,6 +251,7 @@ function parseMetadata(lines: string[]): TPGMetadata {
 /**
  * Parse a single data line
  * Format: 2025-03-19;06:18:35;4,0333e-08;0,0000e+00;
+ * Note: Some files have data only in Channel 2 (e.g., when Channel 1 is "noSENSOR")
  */
 function parseDataLine(
   line: string,
@@ -235,17 +271,30 @@ function parseDataLine(
   if (!timestamp) return null
 
   // Parse pressure (German format: comma as decimal separator)
-  const pressure1 = parseGermanFloat(pressure1Str)
-  const pressure2 = pressure2Str ? parseGermanFloat(pressure2Str) : null
+  const rawPressure1 = parseGermanFloat(pressure1Str)
+  const rawPressure2 = pressure2Str ? parseGermanFloat(pressure2Str) : null
 
-  if (isNaN(pressure1) || pressure1 <= 0) return null
+  // Use the valid pressure value - prefer Channel 1, but use Channel 2 if Channel 1 is invalid/zero
+  // This handles files where data is only in Channel 2 (e.g., Palmer file with noSENSOR on Channel 1)
+  const pressure1Valid = !isNaN(rawPressure1) && rawPressure1 > 0
+  const pressure2Valid = rawPressure2 !== null && !isNaN(rawPressure2) && rawPressure2 > 0
+
+  // Need at least one valid pressure
+  if (!pressure1Valid && !pressure2Valid) return null
+
+  // Primary pressure: use Channel 1 if valid, otherwise use Channel 2
+  const pressure1 = pressure1Valid ? rawPressure1 : rawPressure2!
+  // Secondary pressure: store the other channel if valid
+  const pressure2 = pressure1Valid
+    ? (pressure2Valid ? rawPressure2 : null)
+    : (pressure1Valid ? rawPressure1 : null)
 
   return {
     index,
     timestamp,
     relativeTimeS: 0, // Calculated later
     pressure1,
-    pressure2: pressure2 && pressure2 > 0 ? pressure2 : null,
+    pressure2,
   }
 }
 
