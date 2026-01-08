@@ -471,6 +471,7 @@ function App() {
           <DiagnosisPanel
             diagnostics={primaryAnalysis.diagnostics}
             summary={primaryAnalysis.diagnosisSummary}
+            dataQualityScore={primaryAnalysis.dataQualityScore}
           />
         )}
 

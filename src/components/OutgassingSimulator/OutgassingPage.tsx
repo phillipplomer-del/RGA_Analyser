@@ -92,6 +92,18 @@ export function OutgassingPage({ onBack }: OutgassingPageProps) {
     }
   }, [chamberShape, dimensions])
 
+  // Calculate volume based on shape and dimensions (cm³ → liters)
+  const calculatedVolume = useMemo(() => {
+    if (chamberShape === 'rectangular') {
+      const { length, width, height } = dimensions
+      return (length * width * height) / 1000 // cm³ to liters
+    } else {
+      const { diameter, cylLength } = dimensions
+      const r = diameter / 2
+      return (Math.PI * r * r * cylLength) / 1000 // cm³ to liters
+    }
+  }, [chamberShape, dimensions])
+
   const handleLoadPreset = (presetKey: string) => {
     const preset = CHAMBER_PRESETS[presetKey]
     if (!preset) return
@@ -103,6 +115,8 @@ export function OutgassingPage({ onBack }: OutgassingPageProps) {
   }
 
   const handleAddWithCalculatedArea = () => {
+    // Also update chamber volume based on calculated dimensions
+    setVolume(Math.round(calculatedVolume * 10) / 10) // Round to 1 decimal
     addMaterial({
       materialId: selectedMaterialId,
       surfaceArea_cm2: Math.round(calculatedSurfaceArea),
@@ -324,13 +338,21 @@ export function OutgassingPage({ onBack }: OutgassingPageProps) {
                   )}
 
                   {/* Result Display */}
-                  <div className="p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
+                  <div className="p-3 rounded-lg bg-violet-500/10 border border-violet-500/20 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-caption text-text-secondary">
                         {isGerman ? 'Berechnete Oberfläche:' : 'Calculated Surface:'}
                       </span>
                       <span className="font-mono text-lg text-violet-500 font-semibold">
                         {calculatedSurfaceArea.toLocaleString('de-DE', { maximumFractionDigits: 0 })} cm²
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-violet-500/20 pt-2">
+                      <span className="text-caption text-text-secondary">
+                        {isGerman ? 'Berechnetes Volumen:' : 'Calculated Volume:'}
+                      </span>
+                      <span className="font-mono text-lg text-violet-500 font-semibold">
+                        {calculatedVolume.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} L
                       </span>
                     </div>
                   </div>

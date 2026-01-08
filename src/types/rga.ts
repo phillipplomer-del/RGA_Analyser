@@ -72,6 +72,8 @@ export interface AnalysisResult {
   diagnostics?: DiagnosticResultSummary[]
   /** Zusammenfassung der Diagnosen */
   diagnosisSummary?: DiagnosisSummary
+  /** Datenqualitäts-Score (optional, für Konfidenz-Anzeige) */
+  dataQualityScore?: import('@/lib/diagnosis/confidenceScore').DataQualityScore
 
   // ============================================
   // Pressure Calibration Data
@@ -215,3 +217,8 @@ export interface DiagnosisSummary {
   overallStatus: 'clean' | 'warning' | 'critical'
   systemState: 'unbaked' | 'baked' | 'contaminated' | 'air_leak' | 'unknown'
 }
+
+// ============================================
+// Data Quality Score Types (re-exported)
+// ============================================
+export type { DataQualityScore, QualityFactor, QualityAssessmentInput } from '@/lib/diagnosis/confidenceScore'

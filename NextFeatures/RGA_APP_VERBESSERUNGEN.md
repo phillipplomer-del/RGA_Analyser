@@ -12,7 +12,20 @@ Die bestehende Knowledge Base ist solide. Dieses Dokument enthält konkrete Erwe
 
 ---
 
-## 1. Ausgasungs-Simulator (PRIORITÄT HOCH)
+## 1. Ausgasungs-Simulator (PRIORITÄT HOCH) ✅ IMPLEMENTIERT
+
+> **Status:** Vollständig implementiert am 2026-01-08
+>
+> **Implementierte Komponenten:**
+> - `src/lib/knowledge/outgassingRates.ts` - 17 Materialien mit Ausgasungsraten
+> - `src/store/useOutgassingStore.ts` - Globaler Zustand (Zustand + Persist)
+> - `src/components/OutgassingSimulator/index.tsx` - Haupt-UI-Komponente
+> - `src/components/OutgassingSimulator/OutgassingPage.tsx` - Standalone-Seite
+> - `src/components/FunctionSelector/index.tsx` - 4. Karte hinzugefügt
+>
+> **Integrationen:**
+> - `src/components/RateOfRise/OutgassingComparisonCard.tsx` - Vergleich gemessen vs. erwartet
+> - `src/components/DiagnosisPanel/OutgassingContext.tsx` - Kontext bei H₂O-Diagnosen
 
 ### Problem
 Viele Anwender verwechseln Ausgasung mit Leckage. Die App muss diese unterscheiden können.
@@ -397,7 +410,19 @@ export const CHAMBER_PRESETS = {
 
 ---
 
-## 2. Erweiterte Isotopen-Analyse (PRIORITÄT HOCH)
+## 2. Erweiterte Isotopen-Analyse (PRIORITÄT HOCH) ✅ IMPLEMENTIERT
+
+> **Status:** Vollständig implementiert am 2026-01-08
+>
+> **Implementierte Komponenten:**
+> - `src/lib/knowledge/isotopePatterns.ts` - Isotopenverhältnisse für 10 Elemente
+> - `src/lib/diagnosis/detectors.ts` - `verifyIsotopeRatios()` Detektor
+> - `src/lib/diagnosis/types.ts` - `ISOTOPE_VERIFICATION` Diagnose-Typ
+>
+> **Funktionen:**
+> - Ar (⁴⁰Ar/³⁶Ar), Cl (³⁵Cl/³⁷Cl), Br (⁷⁹Br/⁸¹Br), S (³²S/³⁴S), CO₂ (m44/m45) Verifizierung
+> - Fragment-Muster für H₂O, N₂, CO₂, Ar, CH₄, CO, O₂, H₂S, Aceton
+> - Peak-Identifikation und Luftleck/Öl-Detektion
 
 ### Problem
 RGA zeigt m/z-Peaks, aber Anwender wissen oft nicht, welche Isotope oder Fragmente dahinterstecken.

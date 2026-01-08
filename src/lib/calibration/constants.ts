@@ -161,8 +161,10 @@ export const SYSTEM_STATE_PATTERNS: SystemStatePattern[] = [
 
   // Deutsch
   { pattern: /vor\s*aus\s*heizen/i, state: SystemState.UNBAKED },
+  { pattern: /vor\s*ausheizen/i, state: SystemState.UNBAKED },
   { pattern: /vor\s*bakeout/i, state: SystemState.UNBAKED },
   { pattern: /nach\s*aus\s*heizen/i, state: SystemState.BAKED },
+  { pattern: /nach\s*ausheizen/i, state: SystemState.BAKED },  // "nach Ausheizen" als ein Wort
   { pattern: /nach\s*bakeout/i, state: SystemState.BAKED },
   { pattern: /ausgeheizt/i, state: SystemState.BAKED },
   { pattern: /nicht\s*ausgeheizt/i, state: SystemState.UNBAKED },
