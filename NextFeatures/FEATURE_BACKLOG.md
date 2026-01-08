@@ -2,7 +2,7 @@
 
 > Zentrale Übersicht aller geplanten Features. Priorisiert nach Bedarf und Umsetzbarkeit.
 
-**Letzte Aktualisierung:** 2026-01-07
+**Letzte Aktualisierung:** 2026-01-08
 
 ---
 
@@ -20,15 +20,15 @@
 
 ## Priorisierte Feature-Liste
 
-### Priorität 0: Datenqualität & Korrekturen (KRITISCH)
+### Priorität 0: Datenqualität & Korrekturen (KRITISCH) ✅ ABGESCHLOSSEN
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
-| 0.1 | **RSF-Korrekturen** | ⬜ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 30min | H₂S, SO₂, C₂H₆, SiH₄, PH₃ - falsche Werte! |
-| 0.2 | Neue Gase (Halbleiter) | ⬜ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 1h | NF₃, WF₆, C₂F₆, GeH₄ |
-| 0.3 | Neue Massen-Einträge | ⬜ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 30min | m/z 52, 119, 127, 149 (Phthalat!) |
-| 0.4 | Neue Diagnose-Detektoren | ⬜ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 2-3h | Polymer, Weichmacher, Prozessgas, Kühlwasser |
-| 0.5 | Neue Limit-Profile | ⬜ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 30min | LIGO UHV, Semiconductor CVD (optional) |
+| 0.1 | **RSF-Korrekturen** | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 30min | H₂S, SO₂, C₂H₆, SiH₄, PH₃ - korrigiert! |
+| 0.2 | Neue Gase (Halbleiter) | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 1h | NF₃, WF₆, C₂F₆, GeH₄ |
+| 0.3 | Neue Massen-Einträge | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 30min | m/z 52, 119, 127, 149 (Phthalat!) |
+| 0.4 | Neue Diagnose-Detektoren | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 2-3h | Polymer, Weichmacher, Prozessgas, Kühlwasser |
+| 0.5 | Neue Limit-Profile | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 30min | LIGO UHV, Semiconductor CVD |
 
 ### Priorität 1: Fundament & Quick Wins
 
@@ -92,6 +92,7 @@
 | Web Research Integration | 2025-12 | [done/RGA_WEB_RESEARCH_ADDENDUM.md](./done/RGA_WEB_RESEARCH_ADDENDUM.md) | Pfeiffer Know-How |
 | Rate-of-Rise Feature | 2026-01 | [done/RATE_OF_RISE_FEATURE_SPEC.md](./done/RATE_OF_RISE_FEATURE_SPEC.md) | Leckraten-Analyse |
 | Knowledge Section | 2026-01 | - | Intro-Texte, RoR Tab |
+| **Datenqualität (Prio 0)** | 2026-01-08 | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | RSF, 4 Gase, 4 Massen, 4 Detektoren, 2 Profile |
 
 ---
 
@@ -169,13 +170,14 @@ Für neue Features verwenden:
 | 2026-01-07 | 7 Features bewertet und priorisiert |
 | 2026-01-07 | Icon-Vereinheitlichung hinzugefügt (4.1) |
 | 2026-01-07 | **Priorität 0 hinzugefügt:** Datenqualität aus IMPLEMENTATION_SPEC.md |
+| 2026-01-08 | ✅ **Priorität 0 komplett abgeschlossen:** RSF, Gase, Massen, Detektoren, Profile |
 
 ---
 
 ## Nächste Schritte
 
-1. [ ] **RSF-Korrekturen sofort umsetzen** (falsche Messwerte!)
-2. [ ] Neue Gase + Massen + Detektoren hinzufügen
+1. [x] ~~**RSF-Korrekturen sofort umsetzen**~~ ✅ Erledigt 2026-01-08
+2. [x] ~~Neue Gase + Massen + Detektoren hinzufügen~~ ✅ Erledigt 2026-01-08
 3. [ ] Error Handling Grundgerüst starten
 4. [ ] Firebase Auth Migration planen (Breaking Change kommunizieren)
 5. [ ] Zeitreihen Parser als erstes größeres Feature
