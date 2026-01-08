@@ -26,7 +26,12 @@ export enum DiagnosisType {
   AMMONIA_CONTAMINATION = 'AMMONIA_CONTAMINATION',
   METHANE_CONTAMINATION = 'METHANE_CONTAMINATION',
   SULFUR_CONTAMINATION = 'SULFUR_CONTAMINATION',
-  AROMATIC_CONTAMINATION = 'AROMATIC_CONTAMINATION'
+  AROMATIC_CONTAMINATION = 'AROMATIC_CONTAMINATION',
+  // Halbleiter-spezifische Diagnosen
+  POLYMER_OUTGASSING = 'POLYMER_OUTGASSING',
+  PLASTICIZER_CONTAMINATION = 'PLASTICIZER_CONTAMINATION',
+  PROCESS_GAS_RESIDUE = 'PROCESS_GAS_RESIDUE',
+  COOLING_WATER_LEAK = 'COOLING_WATER_LEAK'
 }
 
 /**
@@ -204,5 +209,26 @@ export const DIAGNOSIS_METADATA: Record<DiagnosisType, {
     icon: '⬡',
     color: '#EC4899',
     priority: 18
+  },
+  // Halbleiter-spezifische Diagnosen
+  [DiagnosisType.POLYMER_OUTGASSING]: {
+    icon: '🧱',
+    color: '#6B7280',
+    priority: 19
+  },
+  [DiagnosisType.PLASTICIZER_CONTAMINATION]: {
+    icon: '⚠️',
+    color: '#F59E0B',
+    priority: 20
+  },
+  [DiagnosisType.PROCESS_GAS_RESIDUE]: {
+    icon: '🏭',
+    color: '#8B5CF6',
+    priority: 21
+  },
+  [DiagnosisType.COOLING_WATER_LEAK]: {
+    icon: '🚰',
+    color: '#EF4444',
+    priority: 22
   }
 }

@@ -1390,3 +1390,259 @@ export function detectAromatic(input: DiagnosisInput): DiagnosticResult | null {
     affectedMasses: [39, 50, 51, 52, 65, 77, 78, 91, 92]
   }
 }
+
+// ============================================
+// 17. POLYMER-AUSGASUNG (NEU)
+// ============================================
+export function detectPolymerOutgassing(input: DiagnosisInput): DiagnosticResult | null {
+  const { peaks } = input
+
+  const m18 = getPeak(peaks, 18)  // H₂O
+  const m17 = getPeak(peaks, 17)  // OH
+  const m28 = getPeak(peaks, 28)  // N₂/CO
+  const m32 = getPeak(peaks, 32)  // O₂
+  const m40 = getPeak(peaks, 40)  // Ar
+
+  const evidence: EvidenceItem[] = []
+  let confidence = 0
+
+  // H₂O dominant ohne Luftleck-Signatur
+  const waterDominant = m18 > m28 * 2
+  const noAirLeak = (m28 / Math.max(m32, 0.001)) > 5 || m40 < 0.005
+  const normalWaterRatio = m17 > 0 && m18 / m17 > 3.5 && m18 / m17 < 5.0
+
+  if (waterDominant && noAirLeak) {
+    evidence.push(createEvidence(
+      'ratio',
+      `H₂O dominant (m18 > 2×m28): ${(m18 / Math.max(m28, 0.001)).toFixed(1)}×`,
+      `H₂O dominant (m18 > 2×m28): ${(m18 / Math.max(m28, 0.001)).toFixed(1)}×`,
+      true,
+      m18 / Math.max(m28, 0.001),
+      { min: 2 }
+    ))
+    confidence += 0.4
+
+    evidence.push(createEvidence(
+      'absence',
+      `Kein Luftleck (Ar niedrig, N₂/O₂ anomal)`,
+      `No air leak (Ar low, N₂/O₂ anomalous)`,
+      true
+    ))
+    confidence += 0.2
+  }
+
+  if (normalWaterRatio) {
+    evidence.push(createEvidence(
+      'ratio',
+      `Normales H₂O/OH Verhältnis: ${(m18 / m17).toFixed(2)} (typisch: 4.3)`,
+      `Normal H₂O/OH ratio: ${(m18 / m17).toFixed(2)} (typical: 4.3)`,
+      true,
+      m18 / m17,
+      { min: 3.5, max: 5.0 }
+    ))
+    confidence += 0.2
+  }
+
+  if (confidence < DEFAULT_THRESHOLDS.minConfidence) return null
+
+  return {
+    type: DiagnosisType.POLYMER_OUTGASSING,
+    name: 'Polymer-Ausgasung',
+    nameEn: 'Polymer Outgassing',
+    description: 'Polymer-Ausgasung (PEEK/Kapton/Viton) - hauptsächlich H₂O.',
+    descriptionEn: 'Polymer outgassing (PEEK/Kapton/Viton) - mainly H₂O.',
+    confidence: Math.min(confidence, 1.0),
+    severity: 'info',
+    evidence,
+    recommendation: 'Längeres Abpumpen, Bakeout bei max. zulässiger Polymer-Temperatur (150-200°C).',
+    recommendationEn: 'Extended pumping, bakeout at max. allowed polymer temperature (150-200°C).',
+    affectedMasses: [16, 17, 18]
+  }
+}
+
+// ============================================
+// 18. WEICHMACHER-KONTAMINATION (NEU)
+// ============================================
+export function detectPlasticizerContamination(input: DiagnosisInput): DiagnosticResult | null {
+  const { peaks } = input
+
+  const m149 = getPeak(peaks, 149)  // Phthalat-Marker
+  const m57 = getPeak(peaks, 57)    // Alkyl-Fragment
+  const m71 = getPeak(peaks, 71)    // Alkyl-Fragment
+
+  const evidence: EvidenceItem[] = []
+  let confidence = 0
+
+  // Phthalat-Marker vorhanden
+  if (m149 > DEFAULT_THRESHOLDS.minPeakHeight) {
+    evidence.push(createEvidence(
+      'presence',
+      `Phthalat-Marker (m/z 149) detektiert: ${(m149 * 100).toFixed(4)}%`,
+      `Phthalate marker (m/z 149) detected: ${(m149 * 100).toFixed(4)}%`,
+      true,
+      m149 * 100
+    ))
+    confidence += 0.5
+
+    const hasAlkylFragments = m57 > 0.01 || m71 > 0.01
+    if (hasAlkylFragments) {
+      evidence.push(createEvidence(
+        'pattern',
+        `Alkyl-Fragmente (m57/m71) unterstützen Weichmacher-Diagnose`,
+        `Alkyl fragments (m57/m71) support plasticizer diagnosis`,
+        true
+      ))
+      confidence += 0.25
+    }
+  }
+
+  if (confidence < DEFAULT_THRESHOLDS.minConfidence) return null
+
+  return {
+    type: DiagnosisType.PLASTICIZER_CONTAMINATION,
+    name: 'Weichmacher-Kontamination',
+    nameEn: 'Plasticizer Contamination',
+    description: 'Weichmacher-Kontamination (Phthalate) aus O-Ringen oder Kunststoffen.',
+    descriptionEn: 'Plasticizer contamination (phthalates) from O-rings or plastics.',
+    confidence: Math.min(confidence, 1.0),
+    severity: 'warning',
+    evidence,
+    recommendation: 'O-Ringe in Hexan auskochen (über Nacht), Kunststoffteile entfernen.',
+    recommendationEn: 'Reflux O-rings in hexane overnight, remove plastic components.',
+    affectedMasses: [43, 57, 71, 149]
+  }
+}
+
+// ============================================
+// 19. PROZESSGAS-RÜCKSTAND (NEU)
+// ============================================
+export function detectProcessGasResidue(input: DiagnosisInput): DiagnosticResult | null {
+  const { peaks } = input
+
+  const m52 = getPeak(peaks, 52)    // NF₃
+  const m71 = getPeak(peaks, 71)    // NF₃ parent
+  const m127 = getPeak(peaks, 127)  // SF₆
+  const m89 = getPeak(peaks, 89)    // SF₆ fragment
+  const m279 = getPeak(peaks, 279)  // WF₆
+
+  const evidence: EvidenceItem[] = []
+  let confidence = 0
+  const detectedGases: string[] = []
+  const affectedMasses: number[] = []
+
+  // NF₃ Check
+  if (m52 > 0.01 && m52 / Math.max(m71, 0.001) > 1.5) {
+    evidence.push(createEvidence(
+      'presence',
+      `NF₃ detektiert: m/z 52 = ${(m52 * 100).toFixed(3)}%`,
+      `NF₃ detected: m/z 52 = ${(m52 * 100).toFixed(3)}%`,
+      true,
+      m52 * 100
+    ))
+    detectedGases.push('NF₃')
+    affectedMasses.push(52, 71)
+    confidence += 0.3
+  }
+
+  // SF₆ Check
+  if (m127 > 0.01 && m127 / Math.max(m89, 0.001) > 3) {
+    evidence.push(createEvidence(
+      'presence',
+      `SF₆ detektiert: m/z 127 = ${(m127 * 100).toFixed(3)}%`,
+      `SF₆ detected: m/z 127 = ${(m127 * 100).toFixed(3)}%`,
+      true,
+      m127 * 100
+    ))
+    detectedGases.push('SF₆')
+    affectedMasses.push(127, 89)
+    confidence += 0.3
+  }
+
+  // WF₆ Check
+  if (m279 > 0.005) {
+    evidence.push(createEvidence(
+      'presence',
+      `WF₆ detektiert: m/z 279 = ${(m279 * 100).toFixed(4)}%`,
+      `WF₆ detected: m/z 279 = ${(m279 * 100).toFixed(4)}%`,
+      true,
+      m279 * 100
+    ))
+    detectedGases.push('WF₆')
+    affectedMasses.push(279)
+    confidence += 0.3
+  }
+
+  if (detectedGases.length === 0 || confidence < DEFAULT_THRESHOLDS.minConfidence) return null
+
+  return {
+    type: DiagnosisType.PROCESS_GAS_RESIDUE,
+    name: `Prozessgas-Rückstand (${detectedGases.join(', ')})`,
+    nameEn: `Process Gas Residue (${detectedGases.join(', ')})`,
+    description: `Prozessgas-Rückstand detektiert: ${detectedGases.join(', ')}.`,
+    descriptionEn: `Process gas residue detected: ${detectedGases.join(', ')}.`,
+    confidence: Math.min(confidence, 1.0),
+    severity: 'warning',
+    evidence,
+    recommendation: 'Kammer-Reinigungszyklus unvollständig. Baseline nicht erreicht.',
+    recommendationEn: 'Chamber cleaning cycle incomplete. Baseline not reached.',
+    affectedMasses
+  }
+}
+
+// ============================================
+// 20. KÜHLWASSER-LECK (NEU)
+// ============================================
+export function detectCoolingWaterLeak(input: DiagnosisInput): DiagnosticResult | null {
+  const { peaks, totalPressure } = input
+
+  const m18 = getPeak(peaks, 18)  // H₂O
+
+  const evidence: EvidenceItem[] = []
+  let confidence = 0
+
+  // Prüfe ob Druck bei ~20-25 mbar stabilisiert (Sättigungsdampfdruck H₂O bei RT)
+  if (totalPressure && totalPressure > 15 && totalPressure < 30) {
+    evidence.push(createEvidence(
+      'presence',
+      `Druck stabilisiert bei ${totalPressure.toFixed(1)} mbar (H₂O Sättigung bei RT: ~23 mbar)`,
+      `Pressure stabilized at ${totalPressure.toFixed(1)} mbar (H₂O saturation at RT: ~23 mbar)`,
+      true,
+      totalPressure,
+      { min: 15, max: 30 }
+    ))
+    confidence += 0.4
+
+    // H₂O muss absolut dominant sein
+    const allPeaks = Object.values(peaks).filter(v => v > 0)
+    const totalIntensity = allPeaks.reduce((a, b) => a + b, 0)
+    const waterFraction = totalIntensity > 0 ? m18 / totalIntensity : 0
+
+    if (waterFraction > 0.9) {
+      evidence.push(createEvidence(
+        'ratio',
+        `H₂O-Anteil: ${(waterFraction * 100).toFixed(1)}% (>90% = Kühlwasser-Leck)`,
+        `H₂O fraction: ${(waterFraction * 100).toFixed(1)}% (>90% = cooling water leak)`,
+        true,
+        waterFraction * 100,
+        { min: 90 }
+      ))
+      confidence += 0.5
+    }
+  }
+
+  if (confidence < 0.5) return null
+
+  return {
+    type: DiagnosisType.COOLING_WATER_LEAK,
+    name: 'Kühlwasser-Leck',
+    nameEn: 'Cooling Water Leak',
+    description: 'Kühlwasser-Leck! Druck stabilisiert bei H₂O-Sättigungsdampfdruck.',
+    descriptionEn: 'Cooling water leak! Pressure stabilized at H₂O saturation pressure.',
+    confidence: Math.min(confidence, 1.0),
+    severity: 'critical',
+    evidence,
+    recommendation: 'SOFORT System belüften! Wärmetauscher und Kühlkreislauf prüfen!',
+    recommendationEn: 'IMMEDIATELY vent system! Check heat exchanger and cooling circuit!',
+    affectedMasses: [16, 17, 18]
+  }
+}

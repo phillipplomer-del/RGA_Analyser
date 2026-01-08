@@ -210,7 +210,7 @@ export const GAS_LIBRARY: GasSpecies[] = [
     formula: 'C₂H₆',
     mainMass: 28,
     crackingPattern: { 28: 100, 27: 33, 30: 26, 29: 22, 26: 23, 25: 3.5, 15: 4.4 },
-    relativeSensitivity: 2.1,
+    relativeSensitivity: 2.6,
     category: 'hydrocarbon',
     notes: ['Kann m/z 28 verfälschen', 'Fragment bei m/z 30']
   },
@@ -530,7 +530,7 @@ export const GAS_LIBRARY: GasSpecies[] = [
     formula: 'PH₃',
     mainMass: 34,
     crackingPattern: { 34: 100, 31: 35, 33: 32, 32: 5, 1: 3 },
-    relativeSensitivity: 1.8,
+    relativeSensitivity: 2.6,
     category: 'halogen',
     notes: ['Halbleiter-Dotiergas', 'WARNUNG: Hochgiftig!']
   },
@@ -556,7 +556,7 @@ export const GAS_LIBRARY: GasSpecies[] = [
     formula: 'H₂S',
     mainMass: 34,
     crackingPattern: { 34: 100, 33: 42, 32: 44, 36: 4.5 },
-    relativeSensitivity: 1.2,
+    relativeSensitivity: 2.2,
     category: 'sulfur',
     notes: ['Schwefelkontamination', '³⁴S-Isotop bei m/z 36', 'm/z 32 überlagert mit O₂']
   },
@@ -567,7 +567,7 @@ export const GAS_LIBRARY: GasSpecies[] = [
     formula: 'SO₂',
     mainMass: 64,
     crackingPattern: { 64: 100, 48: 49, 32: 10, 16: 5, 66: 5 },
-    relativeSensitivity: 1.4,
+    relativeSensitivity: 2.1,
     category: 'sulfur',
     notes: ['Schwefelindikator', 'm/z 48 (SO⁺) ist charakteristisch', '³⁴S-Isotop bei m/z 66']
   },
@@ -634,9 +634,80 @@ export const GAS_LIBRARY: GasSpecies[] = [
     formula: 'SiH₄',
     mainMass: 30,
     crackingPattern: { 30: 100, 31: 78, 29: 29, 28: 4 },
-    relativeSensitivity: 2.5,
+    relativeSensitivity: 1.0,
     category: 'hydrocarbon',
     notes: ['Halbleiter-Prozessgas', 'Si-Isotope']
+  },
+
+  // ============================================
+  // HALBLEITER-PROZESSGASE (NEU)
+  // ============================================
+  {
+    key: 'NF3',
+    name: 'Stickstofftrifluorid',
+    nameEn: 'Nitrogen Trifluoride',
+    formula: 'NF₃',
+    mainMass: 52,
+    crackingPattern: {
+      52: 100,  // NF₂⁺ (Base Peak)
+      71: 45,   // NF₃⁺ (Parent)
+      33: 35,   // NF⁺
+      14: 15,   // N⁺
+      19: 25    // F⁺
+    },
+    relativeSensitivity: 1.5,
+    category: 'halogen',
+    notes: ['CVD/ALD Kammer-Reinigung', 'Hohe GWP (17,200)', 'm/z 52 charakteristisch']
+  },
+  {
+    key: 'WF6',
+    name: 'Wolframhexafluorid',
+    nameEn: 'Tungsten Hexafluoride',
+    formula: 'WF₆',
+    mainMass: 279,
+    crackingPattern: {
+      279: 100, // WF₅⁺ (Base Peak, W-Isotopenmuster)
+      260: 40,  // WF₄⁺
+      241: 15,  // WF₃⁺
+      184: 20,  // W⁺
+      19: 30    // F⁺
+    },
+    relativeSensitivity: 2.0,
+    category: 'halogen',
+    notes: ['Wolfram-CVD/ALD', 'Korrosiv - HF-Bildung!', 'W-Isotope bei m/z 182-186']
+  },
+  {
+    key: 'C2F6',
+    name: 'Hexafluorethan',
+    nameEn: 'Hexafluoroethane',
+    formula: 'C₂F₆',
+    mainMass: 69,
+    crackingPattern: {
+      69: 100,  // CF₃⁺ (Base Peak)
+      119: 30,  // C₂F₅⁺
+      50: 20,   // CF₂⁺
+      31: 15    // CF⁺
+    },
+    relativeSensitivity: 1.2,
+    category: 'halogen',
+    notes: ['Plasma-Ätzen', 'Hohe GWP (12,200)', 'm/z 119 unterscheidet von CF₄']
+  },
+  {
+    key: 'GeH4',
+    name: 'German',
+    nameEn: 'Germane',
+    formula: 'GeH₄',
+    mainMass: 74,
+    crackingPattern: {
+      74: 100,  // ⁷⁴Ge⁺ (Hauptisotop)
+      72: 55,   // ⁷²Ge⁺
+      70: 42,   // ⁷⁰Ge⁺
+      73: 16,   // ⁷³Ge⁺
+      76: 15    // ⁷⁶Ge⁺
+    },
+    relativeSensitivity: 2.5,
+    category: 'halogen',
+    notes: ['SiGe-Abscheidung', 'PYROPHOR!', 'Ge-Isotopenmuster charakteristisch']
   }
 ]
 

@@ -137,6 +137,54 @@ export const CERN_BAKED_H2_PRESET: LimitProfile = {
   updatedAt: '2024-01-01T00:00:00.000Z',
 }
 
+/**
+ * LIGO UHV - Gravitationswellen-Detektoren
+ * Extreme optische Sauberkeit erforderlich
+ */
+export const LIGO_UHV_PRESET: LimitProfile = {
+  id: 'ligo-uhv',
+  name: 'LIGO UHV',
+  description: 'LIGO Gravitational Wave Observatory - Extreme Optical Cleanliness',
+  color: '#7C3AED',
+  isPreset: true,
+  ranges: [
+    { massMin: 0, massMax: 3, limit: 1.0, notes: 'H₂ Referenz' },
+    { massMin: 3, massMax: 17.5, limit: 0.001, notes: 'Max 0.1%' },
+    { massMin: 17.5, massMax: 18.5, limit: 0.01, notes: 'H₂O max 1%' },
+    { massMin: 18.5, massMax: 27.5, limit: 0.001 },
+    { massMin: 27.5, massMax: 28.5, limit: 0.01, notes: 'N₂/CO max 1%' },
+    { massMin: 28.5, massMax: 44.5, limit: 0.001 },
+    { massMin: 44.5, massMax: 100, limit: 0.0001, notes: 'HC < 0.01%' },
+  ],
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+}
+
+/**
+ * Semiconductor CVD Baseline
+ * CVD/ALD Kammer vor Prozessstart
+ */
+export const SEMI_CVD_PRESET: LimitProfile = {
+  id: 'semi-cvd',
+  name: 'Semiconductor CVD',
+  description: 'CVD/ALD Chamber Baseline - Process Ready',
+  color: '#059669',
+  isPreset: true,
+  ranges: [
+    { massMin: 0, massMax: 3, limit: 0.5, notes: 'H₂ akzeptiert' },
+    { massMin: 3, massMax: 17.5, limit: 0.01 },
+    { massMin: 17.5, massMax: 18.5, limit: 0.001, notes: 'H₂O < 0.1% kritisch!' },
+    { massMin: 18.5, massMax: 27.5, limit: 0.01 },
+    { massMin: 27.5, massMax: 28.5, limit: 0.01, notes: 'N₂/CO < 1%' },
+    { massMin: 28.5, massMax: 31.5, limit: 0.01 },
+    { massMin: 31.5, massMax: 32.5, limit: 0.001, notes: 'O₂ < 0.1%' },
+    { massMin: 32.5, massMax: 44.5, limit: 0.01 },
+    { massMin: 44.5, massMax: 100, limit: 0.0001, notes: 'HC kritisch' },
+  ],
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+}
+
 export const DEFAULT_PRESETS: LimitProfile[] = [
   GSI_PRESET,
   CERN_PRESET,
@@ -144,6 +192,8 @@ export const DEFAULT_PRESETS: LimitProfile[] = [
   CERN_UNBAKED_PRESET,
   DESY_PRESET,
   GSI_CRYO_PRESET,
+  LIGO_UHV_PRESET,
+  SEMI_CVD_PRESET,
 ]
 
 export function getNextProfileColor(existingProfiles: LimitProfile[]): string {

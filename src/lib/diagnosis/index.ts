@@ -35,7 +35,12 @@ import {
   detectAmmonia,
   detectMethane,
   detectSulfur,
-  detectAromatic
+  detectAromatic,
+  // Halbleiter-spezifische Detektoren
+  detectPolymerOutgassing,
+  detectPlasticizerContamination,
+  detectProcessGasResidue,
+  detectCoolingWaterLeak
 } from './detectors'
 
 import type { DiagnosticResult, DiagnosisInput } from './types'
@@ -59,7 +64,12 @@ export {
   detectAmmonia,
   detectMethane,
   detectSulfur,
-  detectAromatic
+  detectAromatic,
+  // Halbleiter-spezifische Detektoren
+  detectPolymerOutgassing,
+  detectPlasticizerContamination,
+  detectProcessGasResidue,
+  detectCoolingWaterLeak
 }
 
 /**
@@ -82,7 +92,12 @@ const ALL_DETECTORS = [
   detectAmmonia,
   detectMethane,
   detectSulfur,
-  detectAromatic
+  detectAromatic,
+  // Halbleiter-spezifische Detektoren
+  detectPolymerOutgassing,
+  detectPlasticizerContamination,
+  detectProcessGasResidue,
+  detectCoolingWaterLeak
 ]
 
 /**

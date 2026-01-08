@@ -441,12 +441,12 @@ export const MASS_REFERENCE: MassAssignment[] = [
   },
   {
     mass: 52,
-    primaryAssignment: 'C₄H₄⁺/CCl₂⁺',
-    primaryAssignmentEn: 'C₄H₄⁺/CCl₂⁺',
-    possibleSources: ['Kohlenwasserstoffe', 'Chlorverbindungen'],
-    fragmentOf: ['Aromaten', 'CCl₄'],
-    notes: 'Chloroform-Fragment',
-    diagnosticValue: 'minor'
+    primaryAssignment: 'NF₂⁺/C₄H₄⁺',
+    primaryAssignmentEn: 'NF₂⁺/C₄H₄⁺',
+    possibleSources: ['NF₃', 'Kohlenwasserstoffe', 'Chlorverbindungen'],
+    fragmentOf: ['NF₃', 'Aromaten'],
+    notes: 'NF₃ Base Peak - CVD Kammer-Reinigung, Halbleiter-Prozess',
+    diagnosticValue: 'critical'
   },
   {
     mass: 53,
@@ -686,6 +686,37 @@ export const MASS_REFERENCE: MassAssignment[] = [
     fragmentOf: ['TCE'],
     notes: 'TCE Cl-Isotopenpeak',
     diagnosticValue: 'minor'
+  },
+
+  // ============================================
+  // m/z 100+: Schwere Fragmente (NEU)
+  // ============================================
+  {
+    mass: 119,
+    primaryAssignment: 'C₂F₅⁺',
+    primaryAssignmentEn: 'C₂F₅⁺',
+    possibleSources: ['C₂F₆', 'C₄F₈'],
+    fragmentOf: ['C₂F₆'],
+    notes: 'Unterscheidet C₂F₆ von CF₄ - Halbleiter-Ätzgas',
+    diagnosticValue: 'important'
+  },
+  {
+    mass: 127,
+    primaryAssignment: 'SF₅⁺/I⁺',
+    primaryAssignmentEn: 'SF₅⁺/I⁺',
+    possibleSources: ['SF₆', 'Iod'],
+    fragmentOf: ['SF₆'],
+    notes: 'SF₆ Base Peak - Isoliergas, Halbleiter-Prozess',
+    diagnosticValue: 'critical'
+  },
+  {
+    mass: 149,
+    primaryAssignment: 'Phthalat-Fragment',
+    primaryAssignmentEn: 'Phthalate Fragment',
+    possibleSources: ['DEHP', 'DBP', 'Weichmacher'],
+    fragmentOf: ['Phthalate'],
+    notes: 'WEICHMACHER-MARKER! Aus O-Ringen, Kunststoffen - kritisch für UHV',
+    diagnosticValue: 'critical'
   }
 ]
 
