@@ -33,7 +33,9 @@ export enum DiagnosisType {
   PROCESS_GAS_RESIDUE = 'PROCESS_GAS_RESIDUE',
   COOLING_WATER_LEAK = 'COOLING_WATER_LEAK',
   // Isotopen-Analyse
-  ISOTOPE_VERIFICATION = 'ISOTOPE_VERIFICATION'
+  ISOTOPE_VERIFICATION = 'ISOTOPE_VERIFICATION',
+  // Helium-Leck-Indikator
+  HELIUM_LEAK_INDICATOR = 'HELIUM_LEAK_INDICATOR'
 }
 
 /**
@@ -56,6 +58,7 @@ export interface DiagnosticResult {
   recommendation: string          // Empfehlung (de)
   recommendationEn: string        // Empfehlung (en)
   affectedMasses: number[]        // Betroffene Massen
+  validation?: ValidationMetadata // Wissenschaftliche Validierungsmetadaten
 }
 
 /**
@@ -68,6 +71,22 @@ export interface EvidenceItem {
   value?: number
   expected?: { min?: number; max?: number; exact?: number }
   passed: boolean
+}
+
+/**
+ * Wissenschaftliche Validierungsmetadaten für einen Detektor
+ */
+export interface ValidationMetadata {
+  /** Ob der Detektor wissenschaftlich validiert wurde */
+  validated: boolean
+  /** Wissenschaftliche Konfidenz: high (>80%), medium (50-80%), low (<50%) */
+  confidence: 'high' | 'medium' | 'low'
+  /** Array von Quellen-URLs (NIST, CERN, etc.) */
+  sources: string[]
+  /** ISO-Datum der letzten Validierung (YYYY-MM-DD) */
+  lastValidated: string
+  /** Optionale Anmerkungen zu Limitationen oder Besonderheiten */
+  notes?: string
 }
 
 /**
@@ -238,5 +257,11 @@ export const DIAGNOSIS_METADATA: Record<DiagnosisType, {
     icon: '🔬',
     color: '#6366F1',
     priority: 23
+  },
+  // Helium-Leck-Indikator
+  [DiagnosisType.HELIUM_LEAK_INDICATOR]: {
+    icon: '🎈',
+    color: '#3B82F6',
+    priority: 24
   }
 }
