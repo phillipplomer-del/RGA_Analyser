@@ -25,6 +25,7 @@ import { Footer } from '@/components/ui/Footer'
 import { compareSpectra } from '@/lib/comparison'
 import { parseASCFile } from '@/lib/parser'
 import { analyzeSpectrum } from '@/lib/analysis'
+import { isDevMode } from '@/lib/featureFlags'
 import type { MeasurementFile } from '@/types/rga'
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
     addFile,
     initializeAuth,
   } = useAppStore()
+  const devMode = isDevMode()
   const chartRef = useRef<HTMLDivElement>(null)
   const [showArchive, setShowArchive] = useState(false)
   const [showRateOfRise, setShowRateOfRise] = useState(false)
@@ -201,7 +203,7 @@ function App() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {currentUser ? (
+              {devMode && (currentUser ? (
                 <UserBadge />
               ) : (
                 <button
@@ -211,7 +213,7 @@ function App() {
                 >
                   {t('auth.title')}
                 </button>
-              )}
+              ))}
               <LanguageToggle />
               <ThemeToggle />
             </div>
@@ -235,7 +237,7 @@ function App() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className={`grid gap-6 ${devMode ? 'md:grid-cols-2' : 'grid-cols-1 max-w-md mx-auto'}`}>
             {/* Upload Card */}
             <div
               {...getRootProps()}
@@ -265,35 +267,37 @@ function App() {
               </div>
             </div>
 
-            {/* Archive Card */}
-            <button
-              onClick={() => {
-                if (!currentUser) {
-                  setShowLoginModal(true)
-                } else {
-                  setShowArchive(true)
-                }
-              }}
-              className="p-8 rounded-card border border-subtle bg-surface-card hover:bg-surface-card-muted
-                transition-all text-left group"
-            >
-              <div className="text-center">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-mint-500/10 flex items-center justify-center
-                  group-hover:bg-mint-500/20 transition-colors">
-                  <svg className="w-6 h-6 text-mint-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                  </svg>
+            {/* Archive Card - Dev Mode only */}
+            {devMode && (
+              <button
+                onClick={() => {
+                  if (!currentUser) {
+                    setShowLoginModal(true)
+                  } else {
+                    setShowArchive(true)
+                  }
+                }}
+                className="p-8 rounded-card border border-subtle bg-surface-card hover:bg-surface-card-muted
+                  transition-all text-left group"
+              >
+                <div className="text-center">
+                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-mint-500/10 flex items-center justify-center
+                    group-hover:bg-mint-500/20 transition-colors">
+                    <svg className="w-6 h-6 text-mint-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                  </div>
+                  <h3 className="font-display font-semibold text-lg text-text-primary mb-1">
+                    {t('cloud.archive')}
+                  </h3>
+                  <p className="text-caption text-text-muted">
+                    {currentUser
+                      ? t('empty.archiveDesc', 'Gespeicherte Spektren laden')
+                      : t('empty.loginRequired', 'Anmeldung erforderlich')}
+                  </p>
                 </div>
-                <h3 className="font-display font-semibold text-lg text-text-primary mb-1">
-                  {t('cloud.archive')}
-                </h3>
-                <p className="text-caption text-text-muted">
-                  {currentUser
-                    ? t('empty.archiveDesc', 'Gespeicherte Spektren laden')
-                    : t('empty.loginRequired', 'Anmeldung erforderlich')}
-                </p>
-              </div>
-            </button>
+              </button>
+            )}
           </div>
           </div>
         </main>
@@ -367,7 +371,7 @@ function App() {
             <FileManager />
 
             <div className="flex items-center gap-2">
-              {currentUser ? (
+              {devMode && (currentUser ? (
                 <UserBadge />
               ) : (
                 <button
@@ -377,7 +381,7 @@ function App() {
                 >
                   {t('auth.title')}
                 </button>
-              )}
+              ))}
               <button
                 onClick={() => {
                   reset()

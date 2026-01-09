@@ -132,8 +132,8 @@ export function ActionsSidebar({ files = [], analysis, chartRef, comparisonData,
         {/* Divider */}
         <div className="w-8 h-px bg-border-subtle my-2" />
 
-        {/* Cloud Save Button - only when files are loaded */}
-        {hasData && (
+        {/* Cloud Save Button - Dev Mode only, only when files are loaded */}
+        {devMode && hasData && (
           <button
             onClick={handleCloudSave}
             className={`w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
@@ -147,18 +147,20 @@ export function ActionsSidebar({ files = [], analysis, chartRef, comparisonData,
           </button>
         )}
 
-        {/* Archive Button */}
-        <button
-          onClick={handleArchiveOpen}
-          className={`w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
-            ${currentUser ? 'text-text-secondary hover:text-text-primary' : 'text-text-muted'} hover:bg-surface-card`}
-          title={t('cloud.archive')}
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-          </svg>
-          <span className="text-[10px] font-medium">{t('cloud.archive')}</span>
-        </button>
+        {/* Archive Button - Dev Mode only */}
+        {devMode && (
+          <button
+            onClick={handleArchiveOpen}
+            className={`w-12 h-12 rounded-lg flex flex-col items-center justify-center gap-1 transition-colors
+              ${currentUser ? 'text-text-secondary hover:text-text-primary' : 'text-text-muted'} hover:bg-surface-card`}
+            title={t('cloud.archive')}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+            <span className="text-[10px] font-medium">{t('cloud.archive')}</span>
+          </button>
+        )}
 
         {/* Divider - only show if dev features are visible */}
         {devMode && <div className="w-8 h-px bg-border-subtle my-2" />}

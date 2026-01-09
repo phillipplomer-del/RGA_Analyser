@@ -6,6 +6,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { SimpleLoginModal } from '@/components/Auth/SimpleLoginModal'
 import { UserBadge } from '@/components/Auth/UserBadge'
 import { Footer } from '@/components/ui/Footer'
+import { isDevMode } from '@/lib/featureFlags'
 
 // --- Types ---
 interface Peak {
@@ -86,6 +87,7 @@ export function LandingPage() {
   const { t } = useTranslation()
   const { theme, setSkipLandingPage, currentUser, showLoginModal, setShowLoginModal } = useAppStore()
   const isDark = theme === 'dark'
+  const devMode = isDevMode()
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -341,22 +343,24 @@ export function LandingPage() {
 
           {/* Controls */}
           <div className="flex items-center gap-3">
-            <div className="pointer-events-auto">
-              {currentUser ? (
-                <UserBadge />
-              ) : (
-                <button
-                  onClick={() => setShowLoginModal(true)}
-                  className={`px-4 py-2 text-caption font-medium rounded-chip transition-colors
-                    ${isDark
-                      ? 'text-[#9EE000] bg-[#9EE000]/10 hover:bg-[#9EE000]/20'
-                      : 'text-aqua-600 bg-aqua-500/10 hover:bg-aqua-500/20'
-                    }`}
-                >
-                  {t('auth.title')}
-                </button>
-              )}
-            </div>
+            {devMode && (
+              <div className="pointer-events-auto">
+                {currentUser ? (
+                  <UserBadge />
+                ) : (
+                  <button
+                    onClick={() => setShowLoginModal(true)}
+                    className={`px-4 py-2 text-caption font-medium rounded-chip transition-colors
+                      ${isDark
+                        ? 'text-[#9EE000] bg-[#9EE000]/10 hover:bg-[#9EE000]/20'
+                        : 'text-aqua-600 bg-aqua-500/10 hover:bg-aqua-500/20'
+                      }`}
+                  >
+                    {t('auth.title')}
+                  </button>
+                )}
+              </div>
+            )}
             <div className="pointer-events-auto">
               <LanguageToggle />
             </div>
