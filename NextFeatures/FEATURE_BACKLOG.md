@@ -52,16 +52,22 @@
 | 1.5.7 | Peak-Deconvolution | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#6-massenauflösung-und-peak-überlappung) | 4-8h | Überlappende Peaks trennen (m/z=28: N₂ vs CO) |
 | 1.5.8 | Pfeiffer-Kalibrierung | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#7-pfeiffer-spezifische-erweiterungen) | 2h | Gerätespezifische Kalibrierungsfaktoren |
 
-### Priorität 1.6: Lecksuche-Planer (NEU)
+### Priorität 1.6: Lecksuche-Planer (NEU) 🔥 IMPLEMENTATION-READY
 
-> Intelligenter Assistent für Lecksuchmethoden-Auswahl nach DIN EN 1779
+> **Intelligenter Assistent für Lecksuchmethoden-Auswahl nach DIN EN 1779**
+> **Spec-Qualität: 10/10** - Vollständigste Spec im Projekt! Alle TypeScript Types, Equipment DB, Physik-Engine, UI Screens, Test Cases fertig spezifiziert.
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
-| 1.6.1 | **Lecksuche-Planer MVP** | ⬜ | [LEAK_SEARCH_PLANNER_IMPLEMENTATION.md](./LEAK_SEARCH_PLANNER_IMPLEMENTATION.md) | 8h | Wizard, Methodenauswahl, Virtual-Leak Risiko |
-| 1.6.2 | Pumpen & Equipment | ⬜ | [LEAK_SEARCH_PLANNER_IMPLEMENTATION.md](./LEAK_SEARCH_PLANNER_IMPLEMENTATION.md) | 4h | Pumpenberechnung, Leitwert, Checklisten |
-| 1.6.3 | RGA-Integration | ⬜ | [LEAK_SEARCH_PLANNER_IMPLEMENTATION.md](./LEAK_SEARCH_PLANNER_IMPLEMENTATION.md) | 2h | Deep-Links, Validierung nach Lecksuche |
-| 1.6.4 | Shared Geometrie-Komponente | ⬜ | [LEAK_SEARCH_PLANNER_IMPLEMENTATION.md](./LEAK_SEARCH_PLANNER_IMPLEMENTATION.md) | 2h | `<ChamberGeometryInput />` extrahieren |
+| **1.6.1** | **Core Engine & Types** | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **6-8h** | Physik (Leitwert, τ, MDL), Decision Tree, Virtual Leak Risk, Equipment DB, Standards |
+| **1.6.2** | **UI Wizard (Quick Mode)** | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **8-10h** | 4 Screens, Live-Feedback, 3-Karten-Result, Checkliste |
+| **1.6.3** | **Report & Export** | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **2-3h** | Markdown-Generator, Audit-Block, PDF später |
+| 1.6.4 | Expert Mode (Phase 2) | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 4-6h | Leitungslängen, Ventiltypen, detaillierte Pumpen-Parameter |
+| 1.6.5 | B4 Sniffer Methode | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 2h | Überdruck-Prüfung |
+| 1.6.6 | RGA-Integration | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 2h | Deep-Links, Virtual Leak Detection Workflow |
+| 1.6.7 | Shared Geometrie-Komponente | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 2h | `<ChamberGeometryInput />` aus Outgassing extrahieren |
+
+**MVP-Scope (1.6.1-1.6.3):** 16-21h → 3 Methoden (B2, B5, B6), Quick Mode, 8 Standards, Virtual Leak Risk, Warnungen, Markdown-Export
 
 ### Priorität 2: Kernfunktionen
 
@@ -195,15 +201,32 @@ Für neue Features verwenden:
 - **Bedarf:** ⭐⭐⭐⭐⭐ (Unterscheidung Leck vs. Ausgasung ist kritisch!)
 - **Fazit:** **Ausgasungs-Simulator zuerst** - löst häufigstes Anwenderproblem
 
-### LEAK_SEARCH_PLANNER_IMPLEMENTATION.md (NEU)
-- **Umsetzbarkeit:** ⭐⭐⭐⭐ (Wiederverwendung bestehender Komponenten)
-- **Komplexität:** ⭐⭐⭐ (4 Phasen, 12-16h)
-- **Bedarf:** ⭐⭐⭐⭐⭐ (Keine vergleichbare Software am Markt!)
-- **Markt-Analyse:**
-  - Kein dediziertes Planungstool nach DIN EN 1779 verfügbar
-  - Hersteller bieten nur gerätespezifische Software
-  - Leak Test Equipment Market: $15.8B bis 2035, 8.26% CAGR
-- **Fazit:** **Alleinstellungsmerkmal** - 5. Funktion neben RGA, RoR, Outgassing, Wissen
+### LeaksearchPlanner_MasterV7_COMPLETE.md (NEU) 🔥
+- **Umsetzbarkeit:** ⭐⭐⭐⭐⭐ (50% Code bereits in Spec vorhanden!)
+  - Alle TypeScript Interfaces fertig definiert (20+ Types)
+  - Equipment Database copy-paste ready (5 Lecksucher, 12 Standards)
+  - Physik-Engine vollständig spezifiziert (Leitwert, Zeitkonstanten, MDL)
+  - 8 Test Cases (TC1-TC8) für TDD
+  - Wiederverwendung: ChamberGeometry aus Outgassing
+- **Komplexität:** ⭐⭐⭐ (Mittel)
+  - 6 Phasen, 24-33h laut Spec (MVP: 16-21h)
+  - Mathematik nicht hochkomplex (molekulare Strömung, τ = V/S)
+  - Kein Backend, alles Frontend
+  - **Aber:** 4 UI Screens, 2 Modi, viele Inputs
+- **Bedarf:** ⭐⭐⭐⭐⭐ (Kritisch)
+  - **Marktlücke:** Kein herstellerunabhängiges Planungstool nach DIN EN 1779
+  - **Problem:** "Welche Lecksuchmethode wählen?" ist reales Anwenderproblem
+  - **Zielgruppe:** HV/UHV-Nutzer (CERN, GSI, Semiconductor, Vakuum-Equipment-Hersteller)
+  - **Leak Test Equipment Market:** $15.8B bis 2035, 8.26% CAGR
+  - **Wettbewerb:** Nur gerätespezifische Software (Pfeiffer, Leybold, INFICON)
+- **Spec-Qualität:** **10/10** (Beste Spec im gesamten Projekt!)
+  - Vollständige Implementierungs-Anleitung
+  - Code-First (TypeScript Interfaces → TDD)
+  - Zweisprachig (DE + EN)
+  - Audit-Ready (Kalibrierung, Entscheidungsregel, Annahmen)
+  - Integration spezifiziert (RGA Deep-Links, Virtual Leak Detection)
+- **Prioritäts-Score:** `5 × 5 / 3 = 8.3` → **Sehr hoch!**
+- **Fazit:** **Alleinstellungsmerkmal** - 5. Hauptfunktion neben RGA, RoR, Outgassing, Wissen. Ready für sofortige Implementierung!
 
 ---
 
@@ -221,20 +244,30 @@ Für neue Features verwenden:
 | 2026-01-08 | ✅ **Isotopen-Analyse (1.5.2) implementiert:** 10 Elemente, Fragment-Muster, verifyIsotopeRatios Detektor |
 | 2026-01-08 | **Priorität 1.6 hinzugefügt:** Lecksuche-Planer nach DIN EN 1779 (Marktlücke identifiziert!) |
 | 2026-01-08 | ✅ **Konfidenz-Score System (1.5.3) implementiert:** 6 Faktoren aktiv (SNR, Peaks, Dynamik, Temp, Massenbereich, H₂), Kalibrieralter vorbereitet |
+| 2026-01-08 | 🔥 **LeaksearchPlanner_MasterV7_COMPLETE.md:** Vollständigste Spec im Projekt! TypeScript Types, Equipment DB, Physik-Engine, UI Screens, Test Cases - alles fertig. MVP-Scope 16-21h. Spec-Qualität: 10/10 |
 
 ---
 
 ## Nächste Schritte
 
-1. [x] ~~**RSF-Korrekturen sofort umsetzen**~~ ✅ Erledigt 2026-01-08
-2. [x] ~~Neue Gase + Massen + Detektoren hinzufügen~~ ✅ Erledigt 2026-01-08
-3. [x] ~~**Ausgasungs-Simulator** (Priorität 1.5.1)~~ ✅ Erledigt 2026-01-08
-4. [x] ~~**Isotopen-Analyse** (Priorität 1.5.2)~~ ✅ Erledigt 2026-01-08
-5. [x] ~~**Konfidenz-Score System** (Priorität 1.5.3)~~ ✅ Erledigt 2026-01-08
-6. [ ] **Lecksuche-Planer MVP** (Priorität 1.6.1) - Wizard, Methodenauswahl, Virtual-Leak Risiko
-7. [ ] Error Handling Grundgerüst starten
-8. [ ] Firebase Auth Migration planen (Breaking Change kommunizieren)
-9. [ ] Zeitreihen Parser als größeres Feature
+**Abgeschlossen (2026-01-08):**
+1. [x] ~~**RSF-Korrekturen sofort umsetzen**~~ ✅ Erledigt
+2. [x] ~~Neue Gase + Massen + Detektoren hinzufügen~~ ✅ Erledigt
+3. [x] ~~**Ausgasungs-Simulator** (Priorität 1.5.1)~~ ✅ Erledigt
+4. [x] ~~**Isotopen-Analyse** (Priorität 1.5.2)~~ ✅ Erledigt
+5. [x] ~~**Konfidenz-Score System** (Priorität 1.5.3)~~ ✅ Erledigt
+
+**Aktuelle Top-Prioritäten:**
+
+6. [ ] 🔥 **Lecksuche-Planer MVP** (Priorität 1.6.1-1.6.3) - **16-21h**
+   - Phase 1: Core Engine & Types (6-8h)
+   - Phase 2: UI Wizard Quick Mode (8-10h)
+   - Phase 3: Report & Markdown Export (2-3h)
+   - **Begründung:** Spec-Qualität 10/10, Alleinstellungsmerkmal, Marktlücke ($15.8B Market)
+
+7. [ ] Error Handling Grundgerüst starten (Priorität 1.1)
+8. [ ] Firebase Auth Migration planen (Priorität 1.2) - Breaking Change kommunizieren
+9. [ ] Zeitreihen Parser als größeres Feature (Priorität 2.1-2.3)
 
 ---
 
