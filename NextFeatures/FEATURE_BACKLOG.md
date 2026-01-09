@@ -34,8 +34,8 @@
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
-| 1.1 | Error Handling Grundgerüst | ⬜ | [ERROR_HANDLING_SPEC.md](./ERROR_HANDLING_SPEC.md) | 1-2 Tage | Toast, Error-Boundary, Error-Store |
-| 1.2 | Firebase Auth Migration | ⬜ | [FIREBASE_AUTH_MIGRATION.md](./FIREBASE_AUTH_MIGRATION.md) | 2-4h | E-Mail + Passwort, Passwort-Reset |
+| 1.1 | Error Handling Grundgerüst | ⬜ | [ERROR_HANDLING_SPEC.md](./ERROR_HANDLING_SPEC.md) | 1-2 Tage | Toast, Error-Boundary, Error-Store - **NÄCHSTE PRIORITÄT** (parallel zu 1.6 Leak Planner) |
+| 1.2 | Firebase Auth Migration | ⏸️ | [FIREBASE_AUTH_MIGRATION.md](./FIREBASE_AUTH_MIGRATION.md) | 2-4h | E-Mail + Passwort, Passwort-Reset - **SPÄTER** (nur 3 Nutzer aktuell) |
 
 ### Priorität 1.5: Wissenschaftliche Analysewerkzeuge (NEU)
 
@@ -260,17 +260,25 @@ Für neue Features verwenden:
 4. [x] ~~**Isotopen-Analyse** (Priorität 1.5.2)~~ ✅ Erledigt
 5. [x] ~~**Konfidenz-Score System** (Priorität 1.5.3)~~ ✅ Erledigt
 
-**Aktuelle Top-Prioritäten:**
+**Aktuelle Top-Prioritäten (Team-Aufteilung):**
 
+**Kollegin:**
 6. [ ] 🔥 **Lecksuche-Planer MVP** (Priorität 1.6.1-1.6.3) - **16-21h**
    - Phase 1: Core Engine & Types (6-8h)
    - Phase 2: UI Wizard Quick Mode (8-10h)
    - Phase 3: Report & Markdown Export (2-3h)
    - **Begründung:** Spec-Qualität 10/10, Alleinstellungsmerkmal, Marktlücke ($15.8B Market)
 
-7. [ ] Error Handling Grundgerüst starten (Priorität 1.1)
-8. [ ] Firebase Auth Migration planen (Priorität 1.2) - Breaking Change kommunizieren
-9. [ ] Zeitreihen Parser als größeres Feature (Priorität 2.1-2.3)
+**Du (parallel):**
+7. [ ] **Error Handling Grundgerüst** (Priorität 1.1) - **1-2 Tage**
+   - Toast System, Error-Boundary, Error-Store
+   - 20+ Fehler-Codes (Parser, Metadaten, Daten, Zeitstempel)
+   - Recovery-Strategien
+
+**Später (deprioritized):**
+8. ⏸️ Firebase Auth Migration (Priorität 1.2) - nur 3 Nutzer aktuell
+9. [ ] 1.5er Features weitermachen (ESD, Helium, Öl, Deconvolution)
+10. [ ] Zeitreihen Parser (Priorität 2.1-2.3)
 
 ---
 
