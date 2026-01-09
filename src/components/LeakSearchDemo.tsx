@@ -184,7 +184,11 @@ function estimateTiming(volume: number): { waitTime: number, pumpdown: number } 
 // COMPONENT
 // ============================================================================
 
-export function LeakSearchDemo() {
+interface LeakSearchDemoProps {
+  onBack?: () => void
+}
+
+export function LeakSearchDemo({ onBack }: LeakSearchDemoProps = {}) {
   const { theme } = useAppStore()
   const isDark = theme === 'dark'
 
@@ -271,6 +275,24 @@ export function LeakSearchDemo() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
+              {/* Back Button */}
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="p-2 rounded-lg hover:bg-surface-card-muted transition-colors"
+                  title={t('Zurück', 'Back')}
+                >
+                  <svg
+                    className="w-5 h-5 text-text-secondary"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                </button>
+              )}
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

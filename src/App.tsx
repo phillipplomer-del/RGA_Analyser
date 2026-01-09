@@ -50,6 +50,7 @@ function App() {
   const [showArchive, setShowArchive] = useState(false)
   const [showRateOfRise, setShowRateOfRise] = useState(false)
   const [showOutgassing, setShowOutgassing] = useState(false)
+  const [showLeakSearch, setShowLeakSearch] = useState(false)
   const [showRGASection, setShowRGASection] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -116,9 +117,13 @@ function App() {
     }
   }, [files, setComparisonResult])
 
-  // Show Leak Search Demo when hash route is used (for quick access during pitch)
-  if (window.location.hash === '#leaksearch-demo') {
-    return <LeakSearchDemo />
+  // Show Leak Search Demo when requested or hash route is used (for quick access during pitch)
+  if (showLeakSearch || window.location.hash === '#leaksearch-demo') {
+    return <LeakSearchDemo onBack={() => {
+      setShowLeakSearch(false)
+      setShowRGASection(false)
+      window.location.hash = ''
+    }} />
   }
 
   // Show Knowledge Page when requested
@@ -167,7 +172,7 @@ function App() {
         onSelectRoR={() => setShowRateOfRise(true)}
         onSelectKnowledge={() => useAppStore.getState().setShowKnowledgePage(true)}
         onSelectOutgassing={() => setShowOutgassing(true)}
-        onSelectLeakSearch={() => window.location.hash = '#leaksearch-demo'}
+        onSelectLeakSearch={() => setShowLeakSearch(true)}
       />
     )
   }
