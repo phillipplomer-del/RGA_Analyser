@@ -22,6 +22,7 @@ import { SimpleLoginModal } from '@/components/Auth/SimpleLoginModal'
 import { UserBadge } from '@/components/Auth/UserBadge'
 import { SpectrumArchive } from '@/components/SpectrumArchive'
 import { Footer } from '@/components/ui/Footer'
+import { LeakSearchDemo } from '@/components/LeakSearchDemo'
 import { compareSpectra } from '@/lib/comparison'
 import { parseASCFile } from '@/lib/parser'
 import { analyzeSpectrum } from '@/lib/analysis'
@@ -114,6 +115,11 @@ function App() {
       setComparisonResult(null)
     }
   }, [files, setComparisonResult])
+
+  // Show Leak Search Demo when hash route is used (for quick access during pitch)
+  if (window.location.hash === '#leaksearch-demo') {
+    return <LeakSearchDemo />
+  }
 
   // Show Knowledge Page when requested
   if (showKnowledgePage) {
