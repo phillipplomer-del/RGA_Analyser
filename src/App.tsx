@@ -167,6 +167,7 @@ function App() {
         onSelectRoR={() => setShowRateOfRise(true)}
         onSelectKnowledge={() => useAppStore.getState().setShowKnowledgePage(true)}
         onSelectOutgassing={() => setShowOutgassing(true)}
+        onSelectLeakSearch={() => window.location.hash = '#leaksearch-demo'}
       />
     )
   }

@@ -20,6 +20,7 @@ interface FunctionSelectorProps {
   onSelectRoR: () => void
   onSelectKnowledge: () => void
   onSelectOutgassing: () => void
+  onSelectLeakSearch: () => void
 }
 
 export function FunctionSelector({
@@ -27,6 +28,7 @@ export function FunctionSelector({
   onSelectRoR,
   onSelectKnowledge,
   onSelectOutgassing,
+  onSelectLeakSearch,
 }: FunctionSelectorProps) {
   const { t } = useTranslation()
   const { theme, setSkipLandingPage } = useAppStore()
@@ -86,7 +88,7 @@ export function FunctionSelector({
           </p>
         </div>
 
-        <div className={`grid gap-6 ${devMode ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-1 max-w-md mx-auto'}`}>
+        <div className={`grid gap-6 ${devMode ? 'md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5' : 'md:grid-cols-1 max-w-md mx-auto'}`}>
           {/* RGA Card - Always visible */}
           <button
             onClick={onSelectRGA}
@@ -216,6 +218,40 @@ export function FunctionSelector({
                 </span>
                 <span className="px-2 py-1 text-micro bg-mint-500/10 text-mint-600 rounded-full">
                   Leitfaden
+                </span>
+              </div>
+            </button>
+          )}
+
+          {/* Leak Search Planner Card - Dev Mode only */}
+          {devMode && (
+            <button
+              onClick={onSelectLeakSearch}
+              className="group p-8 rounded-card bg-surface-card border border-subtle
+                hover:border-purple-500/50 hover:shadow-lg transition-all text-left"
+            >
+              <div className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500
+                flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="font-display font-bold text-xl text-text-primary mb-2">
+                {t('selector.leaksearch.title', 'Lecksuche-Planer')}
+              </h3>
+              <p className="text-caption text-text-secondary mb-4">
+                {t('selector.leaksearch.description', 'Intelligenter Assistent zur Planung von Lecksuch-Verfahren mit Methoden-Empfehlung und Warnungen.')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2 py-1 text-micro bg-purple-500/10 text-purple-600 rounded-full">
+                  Demo
+                </span>
+                <span className="px-2 py-1 text-micro bg-purple-500/10 text-purple-600 rounded-full">
+                  Methoden-Auswahl
+                </span>
+                <span className="px-2 py-1 text-micro bg-purple-500/10 text-purple-600 rounded-full">
+                  Warnungen
                 </span>
               </div>
             </button>
