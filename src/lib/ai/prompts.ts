@@ -228,7 +228,7 @@ Expert Knowledge Context:
 - Oil contamination: Δ14 amu pattern at m/z 41,55,69,83 = mineral oil backstreaming
 - PFPE/Fomblin: m/z 69 (CF₃⁺) dominant WITHOUT alkyl peaks at 41,43,57
 - Solvents: Acetone (43,58), IPA (45,43,27), Ethanol (31,45,46)
-- ESD artifacts: Anomalous O⁺(16), F⁺(19), Cl⁺(35) without parent molecules
+- ESD artifacts: 6 criteria detect elevated atomic ions from ionizer grid desorption: (1) O⁺/O₂ ratio >0.50, (2) N⁺/N₂ ratio >0.15, (3) C⁺/CO ratio >0.12, (4) H⁺/H₂ ratio >0.05, (5) F⁺(19) without CF₃⁺(69), (6) Anomalous Cl isotope ratios (³⁵Cl/³⁷Cl ≠ 3.1). Severity: info at 2-3 criteria, warning at ≥4 criteria
 - N₂ vs CO: N₂ has fragment at m/z 14 (~7%), CO has fragment at m/z 12 (~5%)`
 
   // CSV format for peaks with profile status

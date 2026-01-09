@@ -26,9 +26,19 @@ export function isDevMode(): boolean {
     }
 
     // Check localStorage (if no URL parameter)
-    if (localStorage.getItem('devMode') === '1') {
+    const storedDevMode = localStorage.getItem('devMode')
+    if (storedDevMode === '1') {
       return true
     }
+    if (storedDevMode === '0') {
+      return false
+    }
+
+    // Default: localhost/127.0.0.1 → dev mode ON, Vercel → dev mode OFF
+    const isLocalhost = window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1' ||
+                        window.location.hostname === ''
+    return isLocalhost
   }
 
   return false

@@ -631,35 +631,105 @@ export function detectHydrogenDominant(input: DiagnosisInput): DiagnosticResult 
 // ============================================
 // 8. ESD-ARTEFAKTE
 // ============================================
+
+// ESD-spezifische Schwellenwerte
+const ESD_THRESHOLDS = {
+  o_ratio: { normal: 0.15, anomaly: 0.50 },      // m16/m32
+  n_ratio: { normal: 0.07, anomaly: 0.15 },      // m14/m28
+  c_ratio: { normal: 0.05, anomaly: 0.12 },      // m12/m28
+  h_ratio: { normal: 0.01, anomaly: 0.05 },      // m1/m2
+  minCriteriaForWarning: 4                        // Ab 4 Kriterien → warning
+}
+
 export function detectESDartifacts(input: DiagnosisInput): DiagnosticResult | null {
   const { peaks } = input
 
+  // Alle relevanten Massen auslesen
+  const m1 = getPeak(peaks, 1)    // H⁺
+  const m2 = getPeak(peaks, 2)    // H₂⁺
+  const m12 = getPeak(peaks, 12)  // C⁺
+  const m14 = getPeak(peaks, 14)  // N⁺ (oder CO⁺⁺)
   const m16 = getPeak(peaks, 16)  // O⁺
   const m19 = getPeak(peaks, 19)  // F⁺
+  const m28 = getPeak(peaks, 28)  // N₂⁺ / CO⁺
+  const m32 = getPeak(peaks, 32)  // O₂⁺
   const m35 = getPeak(peaks, 35)  // Cl⁺
-  const m32 = getPeak(peaks, 32)  // O₂
+  const m37 = getPeak(peaks, 37)  // ³⁷Cl⁺
   const m69 = getPeak(peaks, 69)  // CF₃⁺
 
   const evidence: EvidenceItem[] = []
+  const affectedMasses: number[] = []
   let confidence = 0
 
-  // Anomal hoher O⁺ Peak ohne O₂
+  // Kriterium 1: Anomal hoher O⁺ Peak ohne O₂
   if (m16 > 0 && m32 > 0) {
     const ratio_16_32 = m16 / m32
-    if (ratio_16_32 > 0.5) {  // Normal: ~0.11-0.22
+    if (ratio_16_32 > ESD_THRESHOLDS.o_ratio.anomaly) {
       evidence.push(createEvidence(
         'ratio',
-        `Anomal hoher O⁺: m16/m32 = ${ratio_16_32.toFixed(2)} (normal: ~0.15)`,
-        `Anomalously high O⁺: m16/m32 = ${ratio_16_32.toFixed(2)} (normal: ~0.15)`,
+        `Anomal hoher O⁺: m16/m32 = ${ratio_16_32.toFixed(2)} (normal: ~${ESD_THRESHOLDS.o_ratio.normal})`,
+        `Anomalously high O⁺: m16/m32 = ${ratio_16_32.toFixed(2)} (normal: ~${ESD_THRESHOLDS.o_ratio.normal})`,
         false,
         ratio_16_32,
-        { max: 0.3 }
+        { max: ESD_THRESHOLDS.o_ratio.anomaly }
       ))
-      confidence += 0.3
+      confidence += 0.30
+      affectedMasses.push(16, 32)
     }
   }
 
-  // F⁺ ohne Fluorquelle
+  // Kriterium 2: N⁺/N₂⁺ Ratio (ESD erzeugt mehr atomare N⁺ Ionen)
+  if (m14 > 0 && m28 > DEFAULT_THRESHOLDS.minPeakHeight) {
+    const n_ratio = m14 / m28
+    if (n_ratio > ESD_THRESHOLDS.n_ratio.anomaly) {
+      evidence.push(createEvidence(
+        'ratio',
+        `Überhöhtes N⁺/N₂⁺ Verhältnis: m14/m28 = ${n_ratio.toFixed(3)} (normal: ~${ESD_THRESHOLDS.n_ratio.normal}) - ESD von N₂`,
+        `Elevated N⁺/N₂⁺ ratio: m14/m28 = ${n_ratio.toFixed(3)} (normal: ~${ESD_THRESHOLDS.n_ratio.normal}) - ESD from N₂`,
+        false,
+        n_ratio,
+        { max: ESD_THRESHOLDS.n_ratio.anomaly }
+      ))
+      confidence += 0.25
+      affectedMasses.push(14, 28)
+    }
+  }
+
+  // Kriterium 3: C⁺/CO⁺ Ratio (ESD erzeugt mehr atomare C⁺ Ionen)
+  if (m12 > DEFAULT_THRESHOLDS.minPeakHeight && m28 > 0) {
+    const c_ratio = m12 / m28
+    if (c_ratio > ESD_THRESHOLDS.c_ratio.anomaly) {
+      evidence.push(createEvidence(
+        'ratio',
+        `Überhöhtes C⁺/CO⁺ Verhältnis: m12/m28 = ${c_ratio.toFixed(3)} (normal: ~${ESD_THRESHOLDS.c_ratio.normal}) - ESD von CO`,
+        `Elevated C⁺/CO⁺ ratio: m12/m28 = ${c_ratio.toFixed(3)} (normal: ~${ESD_THRESHOLDS.c_ratio.normal}) - ESD from CO`,
+        false,
+        c_ratio,
+        { max: ESD_THRESHOLDS.c_ratio.anomaly }
+      ))
+      confidence += 0.25
+      affectedMasses.push(12, 28)
+    }
+  }
+
+  // Kriterium 4: H⁺/H₂⁺ Ratio (ESD erzeugt mehr H⁺ durch Fragmentierung)
+  if (m1 > 0 && m2 > DEFAULT_THRESHOLDS.minPeakHeight) {
+    const h_ratio = m1 / m2
+    if (h_ratio > ESD_THRESHOLDS.h_ratio.anomaly) {
+      evidence.push(createEvidence(
+        'ratio',
+        `Überhöhtes H⁺/H₂⁺ Verhältnis: m1/m2 = ${h_ratio.toFixed(3)} (normal: ~${ESD_THRESHOLDS.h_ratio.normal}) - ESD von H₂O`,
+        `Elevated H⁺/H₂⁺ ratio: m1/m2 = ${h_ratio.toFixed(3)} (normal: ~${ESD_THRESHOLDS.h_ratio.normal}) - ESD from H₂O`,
+        false,
+        h_ratio,
+        { max: ESD_THRESHOLDS.h_ratio.anomaly }
+      ))
+      confidence += 0.20
+      affectedMasses.push(1, 2)
+    }
+  }
+
+  // Kriterium 5: F⁺ ohne Fluorquelle (CF₃⁺)
   if (m19 > DEFAULT_THRESHOLDS.minPeakHeight && m69 < m19 * 0.5) {
     evidence.push(createEvidence(
       'presence',
@@ -668,39 +738,191 @@ export function detectESDartifacts(input: DiagnosisInput): DiagnosticResult | nu
       false,
       m19 * 100
     ))
-    confidence += 0.3
+    confidence += 0.30
+    affectedMasses.push(19)
   }
 
-  // Cl⁺ prüfen
-  const m37 = getPeak(peaks, 37)
+  // Kriterium 6: Cl-Isotopenverhältnis anomal
   if (m35 > DEFAULT_THRESHOLDS.minPeakHeight) {
     const clRatio = m35 / (m37 || 0.001)
     if (clRatio < 2 || clRatio > 5) {
       evidence.push(createEvidence(
         'ratio',
-        `Cl-Isotopenverhältnis anomal: ${clRatio.toFixed(2)} (erwartet: 3.1) - mögl. ESD`,
-        `Cl isotope ratio anomalous: ${clRatio.toFixed(2)} (expected: 3.1) - possible ESD`,
+        `Cl-Isotopenverhältnis anomal: ³⁵Cl/³⁷Cl = ${clRatio.toFixed(2)} (erwartet: 3.1) - mögl. ESD`,
+        `Cl isotope ratio anomalous: ³⁵Cl/³⁷Cl = ${clRatio.toFixed(2)} (expected: 3.1) - possible ESD`,
         false,
-        clRatio
+        clRatio,
+        { min: 2, max: 5 }
+      ))
+      confidence += 0.20
+      affectedMasses.push(35, 37)
+    }
+  }
+
+  // Mindestens 2 Kriterien müssen erfüllt sein
+  if (confidence < DEFAULT_THRESHOLDS.minConfidence || evidence.length < 2) return null
+
+  // Severity basierend auf Anzahl erfüllter Kriterien
+  const criteriaCount = evidence.length
+  const severity = criteriaCount >= ESD_THRESHOLDS.minCriteriaForWarning ? 'warning' : 'info'
+
+  // Betroffene Gase/Quellen dynamisch sammeln
+  const affectedSources: string[] = []
+  const affectedSourcesEn: string[] = []
+
+  if (evidence.some(e => e.description.includes('O⁺'))) {
+    affectedSources.push('H₂O/O₂ (überhöhtes O⁺)')
+    affectedSourcesEn.push('H₂O/O₂ (elevated O⁺)')
+  }
+  if (evidence.some(e => e.description.includes('N⁺/N₂⁺'))) {
+    affectedSources.push('N₂ (überhöhtes N⁺)')
+    affectedSourcesEn.push('N₂ (elevated N⁺)')
+  }
+  if (evidence.some(e => e.description.includes('C⁺/CO⁺'))) {
+    affectedSources.push('CO (überhöhtes C⁺)')
+    affectedSourcesEn.push('CO (elevated C⁺)')
+  }
+  if (evidence.some(e => e.description.includes('H⁺/H₂⁺'))) {
+    affectedSources.push('H₂ (überhöhtes H⁺)')
+    affectedSourcesEn.push('H₂ (elevated H⁺)')
+  }
+  if (evidence.some(e => e.description.includes('F⁺'))) {
+    affectedSources.push('Fluoride (F⁺)')
+    affectedSourcesEn.push('Fluorides (F⁺)')
+  }
+  if (evidence.some(e => e.description.includes('Cl'))) {
+    affectedSources.push('Chloride (Cl⁺)')
+    affectedSourcesEn.push('Chlorides (Cl⁺)')
+  }
+
+  // Dynamische Description mit betroffenen Gasen
+  const gasListDE = affectedSources.join(', ')
+  const gasListEN = affectedSourcesEn.join(', ')
+
+  const description = `ESD-Artefakte detektiert: ${gasListDE}. Electron Stimulated Desorption (ESD) erzeugt atomare Ionen von adsorbierten Molekülen am Ionisatorgitter.`
+  const descriptionEn = `ESD artifacts detected: ${gasListEN}. Electron Stimulated Desorption (ESD) generates atomic ions from molecules adsorbed on ionizer grid.`
+
+  // Empfehlung basierend auf Schweregrad
+  const recommendation = criteriaCount >= ESD_THRESHOLDS.minCriteriaForWarning
+    ? 'Starke ESD-Kontamination! Ionisator intensiv degasen (20mA/500eV, 30min). Ggf. Filament austauschen. Elektronenenergie variieren zum Test. Hintergrundmessung nach Degasen durchführen.'
+    : 'Leichte ESD-Artefakte. Ionisator degasen (20mA/500eV, 10min). Elektronenenergie variieren zum Test. Hintergrundmessung durchführen.'
+
+  const recommendationEn = criteriaCount >= ESD_THRESHOLDS.minCriteriaForWarning
+    ? 'Heavy ESD contamination! Degas ionizer intensively (20mA/500eV, 30min). Consider filament replacement. Vary electron energy for testing. Perform background measurement after degassing.'
+    : 'Light ESD artifacts. Degas ionizer (20mA/500eV, 10min). Vary electron energy for testing. Perform background measurement.'
+
+  // Duplikate aus affectedMasses entfernen und sortieren
+  const uniqueAffectedMasses = Array.from(new Set(affectedMasses)).sort((a, b) => a - b)
+
+  return {
+    type: DiagnosisType.ESD_ARTIFACT,
+    name: criteriaCount >= ESD_THRESHOLDS.minCriteriaForWarning ? 'ESD-Artefakt (stark)' : 'ESD-Artefakt vermutet',
+    nameEn: criteriaCount >= ESD_THRESHOLDS.minCriteriaForWarning ? 'ESD Artifact (strong)' : 'ESD Artifact Suspected',
+    description,
+    descriptionEn,
+    confidence: Math.min(confidence, 1.0),
+    severity,
+    evidence,
+    recommendation,
+    recommendationEn,
+    affectedMasses: uniqueAffectedMasses.length > 0 ? uniqueAffectedMasses : [16, 19, 35]
+  }
+}
+
+// ============================================
+// 8a. HELIUM-LECK-INDIKATOR
+// ============================================
+
+/**
+ * Qualitative Helium-Detektion (m/z=4)
+ *
+ * WICHTIG: Dies ist KEIN quantitativer Leckraten-Test!
+ * RGAs sind 1-2 Größenordnungen weniger sensitiv als dedizierte He-Lecktester.
+ *
+ * Zweck: Einfacher Hinweis auf ungewöhnlich hohe Helium-Konzentration.
+ * → Empfehlung: Bei Verdacht He-Leckdetektor einsetzen.
+ */
+export function detectHeliumLeak(input: DiagnosisInput): DiagnosticResult | null {
+  const { peaks } = input
+
+  const m4 = getPeak(peaks, 4)    // He⁺ (oder D₂⁺)
+  const m2 = getPeak(peaks, 2)    // H₂⁺ (Referenz)
+  const m3 = getPeak(peaks, 3)    // HD⁺
+
+  // Minimale Nachweisgrenze für He
+  if (m4 < DEFAULT_THRESHOLDS.minPeakHeight) return null
+
+  const evidence: EvidenceItem[] = []
+  let confidence = 0
+
+  // Primärkriterium: m/z=4 Signal vorhanden
+  evidence.push(createEvidence(
+    'peak',
+    `m/z 4 (He/D₂) Signal: ${(m4 * 100).toFixed(3)}%`,
+    `m/z 4 (He/D₂) signal: ${(m4 * 100).toFixed(3)}%`,
+    true,
+    m4 * 100
+  ))
+  confidence += 0.3
+
+  // Sekundärkriterium: Verhältnis zu H₂
+  if (m2 > 0) {
+    const ratio_4_2 = m4 / m2
+
+    // Wenn He/H₂ > 0.1 (10%), dann auffällig
+    if (ratio_4_2 > 0.1) {
+      evidence.push(createEvidence(
+        'ratio',
+        `He/H₂-Verhältnis auffällig: ${ratio_4_2.toFixed(3)} (${(ratio_4_2 * 100).toFixed(1)}%)`,
+        `He/H₂ ratio notable: ${ratio_4_2.toFixed(3)} (${(ratio_4_2 * 100).toFixed(1)}%)`,
+        true,
+        ratio_4_2,
+        { min: 0.1 }
+      ))
+      confidence += 0.4
+    } else {
+      evidence.push(createEvidence(
+        'ratio',
+        `He/H₂-Verhältnis: ${ratio_4_2.toFixed(3)} (${(ratio_4_2 * 100).toFixed(1)}%)`,
+        `He/H₂ ratio: ${ratio_4_2.toFixed(3)} (${(ratio_4_2 * 100).toFixed(1)}%)`,
+        true,
+        ratio_4_2
       ))
       confidence += 0.2
     }
   }
 
+  // Zusatzinfo: D₂ vs. He Unterscheidung schwierig
+  // m/z 3 (HD) deutet auf Deuterium hin
+  if (m3 > DEFAULT_THRESHOLDS.minPeakHeight) {
+    evidence.push(createEvidence(
+      'presence',
+      `m/z 3 (HD) detektiert: Signal könnte teilweise von D₂ stammen`,
+      `m/z 3 (HD) detected: signal could partially be from D₂`,
+      true,
+      m3 * 100
+    ))
+    confidence -= 0.1 // Unsicherheit, da D₂/He Überlappung
+  }
+
+  // Absoluter Wert wichtig: nur bei relevantem Signal melden
+  if (m4 < 0.01) return null // Zu schwaches Signal
+
+  // Mindestens 0.3 Konfidenz erforderlich
   if (confidence < DEFAULT_THRESHOLDS.minConfidence) return null
 
   return {
-    type: DiagnosisType.ESD_ARTIFACT,
-    name: 'ESD-Artefakt vermutet',
-    nameEn: 'ESD Artifact Suspected',
-    description: 'Electron Stimulated Desorption erzeugt Ionen von adsorbierten Molekülen am Ionisatorgitter.',
-    descriptionEn: 'Electron Stimulated Desorption generates ions from molecules adsorbed on ionizer grid.',
+    type: DiagnosisType.HELIUM_LEAK_INDICATOR,
+    name: 'Helium-Signal auffällig',
+    nameEn: 'Helium Signal Detected',
+    description: `Helium (m/z 4) bei ${(m4 * 100).toFixed(2)}% detektiert. Mögliche Quellen: He-Leck, He-Tracergas, D₂ (Deuterium). HINWEIS: RGA ist NICHT sensitiv genug für quantitative Leckratenbestimmung!`,
+    descriptionEn: `Helium (m/z 4) detected at ${(m4 * 100).toFixed(2)}%. Possible sources: He leak, He tracer gas, D₂ (deuterium). NOTE: RGA is NOT sensitive enough for quantitative leak rate determination!`,
     confidence: Math.min(confidence, 1.0),
     severity: 'info',
     evidence,
-    recommendation: 'Ionisator degasen (20mA/500eV). Elektronenenergie variieren zum Test. Hintergrundmessung durchführen.',
-    recommendationEn: 'Degas ionizer (20mA/500eV). Vary electron energy for testing. Perform background measurement.',
-    affectedMasses: [16, 19, 35]
+    recommendation: 'Helium-Signal detektiert. Empfohlenes Vorgehen: (1) Bei Verdacht auf Leck → Dedizierten He-Leckdetektor einsetzen (Sensitivität: ~5×10⁻¹² mbar·l/s). (2) Bei He-Tracergas-Test → Signal bestätigt He-Anwesenheit. (3) Bei D₂-Nutzung → m/z 3 (HD) prüfen zur Unterscheidung.',
+    recommendationEn: 'Helium signal detected. Recommended procedure: (1) If leak suspected → Use dedicated He leak detector (sensitivity: ~5×10⁻¹² mbar·l/s). (2) If He tracer gas test → Signal confirms He presence. (3) If D₂ in use → Check m/z 3 (HD) to distinguish.',
+    affectedMasses: [4, 3]
   }
 }
 
@@ -711,7 +933,8 @@ export function detectSiliconeContamination(input: DiagnosisInput): DiagnosticRe
   const { peaks } = input
 
   const m73 = getPeak(peaks, 73)   // (CH₃)₃Si⁺ - Trimethylsilyl
-  const m59 = getPeak(peaks, 59)
+  const m59 = getPeak(peaks, 59)   // C₃H₇Si⁺
+  const m147 = getPeak(peaks, 147) // PDMS dimer fragment
 
   if (m73 < DEFAULT_THRESHOLDS.minPeakHeight * 5) return null
 
@@ -727,11 +950,23 @@ export function detectSiliconeContamination(input: DiagnosisInput): DiagnosticRe
   ))
   confidence += 0.5
 
+  // m/z 59: Critical PDMS marker (C₃H₇Si⁺) - Springer, Hiden SIMS
   if (m59 > DEFAULT_THRESHOLDS.minPeakHeight) {
     evidence.push(createEvidence(
       'presence',
-      `Weitere Silikon-Fragmente (m/z 59) vorhanden`,
-      `Additional silicone fragments (m/z 59) present`,
+      `C₃H₇Si⁺-Fragment (m/z 59) detektiert: ${(m59 * 100).toFixed(3)}%`,
+      `C₃H₇Si⁺ fragment (m/z 59) detected: ${(m59 * 100).toFixed(3)}%`,
+      true
+    ))
+    confidence += 0.2
+  }
+
+  // m/z 147: PDMS dimer marker for higher molecular weight confirmation
+  if (m147 > DEFAULT_THRESHOLDS.minPeakHeight) {
+    evidence.push(createEvidence(
+      'presence',
+      `PDMS-Dimer-Fragment (m/z 147) detektiert: ${(m147 * 100).toFixed(3)}%`,
+      `PDMS dimer fragment (m/z 147) detected: ${(m147 * 100).toFixed(3)}%`,
       true
     ))
     confidence += 0.2
@@ -748,7 +983,7 @@ export function detectSiliconeContamination(input: DiagnosisInput): DiagnosticRe
     evidence,
     recommendation: 'Quelle: Silikonfett, Dichtungen, Schläuche. Silikon ist sehr hartnäckig. Betroffene Teile reinigen oder ersetzen.',
     recommendationEn: 'Source: Silicone grease, seals, tubing. Silicone is very persistent. Clean or replace affected parts.',
-    affectedMasses: [45, 59, 73]
+    affectedMasses: [45, 59, 73, 147]
   }
 }
 

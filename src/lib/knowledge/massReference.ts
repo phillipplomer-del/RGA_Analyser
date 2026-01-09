@@ -50,21 +50,21 @@ export const MASS_REFERENCE: MassAssignment[] = [
   },
   {
     mass: 3,
-    primaryAssignment: 'HD⁺/H₃⁺',
-    primaryAssignmentEn: 'HD⁺/H₃⁺',
-    possibleSources: ['Deuterium-Wasserstoff'],
-    fragmentOf: [],
-    notes: 'Sehr selten, Ionen-Molekül-Reaktion bei hohem Druck',
-    diagnosticValue: 'rare'
+    primaryAssignment: 'HD⁺',
+    primaryAssignmentEn: 'HD⁺',
+    possibleSources: ['Wasserstoff-Deuterium (HD)', 'H/D-Austausch'],
+    fragmentOf: ['D₂'],
+    notes: 'Fusionsforschung: Marker für D/H-Gemische. Unterscheidet D₂ von He bei m/z 4',
+    diagnosticValue: 'important'
   },
   {
     mass: 4,
-    primaryAssignment: 'He⁺',
-    primaryAssignmentEn: 'He⁺',
-    possibleSources: ['Helium', 'D₂'],
+    primaryAssignment: 'He⁺/D₂⁺',
+    primaryAssignmentEn: 'He⁺/D₂⁺',
+    possibleSources: ['Helium', 'Deuterium (D₂)'],
     fragmentOf: [],
     isotopes: [{ element: 'He', massNumber: 4, abundance: 99.999 }],
-    notes: 'Lecktest-Tracergas',
+    notes: '⚠️ He vs D₂: Prüfe m/z 3 (HD⁺) zur Unterscheidung. Lecktest-Tracergas (He)',
     diagnosticValue: 'critical'
   },
 

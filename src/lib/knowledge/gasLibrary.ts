@@ -49,6 +49,28 @@ export const GAS_LIBRARY: GasSpecies[] = [
     notes: ['Dominantes Restgas in ausgeheizten UHV-Systemen', 'Diffundiert durch Edelstahl']
   },
   {
+    key: 'D2',
+    name: 'Deuterium',
+    nameEn: 'Deuterium',
+    formula: 'D₂',
+    mainMass: 4,
+    crackingPattern: { 4: 100, 3: 15, 2: 5 },
+    relativeSensitivity: 0.42,
+    category: 'permanent',
+    notes: ['⚠️ m/z 4 überlappt mit He', 'HD (m/z 3) als Marker für D/H-Gemische', 'Fusionsforschung (JET, ASDEX)', 'Präzision: ±1-2% mit Quadrupol-RGA']
+  },
+  {
+    key: 'HD',
+    name: 'Wasserstoff-Deuterium',
+    nameEn: 'Hydrogen-Deuterium',
+    formula: 'HD',
+    mainMass: 3,
+    crackingPattern: { 3: 100, 2: 30, 1: 8, 4: 2 },
+    relativeSensitivity: 0.43,
+    category: 'permanent',
+    notes: ['Gebildet durch H/D-Austauschreaktionen', 'Wichtig für D/H-Verhältnis-Bestimmung', 'Unterscheidet D₂ von He bei m/z 4']
+  },
+  {
     key: 'He',
     name: 'Helium',
     nameEn: 'Helium',

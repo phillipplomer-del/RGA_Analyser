@@ -243,8 +243,8 @@ export const DIAGNOSTIC_MASS_GROUPS = {
 
   // ESD-Artefakte
   esdArtifacts: {
-    masses: [16, 19, 35],
-    description: 'O⁺, F⁺, Cl⁺ ohne entsprechende Quellen'
+    masses: [1, 2, 12, 14, 16, 19, 28, 32, 35, 37],
+    description: 'Überhöhte atomare Ionen: O⁺/O₂, N⁺/N₂, C⁺/CO, H⁺/H₂, F⁺, Cl-Isotope'
   },
 
   // Silikon/PDMS

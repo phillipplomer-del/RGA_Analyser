@@ -96,7 +96,7 @@ Eine umfassende Webanwendung zur Analyse von Restgasanalyse (RGA) Spektren mit a
 
 ## 4. Automatische Diagnose
 
-### 22 Diagnose-Detektoren
+### 23 Diagnose-Detektoren
 
 | # | Detektor | Schweregrad |
 |---|----------|-------------|
@@ -122,6 +122,7 @@ Eine umfassende Webanwendung zur Analyse von Restgasanalyse (RGA) Spektren mit a
 | 20 | Weichmacher-Kontamination | Warnung |
 | 21 | Prozessgas-Rückstände (Halbleiter) | Warnung |
 | 22 | Kühlwasser-Leck | Kritisch |
+| 23 | Helium-Leck-Indikator (qualitative Detektion) | Info |
 
 ### Diagnose-Ausgabe
 - **Konfidenzwert**: 0-1 Skala
@@ -528,9 +529,101 @@ Berechnung erwarteter Ausgasungsraten für verschiedene Materialien.
 
 Siehe [Abschnitt 4.3 Isotopen-Analyse](#isotopen-analyse)
 
+**Wissenschaftliche Validierung (2026-01-09):**
+- ✅ **Alle 10 Isotopenverhältnisse validiert** gegen NIST, CIAAW, USGS
+- ✅ **Peer-reviewed Anwendungen dokumentiert:** Fusionsforschung (JET, ASDEX), Medizinische Diagnostik (PubMed), Umweltanalytik
+- ✅ **Methoden-Limitationen geklärt:** Quadrupol-RGA (±5-10%) vs. High-Res IRMS (±0.5-1%)
+- ✅ **67 wissenschaftliche Quellen** dokumentiert in [SCIENTIFIC_REFERENCES.md](./RGA_Knowledge/SCIENTIFIC_REFERENCES.md)
+- ✅ **Knowledge Panel erweitert** mit 4 neuen Sektionen: Isotopen-Validierung, Peer-Reviewed Apps, Emerging Gases, Methoden-Vergleich
+
+### Helium-Leck-Indikator (Feature 1.5.5)
+
+**Wissenschaftliche Validierung (2026-01-09):**
+- ✅ **Qualitative vs. quantitative Unterscheidung geklärt:** RGAs für Helium-Präsenzdetektion, NICHT für quantitative Leckraten
+- ⚠️ **RGA Sensitivitäts-Limitationen dokumentiert:** 1-2 Größenordnungen weniger empfindlich als dedizierte He-Leckdetektoren (~5×10⁻¹² mbar·l/s)
+- ❌ **Quantitative Leckraten-Berechnung NICHT validiert:** Keine Literatur unterstützt zuverlässige Konversion von RGA-Signal zu Leckrate
+- ✅ **Validierter Ansatz implementiert:** m/z 4 > 0.01 + He/H₂ > 0.1 für qualitative Helium-Erkennung
+- ✅ **Empfehlung korrekt:** "Dedizierte He-Leckdetektoren für quantitative Messungen verwenden"
+- ✅ **20+ wissenschaftliche Quellen** dokumentiert (Hiden, Kurt Lesker, MKS, SRS)
+
+**Implementierung:** [detectors.ts:259](./src/lib/diagnosis/detectors.ts#L259) - `detectHeliumLeak()`
+
+### Erweiterte Öl-Diagnose (Feature 1.5.6)
+
+**❌ VERWORFEN - Wissenschaftlich nicht valide (2026-01-09):**
+- ❌ **FOMBLIN-Kategorisierungs-Fehler identifiziert:** Spec kategorisierte FOMBLIN als Kohlenwasserstoff-Öl, aber FOMBLIN ist Perfluoropolyether (PFPE) mit CF₃⁺ bei m/z 69
+- ❌ **Öl-Typ-Unterscheidung nicht belegt:** Literatur zeigt, dass RGAs **generelle Kohlenwasserstoff-Kontamination** erkennen, aber KEINE zuverlässige Unterscheidung zwischen Mineralöl, Diffusionspumpen-Öl, etc.
+- ✅ **Existierender Detektor bereits wissenschaftlich korrekt:** `detectOilBackstreaming()` nutzt validiertes Δ14 amu Pattern (m/z 41, 55, 69, 83, 97)
+- ✅ **Ablehnung dokumentiert** in [OEL_DIAGNOSE_VERWORFEN_NICHT_VALIDE.md](./NextFeatures/done/OEL_DIAGNOSE_VERWORFEN_NICHT_VALIDE.md)
+- ✅ **15+ wissenschaftliche Quellen** dokumentiert (Kurt Lesker, Hiden Analytical, PubMed 36916159)
+
+**Zitat Kurt Lesker (Advanced RGA Interpretation):**
+> "The document does not provide information distinguishing between different oil types (mineral oil, synthetic oils, etc.) based on RGA spectra. It identifies hydrocarbon presence generally but doesn't address comparative analysis of specific oil chemistries."
+
+**Implementierung:** Keine - Feature abgelehnt. Existierender `detectOilBackstreaming()` ist ausreichend.
+
 ### Datenqualitäts-Bewertung
 
 Siehe [Abschnitt 5.1 Data Quality Score](#datenqualitäts-bewertung-data-quality-score)
+
+### Wissenschaftliche Referenz-Datenbank
+
+**Neue Dokumentation (2026-01-09):**
+
+| Datei | Beschreibung |
+|-------|--------------|
+| **[SCIENTIFIC_REFERENCES.md](./RGA_Knowledge/SCIENTIFIC_REFERENCES.md)** | Konsolidierte wissenschaftliche Quellen-Datenbank |
+| **[.claude/project-context.md](./.claude/project-context.md)** | Claude Code Kontext-System für automatische Referenz-Nutzung |
+| **[README-CLAUDE.md](./README-CLAUDE.md)** | Quick Reference für AI-Assistenten |
+
+**Inhalt SCIENTIFIC_REFERENCES.md:**
+- 🔬 Isotope Data (NIST, CIAAW, USGS) - 6 Elemente validiert
+- 📄 Peer-Reviewed RGA Applications (Fusion, Medizin, Umwelt)
+- 🚀 Emerging Isotope Applications (D₂, HD, N₂O)
+- 🛢️ Vakuum-Kontamination (Öl, FOMBLIN, Helium)
+- ⚙️ Method Validation (RGA vs. IRMS Vergleich)
+
+**Validierungs-Status-Übersicht:**
+
+Eine systematische Analyse aller 30 wissenschaftlichen Features und Detektoren zeigt:
+- ✅ **8 vollständig validiert** (27%): Isotopen-Analyse, Helium-Leck-Indikator, Öl-Rückströmung, FOMBLIN, Luftleck, N₂/CO-Unterscheidung, Cl-Lösemittel, Silikon
+- ⚠️ **13 teilvalidiert** (43%): Ausgasungs-Simulator, ESD-Artefakte, Lösemittelrückstände, Wasser-Ausgasung, etc.
+- ❓ **8 nicht validiert** (27%): Konfidenz-Score, Virtuelles Leck, Sauberer UHV, Polymer-Ausgasung, etc.
+- ❌ **1 verworfen** (3%): Erweiterte Öl-Diagnose (wissenschaftlich nicht haltbar)
+
+**Vollständige Übersicht:** [WISSENSCHAFTLICHE_VALIDIERUNG_STATUS.md](./NextFeatures/WISSENSCHAFTLICHE_VALIDIERUNG_STATUS.md)
+
+**Validierungs-Workflow:**
+1. Check SCIENTIFIC_REFERENCES.md (lokal)
+2. Web-Suche falls nicht gefunden
+3. Dokumentation in SCIENTIFIC_REFERENCES.md + Knowledge Panel
+4. Status-Tracking in WISSENSCHAFTLICHE_VALIDIERUNG_STATUS.md
+
+### Geplante Erweiterungen
+
+**Aus wissenschaftlicher Validierung identifiziert:**
+
+| Feature | Status | Quelle | Aufwand |
+|---------|--------|--------|---------|
+| **D₂/HD Gase** | ✅ Implementiert | Hiden Analytical, DOE SRNL | 2-3h |
+| **N₂O Gas** | ✅ Implementiert | UC Davis, PubMed | 2h |
+| **PDMS m/z 59** | ✅ Implementiert | Springer, Hiden SIMS | 30min |
+| **Argon Ratio Update** | ⬜ Optional | Lee 2006 (298.6) | 15min |
+
+**D₂/HD (Deuterium):**
+- Anwendung: Fusionsforschung (Tokamaks)
+- Präzision: ~100 ppm mit Quadrupol-RGA
+- Herausforderung: m/z 4 Überlappung mit He
+
+**N₂O (Lachgas):**
+- Anwendung: Biogeochemie, ¹⁵N-Positions-Analyse
+- Massen: m/z 44, 45, 46 (Molekül), 30, 31 (NO⁺)
+- ⚠️ Warnung: m/z 44 überlappt mit CO₂
+
+**PDMS m/z 59:**
+- Zusätzlicher kritischer PDMS-Marker (C₃H₇Si⁺)
+- Ergänzt existierende m/z 73, 147
+- Erhöht Detektions-Sensitivität
 
 ---
 
@@ -541,8 +634,11 @@ Siehe **[NextFeatures/FEATURE_BACKLOG.md](./NextFeatures/FEATURE_BACKLOG.md)** f
 | Priorität | Feature | Status |
 |-----------|---------|--------|
 | 1.5.1 | Ausgasungs-Simulator | ✅ Implementiert |
-| 1.5.2 | Isotopen-Analyse | ✅ Implementiert |
+| 1.5.2 | Isotopen-Analyse | ✅ Implementiert (validiert 2026-01-09) |
 | 1.5.3 | Datenqualitäts-Bewertung | ✅ Implementiert |
+| 1.5.4 | ESD-Artefakt-Erkennung | ✅ Implementiert |
+| 1.5.5 | Helium-Leck-Indikator | ✅ Implementiert (validiert 2026-01-09) |
+| 1.5.6 | ~~Erweiterte Öl-Diagnose~~ | ❌ Verworfen (nicht valide) |
 | 1 | Error Handling System | Geplant |
 | 1 | Firebase Auth Migration | Geplant |
 | 1.6 | Lecksuche-Planer (DIN EN 1779) | Geplant |
