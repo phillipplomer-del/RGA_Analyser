@@ -204,7 +204,7 @@ export function FunctionSelector({
                 </svg>
               </div>
               <h3 className="font-display font-bold text-xl text-text-primary mb-2">
-                {t('selector.knowledge.title', 'Wissensdatenbank')}
+                {t('selector.knowledge.title', 'Wissen')}
               </h3>
               <p className="text-caption text-text-secondary mb-4">
                 {t('selector.knowledge.description', 'Umfassendes Nachschlagewerk zu Vakuumtechnik, Massenspektrometrie und Lecksuche.')}
