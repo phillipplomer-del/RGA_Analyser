@@ -59,6 +59,7 @@
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
+| **1.6.0** | **Demo Implementation** | ✅ | [src/components/LeakSearchDemo.tsx](../src/components/LeakSearchDemo.tsx) | ~3h | Funktionierende Demo: Input-System, B2/B5/B6 Logic, 9 Warnsystem, Timing-Calc. ~10% der vollständigen Version. |
 | **1.6.1** | **Core Engine & Types** | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **6-8h** | Physik (Leitwert, τ, MDL), Decision Tree, Virtual Leak Risk, Equipment DB, Standards |
 | **1.6.2** | **UI Wizard (Quick Mode)** | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **8-10h** | 4 Screens, Live-Feedback, 3-Karten-Result, Checkliste |
 | **1.6.3** | **Report & Export** | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **2-3h** | Markdown-Generator, Audit-Block, PDF später |
@@ -128,6 +129,7 @@
 | **Ausgasungs-Simulator** | 2026-01-08 | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) | Multi-Material, Leck-vs-Ausgasung, RoR+RGA Integration |
 | **Isotopen-Analyse** | 2026-01-08 | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) | 10 Elemente, Fragment-Muster, verifyIsotopeRatios Detektor |
 | **Konfidenz-Score System** | 2026-01-08 | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) | 6 aktive Faktoren (SNR, Peaks, Dynamik, Temp, Massenbereich, H₂), Grade A-F. Kalibrieralter vorbereitet (weight=0) |
+| **Leak Search Planner Demo** | 2026-01 | [src/components/LeakSearchDemo.tsx](../src/components/LeakSearchDemo.tsx) | B2/B5/B6 Decision Logic, Input-System, Warnsystem, Timing-Kalk. (10% volle Version) |
 
 ---
 
@@ -245,6 +247,7 @@ Für neue Features verwenden:
 | 2026-01-08 | **Priorität 1.6 hinzugefügt:** Lecksuche-Planer nach DIN EN 1779 (Marktlücke identifiziert!) |
 | 2026-01-08 | ✅ **Konfidenz-Score System (1.5.3) implementiert:** 6 Faktoren aktiv (SNR, Peaks, Dynamik, Temp, Massenbereich, H₂), Kalibrieralter vorbereitet |
 | 2026-01-08 | 🔥 **LeaksearchPlanner_MasterV7_COMPLETE.md:** Vollständigste Spec im Projekt! TypeScript Types, Equipment DB, Physik-Engine, UI Screens, Test Cases - alles fertig. MVP-Scope 16-21h. Spec-Qualität: 10/10 |
+| 2026-01-09 | ✅ **Leak Search Planner Demo (1.6.0) existiert:** Funktionsfähige Demo als LeakSearchDemo.tsx - Decision Logic (B2/B5/B6), Input-System, 9-Typen Warnsystem, Volumen-Kalkulator. In FunctionSelector integriert (~10% der vollständigen Version). Nächste Phase: Vollversion mit Wizard + Equipment DB. |
 
 ---
 
