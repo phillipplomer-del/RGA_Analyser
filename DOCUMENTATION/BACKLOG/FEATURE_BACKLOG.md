@@ -123,6 +123,34 @@
 
 **MVP-Scope (1.7.1-1.7.3):** 8-12h → STL-Upload, 3D-Vorschau, automatische Geometrie-Berechnung, Wandstärken-Korrektur
 
+### Golden Run Vergleich (Priorität 1.10) 🎯 QUICK WIN
+
+> **"Schatten-Plot" einer Referenzmessung zur Abweichungs-Erkennung**
+> Lade "Golden Run" CSV und lege es als Schatten unter aktuelles Spektrum → sofort sichtbar: "Wo weicht meine Messung vom Soll ab?"
+
+| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|------------|---------|---------|
+| 1.10.1 | CSV Reference Loader | ⬜ | TBD | 4-6h | Load 2nd CSV, synchronize x-axis (time), overlay as shadow |
+| 1.10.2 | Deviation Highlighting | ⬜ | TBD | 2-3h | Colorize areas where |delta| > threshold |
+
+**MVP-Scope:** 6-9h → Shadow-Plot, Deviation Highlighting, X-Axis Sync
+**Commercial Validation:** MKS + Inficon nutzen das für Halbleiter-QA
+
+### Spektralsimulation (Priorität 1.11) 🧪 ADVANCED
+
+> **Theoretisches Spektrum als Overlay für Kalibrierungs-Check**
+> "Zeig mir wie N₂ bei diesem Druck aussehen würde" → plotte theoretische Kurve über echte Daten
+
+| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|------------|---------|---------|
+| 1.11.1 | Cracking Pattern Database | ⬜ | TBD | 6-8h | 10 wichtigste Gase: H₂, He, N₂, O₂, Ar, H₂O, CO, CO₂, CH₄, NH₃ (aus NIST/Hiden) |
+| 1.11.2 | Simulation Engine | ⬜ | TBD | 4-6h | Berechne theoretisches Spektrum aus Gas + Druck |
+| 1.11.3 | Overlay UI | ⬜ | TBD | 2-3h | Dropdown Gas-Auswahl, opacity-control |
+
+**MVP-Scope:** 12-17h → 10 Gase, Simulation Engine, Overlay
+**Commercial Validation:** Hiden Genetic Algorithms, Pfeiffer Matrix-Inversion
+**Limitation:** Nur 10 wichtigste Gase (volle NIST-Lizenz später)
+
 ### Zeitreihen-Analyse (Priorität 2)
 
 > Multi-Scan-Analyse für zeitaufgelöste RGA-Messungen (Prozessüberwachung, Pumpdown-Analyse)
@@ -132,6 +160,10 @@
 | 2.1 | Zeitreihen MVP (Parser) | ⬜ | [TIMESERIES_FEATURE_SPEC.md](./TIMESERIES_FEATURE_SPEC.md) | 4-6h | Multi-Scan Parser, Datenmodell |
 | 2.2 | Zeitreihen MVP (UI) | ⬜ | [TIMESERIES_FEATURE_SPEC.md](./TIMESERIES_FEATURE_SPEC.md) | 8-12h | Trend-Chart, Spektrum-Slider |
 | 2.3 | Zeitreihen Analyse | ⬜ | [TIMESERIES_FEATURE_SPEC.md](./TIMESERIES_FEATURE_SPEC.md) | 6-8h | Trend-Berechnung, Exp. Fit |
+| 2.4 | Heatmap Visualisierung | ⬜ | TBD | 6-8h | 3D Trend-Masse-Intensität Karte (Hiden-Feature): Masse (X) × Zeit (Y) → Intensität als Farbe. "Wetterkarte fürs Vakuum" |
+
+**MVP-Scope (2.1-2.4):** 24-34h → Parser, UI, Trend Analysis, Heatmaps
+**Commercial Validation:** Hiden nutzt 3D-Heatmaps als Hauptfeature für transiente Events
 
 ---
 
