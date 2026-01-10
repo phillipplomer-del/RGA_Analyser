@@ -19,7 +19,7 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://webbook.nist.gov/cgi/cbook.cgi?ID=C7727379&Mask=200'
     ],
     lastValidated: '2026-01-09',
-    notes: 'N2/O2-Verhältnis 3.73, Ar-Isotope 40Ar/36Ar = 295.5. Limitation: m/z 28 CO/N2-Überlappung.'
+    notes: 'N2/O2-Verhältnis 3.0-4.5 (Luft: 3.73), Ar-Isotope 40Ar/36Ar = 295.5, Ar²⁺/Ar⁺ (m20/m40) = 0.05-0.2 (expected: 0.1-0.15 für RGA Ionizer). Limitation: m/z 28 CO/N2-Überlappung.'
   },
 
   [DiagnosisType.OIL_BACKSTREAMING]: {
@@ -31,7 +31,7 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://www.thinksrs.com/downloads/pdfs/applicationnotes/Vac_diag_RGA.pdf'
     ],
     lastValidated: '2026-01-09',
-    notes: 'Delta-14 Pattern (m/z 41/43/55/57/69/71/83/85). Keine Unterscheidung von Öl-Typen möglich.'
+    notes: 'Delta-14 Pattern (m/z 41/43/55/57/69/71/83/85), min. 3 Peaks. Thresholds: C₄H₉⁺/C₃H₇⁺ (m57/m43) = 0.5-1.2 (typical 0.7-0.9), Turbopumpenöl: m71/m43 > 0.4. Keine generelle Öl-Typ-Unterscheidung möglich (nur Vorpumpe vs. Turbo).'
   },
 
   [DiagnosisType.FOMBLIN_CONTAMINATION]: {
@@ -43,7 +43,7 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://www.syensqo.com/en/brands/fomblin-pfpe-lubricants/faq'
     ],
     lastValidated: '2026-01-09',
-    notes: 'CF3+ (m/z 69) dominant. Bei Mischkontamination kann m/z 69 auch von C5H9+ (Öl) stammen.'
+    notes: 'CF3+ (m/z 69) dominant. Anti-Pattern: keine Alkyl-Peaks (m41 < m69×0.3, m43 < m69×0.5, m57 < m69×0.5 für reines PFPE). Bei Mischkontamination kann m/z 69 auch von C5H9+ (Öl) stammen.'
   },
 
   [DiagnosisType.SOLVENT_RESIDUE]: {
@@ -55,7 +55,7 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://chem.libretexts.org/Bookshelves/Analytical_Chemistry/Supplemental_Modules_(Analytical_Chemistry)/Instrumentation_and_Analysis/Mass_Spectrometry/Fragmentation_Patterns_in_Mass_Spectra'
     ],
     lastValidated: '2026-01-09',
-    notes: 'Aceton (m/z 43), IPA (m/z 45), Ethanol/Methanol (m/z 31). Überlappungen mit Öl-Fragmenten.'
+    notes: 'Aceton: m43/m58 = 2-5 (expected 3-4), IPA: m45 (Base Peak) > m43×0.5, Ethanol: m31 + m46, Methanol: m31 + m32 (m32 > m31×0.5). Überlappungen mit Öl-Fragmenten möglich.'
   },
 
   [DiagnosisType.CHLORINATED_SOLVENT]: {
@@ -79,7 +79,7 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://indico.cern.ch/event/565314/contributions/2285743/attachments/1466415/2277367/Outgassing-CAS-Lund-final.pdf'
     ],
     lastValidated: '2026-01-09',
-    notes: 'H2O/OH (m18/m17) = 4.3. Bakeout-Erkennung basiert auf Dateinamen-Parsing.'
+    notes: 'H2O/OH (m18/m17) = 3.5-5.0 (typical 4.3), Dominance: m18 ≥ 80% of max peak. Bakeout-Erkennung basiert auf Dateinamen-Parsing.'
   },
 
   [DiagnosisType.HYDROGEN_DOMINANT]: {
@@ -91,7 +91,7 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=922647'
     ],
     lastValidated: '2026-01-09',
-    notes: 'UHV-Kriterium: H2O/H2 < 0.5. H2-Quelle kann mehrdeutig sein (Bulk-Diffusion, Permeation).'
+    notes: 'Dominance: m2 ≥ 80% of max peak, H2/H2O > 5 (UHV-Kriterium: H2O/H2 < 0.2), CO/CO2 niedrig (m28 < m2×0.2, m44 < m2×0.1). H2-Quelle kann mehrdeutig sein (Bulk-Diffusion, Permeation).'
   },
 
   [DiagnosisType.ESD_ARTIFACT]: {
