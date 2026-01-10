@@ -24,7 +24,11 @@ You need to provide an action-oriented overview showing what's missing to implem
 3. **Check file existence:**
    - Spec files: NextFeatures/, DOCUMENTATION/ARCHIVED/, or paths in FEATURE_BACKLOG.md
    - Plan files: NextFeatures/FEATURE_[ID]_*_PLAN.md
-4. **Generate compact readiness table** with the following structure:
+4. **Group features by category** (use the section headers from FEATURE_BACKLOG.md):
+   - 📊 Wissenschaftliche Features & Detektoren (0.x, 1.5.x, 1.8.x, 1.9.x, 3.x)
+   - 🛠️ Anwendungs-Features & Tools (1.6.x, 1.7.x, 2.x)
+   - 🏗️ App-Infrastruktur & Qualität (4.x, 5.x, 6.x)
+5. **Generate separate table for each category** with the following structure:
 
 ## Report Format
 
@@ -37,15 +41,33 @@ You need to provide an action-oriented overview showing what's missing to implem
 - 🎯 Implementation-Ready: X
 - ⚠️ Needs Work: X
 
-## Implementation Readiness Table
+## 📊 Wissenschaftliche Features & Detektoren
+
+Features: 0.x, 1.5.x, 1.8.x, 1.9.x, 3.x
 
 | Feature | ✅ Impl | 🎯 Ready | 📄 Spec | 🔬 Valid | 📋 Plan | Notes |
 |---------|---------|----------|---------|----------|---------|-------|
-| 0.1 RSF-Korrekturen | ✅ | - | ✅ | ✅ | ✅ | Implemented ✓ |
+| 0.1 RSF-Korrektionen | ✅ | - | ✅ | ✅ | ✅ | Implemented ✓ |
 | 1.5.8 Pfeiffer-Kalibrierung | ❌ | ❌ | ✅ | ❌ | ❌ | Missing: Validation, Plan |
+| 1.8.4 Argon Ratio Update | ❌ | ✅ | ✅ | ✅ | ✅ | Ready to implement! |
+
+## 🛠️ Anwendungs-Features & Tools
+
+Features: 1.6.x, 1.7.x, 2.x
+
+| Feature | ✅ Impl | 🎯 Ready | 📄 Spec | 🔬 Valid | 📋 Plan | Notes |
+|---------|---------|----------|---------|----------|---------|-------|
 | 1.6.1 Core Engine | ❌ | ✅ | ✅ | - | ✅ | Ready to implement! |
-| 1.9.1 Kinetic Fingerprinting | ❌ | ❌ | ✅ | ❌ | ❌ | Missing: Validation, Plan |
-| ... | ... | ... | ... | ... | ... | ... |
+| 1.7.2 Advanced Import | ❌ | ❌ | ✅ | - | ❌ | Missing: Plan |
+
+## 🏗️ App-Infrastruktur & Qualität
+
+Features: 4.x, 5.x, 6.x
+
+| Feature | ✅ Impl | 🎯 Ready | 📄 Spec | 🔬 Valid | 📋 Plan | Notes |
+|---------|---------|----------|---------|----------|---------|-------|
+| 3.1 Error Handling | ❌ | ❌ | ✅ | - | ❌ | Missing: Plan |
+| 4.2 Performance Monitor | ⬜ | ❌ | ❌ | - | ❌ | Missing: Spec, Plan |
 
 **Legend:**
 - **Impl** = Implemented (Status ✅ in FEATURE_BACKLOG.md)
