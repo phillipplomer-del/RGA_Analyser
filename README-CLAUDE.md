@@ -130,15 +130,26 @@ When the user says these keywords, perform the corresponding action:
 5. Ask user what they want to work on next
 
 ### "status"
-**Project Status Report** - Generate comprehensive overview:
+**Implementation Readiness Report** - Action-oriented feature overview:
 1. Read entire FEATURE_BACKLOG.md
 2. Parse all features from markdown tables
-3. Generate report with:
-   - Overview statistics (total, by status, by validation)
-   - Feature list grouped by status (✅ 🔄 ⬜ ⏸️ ❌)
-   - Tables: ID | Feature | 🔬 Validiert? | Spec
-   - Implementation-Ready features (Status ✅ + 🔬 ✅)
-   - Next steps guidance
+3. Check file existence (Spec files, Plan files in NextFeatures/)
+4. Generate compact table:
+
+**Table columns:**
+- Feature (ID + Name)
+- ✅ Implementiert (in App = Status ✅)
+- **If NOT implemented:**
+  - 🎯 Ready? (Implementation-Ready = alle Voraussetzungen erfüllt)
+  - 📄 Spec (Spec-Datei vorhanden?)
+  - 🔬 Validiert (nur bei wissenschaftlichen Features)
+  - 📋 Plan (Plan-Datei in NextFeatures/ vorhanden?)
+
+**Implementation-Ready criteria:**
+- Scientific features: Spec ✅ + 🔬 Validiert ✅ + Plan ✅
+- Non-scientific features: Spec ✅ + 🔬 Validiert - + Plan ✅
+
+**Focus:** Show what's missing to make features implementation-ready.
 
 *Note: Detailed instructions are in `.claude/skills/` but work via these keyword triggers.*
 

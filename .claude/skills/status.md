@@ -1,88 +1,130 @@
 ---
 name: status
-description: Show project status with all features and their current state
+description: Show implementation readiness for all features
 ---
 
-# RGA Analyser Project Status
+# RGA Analyser Implementation Readiness Report
 
-You need to provide a comprehensive overview of the project's feature status.
+You need to provide an action-oriented overview showing what's missing to implement each feature.
 
 ## Instructions
 
 1. **Read FEATURE_BACKLOG.md** (entire file)
-2. **Parse all features** from the markdown tables
-3. **Generate status report** with the following structure:
+2. **Parse all features** from markdown tables (extract: ID, name, status, validationStatus, specFile)
+3. **Check file existence:**
+   - Spec files: NextFeatures/, DOCUMENTATION/ARCHIVED/, or paths in FEATURE_BACKLOG.md
+   - Plan files: NextFeatures/FEATURE_[ID]_*_PLAN.md
+4. **Generate compact readiness table** with the following structure:
 
 ## Report Format
 
 ```
-# 📊 RGA Analyser Project Status
+# 🎯 RGA Analyser - Implementation Readiness Report
 
-## Overview
+## Summary
 - Total Features: X
-- ⬜ Planned: X
-- 🔄 In Progress: X
-- ✅ Completed: X
-- ⏸️ Paused: X
-- ❌ Rejected: X
+- ✅ Implemented (in App): X
+- 🎯 Implementation-Ready: X
+- ⚠️ Needs Work: X
 
-## 🔬 Validation Status (Scientific Features)
-- ✅ Fully validated: X
-- ⚠️ Partially validated: X
-- (empty) Pending validation: X
-- (Non-scientific features not counted)
+## Implementation Readiness Table
 
-## Feature List by Status
+| Feature | ✅ Impl | 🎯 Ready | 📄 Spec | 🔬 Valid | 📋 Plan | Notes |
+|---------|---------|----------|---------|----------|---------|-------|
+| 0.1 RSF-Korrekturen | ✅ | - | ✅ | ✅ | ✅ | Implemented ✓ |
+| 1.5.8 Pfeiffer-Kalibrierung | ❌ | ❌ | ✅ | ❌ | ❌ | Missing: Validation, Plan |
+| 1.6.1 Core Engine | ❌ | ✅ | ✅ | - | ✅ | Ready to implement! |
+| 1.9.1 Kinetic Fingerprinting | ❌ | ❌ | ✅ | ❌ | ❌ | Missing: Validation, Plan |
+| ... | ... | ... | ... | ... | ... | ... |
 
-### ✅ Completed (X)
-| ID | Feature | 🔬 Validated? | Spec |
-|----|---------|---------------|------|
-| 0.1 | RSF-Korrekturen | ✅ | IMPLEMENTATION_SPEC.md |
-| ... | ... | ... | ... |
+**Legend:**
+- **Impl** = Implemented (Status ✅ in FEATURE_BACKLOG.md)
+- **Ready** = Implementation-Ready (all prerequisites met)
+- **Spec** = Spec file exists
+- **Valid** = Scientific validation (🔬 column: ✅ fully, ⚠️ partial, - not needed, ❌ missing)
+- **Plan** = Planning file exists in NextFeatures/
 
-### 🔄 In Progress (X)
-| ID | Feature | 🔬 Validated? | Spec |
-|----|---------|---------------|------|
-| ... | ... | ... | ... |
+## 🎯 Ready to Implement (Priority)
 
-### ⬜ Planned (X)
-| ID | Feature | 🔬 Validated? | Spec |
-|----|---------|---------------|------|
-| ... | ... | ... | ... |
+These features have all prerequisites and can be implemented now:
 
-### ⏸️ Paused (X)
-| ID | Feature | 🔬 Validated? | Spec |
-|----|---------|---------------|------|
-| ... | ... | ... | ... |
-
-### ❌ Rejected (X)
-| ID | Feature | 🔬 Validated? | Spec |
-|----|---------|---------------|------|
-| ... | ... | ... | ... |
-
-## 🎯 Implementation-Ready Features
-Features with Status ✅ AND 🔬 Validated? ✅:
-
-- [ID] Feature Name
-- [ID] Feature Name
+1. **[ID] Feature Name** - [estimated effort]
+2. **[ID] Feature Name** - [estimated effort]
 ...
 
-Total: X features ready for implementation
+Total: X features ready
 
-## 📋 Next Steps
+## ⚠️ Needs Attention
+
+Features missing prerequisites (grouped by what's missing):
+
+### Missing Validation (Scientific Features)
+- [ID] Feature Name - has Spec ✅, needs Validation
+- ...
+
+### Missing Plan File
+- [ID] Feature Name - has Spec ✅, Validation ✅, needs Plan
+- ...
+
+### Missing Both
+- [ID] Feature Name - needs Validation + Plan
+- ...
+
+## Next Steps
 Run `npm run check:features` to verify documentation completeness.
 ```
 
-## Important Notes
+## Important Logic
 
-- **Group features by status** (✅, 🔄, ⬜, ⏸️, ❌)
-- **Show all features** in each group
-- For **completed features**, highlight which are **Implementation-Ready** (Status ✅ + 🔬 ✅)
-- Use **tables** for better readability
-- Include **feature IDs** for easy reference
-- Show **validation status** (🔬 column) for all features
-- Keep it **concise but complete** - user should see everything at a glance
+### Determining "Implementation-Ready" (🎯 Ready column)
+
+**For Scientific Features (0.x, 1.5.x, 1.8.x, 1.9.x, 3.x):**
+```
+✅ Ready = Spec exists ✅ + 🔬 Validated ✅ + Plan exists ✅
+❌ Not Ready = Missing any of the above
+```
+
+**For Non-Scientific Features (1.6.x, 1.7.x, 2.x, 4.x, 5.x, 6.x):**
+```
+✅ Ready = Spec exists ✅ + 🔬 Validated - (marked as not scientific) + Plan exists ✅
+❌ Not Ready = Missing any of the above
+```
+
+**For Implemented Features (Status ✅):**
+```
+🎯 Ready = "-" (already implemented, not relevant)
+```
+
+### File Existence Checks
+
+**Spec File:**
+- Check path from FEATURE_BACKLOG.md [spec.md](path/to/spec.md)
+- Try: NextFeatures/, DOCUMENTATION/ARCHIVED/, direct paths
+
+**Plan File:**
+- Pattern: NextFeatures/FEATURE_[ID]_*_PLAN.md
+- Example: FEATURE_1.5.8_PFEIFFER_KALIBRIERUNG_PLAN.md
+- Use Glob to find matching files
+
+### Notes Column Content
+
+**Examples:**
+- "Implemented ✓" - if Status ✅
+- "Ready to implement!" - if 🎯 Ready ✅
+- "Missing: Validation" - if only validation missing
+- "Missing: Plan" - if only plan missing
+- "Missing: Validation, Plan" - if both missing
+- "Missing: Spec" - if spec file not found
+- "" - leave empty for basic planned features (⬜)
+
+## Output Guidelines
+
+- **Focus on action:** What's blocking implementation?
+- **Be concise:** One table, clear notes
+- **Prioritize:** Show ready-to-implement features first
+- **Skip rejected features** (❌ status) unless user asks
+- **Group "Needs Attention"** by what's missing for easy planning
 
 ## After generating the report
 
-End with: "Use `/prime` to load full context or ask me what you'd like to work on next!"
+End with: "What would you like to work on next? Use 'prime' for full context."
