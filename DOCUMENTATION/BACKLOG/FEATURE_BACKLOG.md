@@ -66,7 +66,7 @@
 | 1.8.1 | D₂/HD Gase (Deuterium) | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#deuterium-d₂-and-hd) | 2-3h | m/z 3, 4. Fusionsforschung (JET, ASDEX). **Quelle:** Hiden Analytical, DOE SRNL. gasLibrary.ts + massReference.ts aktualisiert |
 | 1.8.2 | N₂O Gas (Lachgas) | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#n₂o-nitrous-oxide) | 2h | m/z 44/45/46, 30/31. Biogeochemie, ¹⁵N-Analyse. **Quelle:** UC Davis, PubMed. Bereits in gasLibrary.ts implementiert |
 | 1.8.3 | PDMS m/z 59 Enhancement | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#silicon-isotopes--pdms-contamination) | 30min | Zusätzlicher kritischer PDMS-Marker (C₃H₇Si⁺). **Quelle:** Springer, Hiden SIMS. Erweitert um m/z 147 Check |
-| 1.8.4 | Argon Ratio Update (Optional) | ⬜ | | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#argon---air-leak-detection) | 15min | Update auf Lee 2006 Wert (298.6 statt 295.5). 1% Abweichung, niedrige Priorität |
+| 1.8.4 | Argon Ratio Update (Optional) | ⬜ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#argon---air-leak-detection) | 15min | Update auf Lee 2006 Wert (298.6 statt 295.5). 1% Abweichung, niedrige Priorität. **Validiert 2026-01-10:** 5 Quellen (Lee 2006, CIAAW 2007, NIST, IUPAC 2014, USGS) |
 
 ### Offline-Analyse Features (Priorität 1.9) 🧪
 
@@ -387,6 +387,7 @@ Für neue Features verwenden:
 | 2026-01-10 | 🔄 **FEATURE_BACKLOG.md Struktur überarbeitet:** Umorganisierung von Prioritäts-Nummern zu kategorialen Sektionen. Neue Struktur: (1) 📊 Wissenschaftliche Features & Detektoren, (2) 🛠️ Anwendungs-Features & Tools, (3) 🏗️ App-Infrastruktur & Qualität. Viel übersichtlicher und klar getrennt nach Feature-Typ. Alle Prioritäts-IDs bleiben unverändert (0, 1, 1.5, 1.6, 1.7, 1.8, 2, 3, 4, 5, 6). |
 | 2026-01-10 | 🧪 **Priorität 1.9 hinzugefügt (Gemini-3-Pro Cross-Validation):** 5 neue Offline-Analyse Features identifiziert: (1) Kinetic Fingerprinting (Desorptions-Kinetik n-Exponent), (2) Dynamic LOD (3σ IUPAC), (3) Statistical Uncertainty (Confidence Intervals), (4) Intelligent Background Subtraction, (5) Permeation Lag Detection (Elastomer Check). Außerdem 2 kritische Bugs gefunden: Rate-of-Rise Curve Fitting Models vertauscht + Temperature Correction Formula inverted! |
 | 2026-01-10 | 🐛 **Kritische Bug-Fixes implementiert:** (1) Temperature Correction Formula korrigiert (T_curr/T_ref statt T_ref/T_curr) - hot gauges measure lower density, Korrektur muss nach oben! (2) Rate-of-Rise Curve Fitting Model-Beschreibungen korrigiert - Virtual Leak: Exponential (1-e^(-t/τ)), Outgassing: Logarithmic (ln(t)). Implementierungs-Logik war korrekt, nur Dokumentation/Beschreibungen gefixt. Wissenschaftlicher Impact: HOCH. |
+| 2026-01-10 | 🔬 **Feature 1.8.4 (Argon Ratio Update) wissenschaftlich validiert:** 5 Quellen dokumentiert (Lee et al. 2006, CIAAW 2007, NIST, IUPAC 2014, USGS). Plan-Datei erstellt: [FEATURE_1.8.4_ARGON_RATIO_UPDATE_PLAN.md](../../NextFeatures/FEATURE_1.8.4_ARGON_RATIO_UPDATE_PLAN.md). Update von 295.5 (Nier 1950) auf 298.56 (Lee 2006) geplant. Feature ist jetzt **implementation-ready** (hat Spec ✅, Validation ✅, Plan ✅). |
 
 ---
 
