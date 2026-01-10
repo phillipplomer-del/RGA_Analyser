@@ -1,8 +1,8 @@
 # Feature Backlog - RGA Analyser
 
-> Zentrale Übersicht aller geplanten Features. Priorisiert nach Bedarf und Umsetzbarkeit.
+> Zentrale Übersicht aller geplanten Features. Strukturiert nach **Wissenschaft**, **Anwendungs-Tools** und **App-Infrastruktur**.
 
-**Letzte Aktualisierung:** 2026-01-09
+**Letzte Aktualisierung:** 2026-01-10
 
 ---
 
@@ -18,9 +18,11 @@
 
 ---
 
-## Priorisierte Feature-Liste
+## 📊 Wissenschaftliche Features & Detektoren
 
-### Priorität 0: Datenqualität & Korrekturen (KRITISCH) ✅ ABGESCHLOSSEN
+> Features die wissenschaftliche Analyse, Datenqualität und Diagnose-Algorithmen betreffen
+
+### Datenqualität & Korrekturen (Priorität 0) ✅ ABGESCHLOSSEN
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
@@ -30,14 +32,7 @@
 | 0.4 | Neue Diagnose-Detektoren | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 2-3h | Polymer, Weichmacher, Prozessgas, Kühlwasser |
 | 0.5 | Neue Limit-Profile | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 30min | LIGO UHV, Semiconductor CVD |
 
-### Priorität 1: Fundament & Quick Wins
-
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 1.1 | Error Handling Grundgerüst | ⬜ | [ERROR_HANDLING_SPEC.md](./ERROR_HANDLING_SPEC.md) | 1-2 Tage | Toast, Error-Boundary, Error-Store - **NÄCHSTE PRIORITÄT** (parallel zu 1.6 Leak Planner) |
-| 1.2 | Firebase Auth Migration | ⏸️ | [FIREBASE_AUTH_MIGRATION.md](./FIREBASE_AUTH_MIGRATION.md) | 2-4h | E-Mail + Passwort, Passwort-Reset - **SPÄTER** (nur 3 Nutzer aktuell) |
-
-### Priorität 1.5: Wissenschaftliche Analysewerkzeuge (NEU)
+### Wissenschaftliche Analysewerkzeuge (Priorität 1.5)
 
 > Aus [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) - Vakuum-Experten-Empfehlungen
 
@@ -49,11 +44,11 @@
 | 1.5.4 | **ESD-Artefakt-Erkennung** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#3-esd-artefakt-erkennung) | 2-4h | 6 Kriterien (O⁺, N⁺, C⁺, H⁺, F⁺, Cl), dynamische Severity (info/warning), spezifische Degassing-Empfehlungen |
 | 1.5.5 | **Helium-Leck-Indikator** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#4-helium-lecktest-integration) | 2h | Qualitative m/z=4 Detektion (NICHT quantitative Leckrate!). Warnung mit Empfehlung für dedizierten He-Leckdetektor |
 | 1.5.6 | ~~Erweiterte Öl-Diagnose~~ | ❌ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#5-erweiterte-öl-diagnose) | VERWORFEN | **Wissenschaftlich nicht valide:** Öl-Typ-Unterscheidung nicht zuverlässig, FOMBLIN-Fehler. Existierender `detectOilBackstreaming()` ist korrekt. Plan: [done/OEL_DIAGNOSE_VERWORFEN_NICHT_VALIDE.md](./done/OEL_DIAGNOSE_VERWORFEN_NICHT_VALIDE.md) |
-| 1.5.7 | Peak-Deconvolution | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#6-massenauflösung-und-peak-überlappung) | 4-8h | Überlappende Peaks trennen (m/z=28: N₂ vs CO) |
+| 1.5.7 | **Peak-Deconvolution** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#6-massenauflösung-und-peak-überlappung) | 3h | ✅ **2026-01-10:** N₂/CO Diskriminierung mit ¹³CO (1.2%), ¹⁴N¹⁵N (0.6-0.9%), N⁺/C⁺ Ratio. Wissenschaftlich validiert gegen NIST/Hofmann. |
 | 1.5.8 | Pfeiffer-Kalibrierung | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#7-pfeiffer-spezifische-erweiterungen) | 2h | Gerätespezifische Kalibrierungsfaktoren |
 | **1.5.9** | **Wissenschaftliche Validierung & Referenz-System** | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md) | ~6h | **67 Quellen dokumentiert**, alle Isotope validiert (NIST/CIAAW), Knowledge Panel erweitert, Claude Code Training. **Status-Übersicht:** [WISSENSCHAFTLICHE_VALIDIERUNG_STATUS.md](./WISSENSCHAFTLICHE_VALIDIERUNG_STATUS.md) |
 
-### Priorität 1.8: Erweiterungen aus wissenschaftlicher Validierung (NEU) 🔬
+### Erweiterungen aus wissenschaftlicher Validierung (Priorität 1.8) 🔬
 
 > **Identifiziert durch systematische Literatur-Recherche (2026-01-09)**
 
@@ -64,7 +59,39 @@
 | 1.8.3 | PDMS m/z 59 Enhancement | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#silicon-isotopes--pdms-contamination) | 30min | Zusätzlicher kritischer PDMS-Marker (C₃H₇Si⁺). **Quelle:** Springer, Hiden SIMS. Erweitert um m/z 147 Check |
 | 1.8.4 | Argon Ratio Update (Optional) | ⬜ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#argon---air-leak-detection) | 15min | Update auf Lee 2006 Wert (298.6 statt 295.5). 1% Abweichung, niedrige Priorität |
 
-### Priorität 1.6: Lecksuche-Planer (NEU) 🔥 IMPLEMENTATION-READY
+### Offline-Analyse Features (Priorität 1.9) 🧪
+
+> **Identifiziert durch Gemini-3-Pro Cross-Validation (2026-01-10)**
+> Wissenschaftliche Features für fortgeschrittene Offline-Analyse von RGA/RoR-Daten
+
+| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|------------|---------|---------|
+| 1.9.1 | Kinetic Fingerprinting | ⬜ | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 4-6h | Desorptions-Kinetik: Exponent n identifiziert Gas-Quelle (n≈1: Surface, n≈0.5: Bulk Diffusion). P ∝ t⁻ⁿ Analyse |
+| 1.9.2 | Dynamic LOD (Limit of Detection) | ⬜ | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 2-3h | LOD = μ_noise + 3σ_noise (IUPAC Standard). Ersetzt arbitrary "1e-10" Cutoffs mit statistisch robuster Berechnung pro Scan |
+| 1.9.3 | Statistical Uncertainty Calculation | ⬜ | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 3-4h | Confidence Intervals für Leckraten: Q ± 2·SE_slope (95% CI). Linear Regression Analysis mit Standard Error of Slope |
+| 1.9.4 | Intelligent Background Subtraction | ⬜ | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 3-4h | ASCII Background-File Subtraktion mit Negative Clamping und Normalization Drift Handling |
+| 1.9.5 | Permeation Lag Detection | ⬜ | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 4-5h | Elastomer Check: Time Lag t_lag = L²/6D Detection. Unterscheidet "Real Leak" (immediate) vs. "Permeation" (delayed S-Curve) |
+
+**Kritische Bug-Fixes aus Cross-Validation:**
+- ✅ **Rate-of-Rise Curve Fitting Models:** GEFIXT (2026-01-10) - Virtual Leak: Exponential (1-e^(-t/τ)), Outgassing: Logarithmic (ln(t))
+- ✅ **Temperature Correction Formula:** GEFIXT (2026-01-10) - P_corr = P_meas × (T_curr/T_ref), war inverted
+
+### Wissenschaftliche Qualität (Priorität 3)
+
+| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|------------|---------|---------|
+| 3.1 | Unsicherheiten Basis | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 4-6h | Lineare Regression mit Fehlern |
+| 3.2 | Fehlerfortpflanzung | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 4h | Q = V · dp/dt mit Unsicherheiten |
+| 3.3 | Robuste Regression | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 6h | Huber, RANSAC |
+| 3.4 | Grenzwert-Signifikanz | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 2h | P(Q < Limit) Berechnung |
+
+---
+
+## 🛠️ Anwendungs-Features & Tools
+
+> Features für Workflow-Unterstützung, Engineering-Tools und spezielle Anwendungsfälle
+
+### Lecksuche-Planer (Priorität 1.6) 🔥 IMPLEMENTATION-READY
 
 > **Intelligenter Assistent für Lecksuchmethoden-Auswahl nach DIN EN 1779**
 > **Spec-Qualität: 10/10** - Vollständigste Spec im Projekt! Alle TypeScript Types, Equipment DB, Physik-Engine, UI Screens, Test Cases fertig spezifiziert.
@@ -82,7 +109,7 @@
 
 **MVP-Scope (1.6.1-1.6.3):** 16-21h → 3 Methoden (B2, B5, B6), Quick Mode, 8 Standards, Virtual Leak Risk, Warnungen, Markdown-Export
 
-### Priorität 1.7: STL Geometry Import (NEU) 🎨
+### STL Geometry Import (Priorität 1.7) 🎨
 
 > **CAD-Modell-Import für automatische Volumen- und Oberflächenberechnung**
 > Ingenieure laden STL-Dateien hoch → automatische Berechnung → Übernahme in Ausgasungs-Rechner und Lecksuche-Planer
@@ -96,7 +123,9 @@
 
 **MVP-Scope (1.7.1-1.7.3):** 8-12h → STL-Upload, 3D-Vorschau, automatische Geometrie-Berechnung, Wandstärken-Korrektur
 
-### Priorität 2: Kernfunktionen
+### Zeitreihen-Analyse (Priorität 2)
+
+> Multi-Scan-Analyse für zeitaufgelöste RGA-Messungen (Prozessüberwachung, Pumpdown-Analyse)
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
@@ -104,16 +133,20 @@
 | 2.2 | Zeitreihen MVP (UI) | ⬜ | [TIMESERIES_FEATURE_SPEC.md](./TIMESERIES_FEATURE_SPEC.md) | 8-12h | Trend-Chart, Spektrum-Slider |
 | 2.3 | Zeitreihen Analyse | ⬜ | [TIMESERIES_FEATURE_SPEC.md](./TIMESERIES_FEATURE_SPEC.md) | 6-8h | Trend-Berechnung, Exp. Fit |
 
-### Priorität 3: Wissenschaftliche Qualität
+---
+
+## 🏗️ App-Infrastruktur & Qualität
+
+> Fundament für Robustheit, Code-Qualität, Performance und User Experience
+
+### Fundament (Priorität 1)
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
-| 3.1 | Unsicherheiten Basis | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 4-6h | Lineare Regression mit Fehlern |
-| 3.2 | Fehlerfortpflanzung | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 4h | Q = V · dp/dt mit Unsicherheiten |
-| 3.3 | Robuste Regression | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 6h | Huber, RANSAC |
-| 3.4 | Grenzwert-Signifikanz | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 2h | P(Q < Limit) Berechnung |
+| 1.1 | Error Handling Grundgerüst | ⬜ | [ERROR_HANDLING_SPEC.md](./ERROR_HANDLING_SPEC.md) | 1-2 Tage | Toast, Error-Boundary, Error-Store - **NÄCHSTE PRIORITÄT** (parallel zu 1.6 Leak Planner) |
+| 1.2 | Firebase Auth Migration | ⏸️ | [FIREBASE_AUTH_MIGRATION.md](./FIREBASE_AUTH_MIGRATION.md) | 2-4h | E-Mail + Passwort, Passwort-Reset - **SPÄTER** (nur 3 Nutzer aktuell) |
 
-### Priorität 4: Code-Qualität
+### Code-Qualität (Priorität 4)
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
@@ -123,7 +156,7 @@
 | 4.4 | Shared Data Components | ⬜ | [SHARED_COMPONENTS_SPEC.md](./SHARED_COMPONENTS_SPEC.md) | 4h | DataTable, MetadataCard |
 | 4.5 | Shared Input Components | ⬜ | [SHARED_COMPONENTS_SPEC.md](./SHARED_COMPONENTS_SPEC.md) | 4h | NumberInput, RangeSlider |
 
-### Priorität 5: UX Polish
+### UX Polish (Priorität 5)
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
@@ -132,7 +165,7 @@
 | 5.3 | Undo/Redo System | ⬜ | [UX_INTERACTIONS.md](./UX_INTERACTIONS.md) | 4h | Zustand-History |
 | 5.4 | Touch-Gesten | ⬜ | [UX_INTERACTIONS.md](./UX_INTERACTIONS.md) | 4h | Pinch-to-Zoom, Swipe |
 
-### Priorität 6: Performance (bei Bedarf)
+### Performance (Priorität 6)
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
@@ -310,6 +343,9 @@ Für neue Features verwenden:
 | 2026-01-09 | ✅ **Helium-Leck-Indikator (1.5.5) wissenschaftlich validiert:** Web-Recherche bestätigte qualitative vs. quantitative Unterscheidung. RGAs sind 1-2 Größenordnungen weniger empfindlich als dedizierte He-Leckdetektoren (~5×10⁻¹² mbar·l/s). Quantitative Leckraten-Berechnung aus RGA-Signal NICHT wissenschaftlich belegt. Implementierter Ansatz validiert: m/z 4 > 0.01 + He/H₂ > 0.1 für qualitative Erkennung. 20+ Quellen dokumentiert (Hiden, Kurt Lesker, MKS, SRS) in [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md). |
 | 2026-01-09 | ❌ **Erweiterte Öl-Diagnose (1.5.6) nach Validierung verworfen:** Web-Recherche identifizierte kritische Probleme: (1) FOMBLIN-Kategorisierungs-Fehler - Spec ordnete FOMBLIN als Kohlenwasserstoff-Öl ein, aber FOMBLIN ist Perfluoropolyether (PFPE) mit CF₃⁺ bei m/z 69, (2) Öl-Typ-Unterscheidung wissenschaftlich nicht belegt - Kurt Lesker: "does not provide information distinguishing between different oil types", (3) Existierender `detectOilBackstreaming()` bereits korrekt (Δ14 amu Pattern). Feature als pseudowissenschaftlich eingestuft und verworfen. 15+ Quellen dokumentiert. Rejection-Dokumentation: [OEL_DIAGNOSE_VERWORFEN_NICHT_VALIDE.md](./done/OEL_DIAGNOSE_VERWORFEN_NICHT_VALIDE.md). |
 | 2026-01-09 | 📊 **Validierungs-Status-Übersicht erstellt:** Systematische Analyse aller 30 wissenschaftlichen Features und Detektoren. Ergebnis: 8 vollständig validiert (27%), 13 teilvalidiert (43%), 8 nicht validiert (27%), 1 verworfen (3%). Prioritäten für zukünftige Validierung definiert. Dokument: [WISSENSCHAFTLICHE_VALIDIERUNG_STATUS.md](./WISSENSCHAFTLICHE_VALIDIERUNG_STATUS.md) |
+| 2026-01-10 | 🔄 **FEATURE_BACKLOG.md Struktur überarbeitet:** Umorganisierung von Prioritäts-Nummern zu kategorialen Sektionen. Neue Struktur: (1) 📊 Wissenschaftliche Features & Detektoren, (2) 🛠️ Anwendungs-Features & Tools, (3) 🏗️ App-Infrastruktur & Qualität. Viel übersichtlicher und klar getrennt nach Feature-Typ. Alle Prioritäts-IDs bleiben unverändert (0, 1, 1.5, 1.6, 1.7, 1.8, 2, 3, 4, 5, 6). |
+| 2026-01-10 | 🧪 **Priorität 1.9 hinzugefügt (Gemini-3-Pro Cross-Validation):** 5 neue Offline-Analyse Features identifiziert: (1) Kinetic Fingerprinting (Desorptions-Kinetik n-Exponent), (2) Dynamic LOD (3σ IUPAC), (3) Statistical Uncertainty (Confidence Intervals), (4) Intelligent Background Subtraction, (5) Permeation Lag Detection (Elastomer Check). Außerdem 2 kritische Bugs gefunden: Rate-of-Rise Curve Fitting Models vertauscht + Temperature Correction Formula inverted! |
+| 2026-01-10 | 🐛 **Kritische Bug-Fixes implementiert:** (1) Temperature Correction Formula korrigiert (T_curr/T_ref statt T_ref/T_curr) - hot gauges measure lower density, Korrektur muss nach oben! (2) Rate-of-Rise Curve Fitting Model-Beschreibungen korrigiert - Virtual Leak: Exponential (1-e^(-t/τ)), Outgassing: Logarithmic (ln(t)). Implementierungs-Logik war korrekt, nur Dokumentation/Beschreibungen gefixt. Wissenschaftlicher Impact: HOCH. |
 
 ---
 
