@@ -10,7 +10,7 @@
 
 1. **[.claude/project-context.md](.claude/project-context.md)** - Full project context
 2. **[RGA_Knowledge/SCIENTIFIC_REFERENCES.md](RGA_Knowledge/SCIENTIFIC_REFERENCES.md)** ⭐ PRIMARY REFERENCE for scientific validation
-3. **[NextFeatures/FEATURE_BACKLOG.md](NextFeatures/FEATURE_BACKLOG.md)** - Current priorities
+3. **[DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md](DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md)** - Current priorities
 
 ---
 
@@ -46,6 +46,46 @@
 □ Document source + precision
 ```
 
+### ✅ Adding New Scientific Feature (MANDATORY WORKFLOW)
+
+**IMPORTANT:** ALL scientific features MUST follow this workflow to prevent information loss.
+
+```
+□ Phase 1: Konzept
+  □ Create entry in FEATURE_BACKLOG.md (Status: ⬜)
+  □ Copy TEMPLATES/FEATURE_PLAN_TEMPLATE.md → NextFeatures/FEATURE_[ID]_[NAME]_PLAN.md
+  □ Copy TEMPLATES/FEATURE_CHECKLIST.md → NextFeatures/FEATURE_[ID]_CHECKLIST.md
+
+□ Phase 2: Wissenschaftliche Validierung
+  □ Research scientific sources (≥2 peer-reviewed OR ≥3 standards/manufacturer)
+  □ Add section to SCIENTIFIC_REFERENCES.md with sources + limitations
+  □ Update planning file with validation results
+
+□ Phase 3: Implementation
+  □ Update FEATURE_BACKLOG.md (⬜ → 🔄)
+  □ Implement code
+  □ Add ValidationMetadata to src/lib/diagnosis/validation.ts
+
+□ Phase 4: Finalization
+  □ Update FEATURE_BACKLOG.md (🔄 → ✅)
+  □ Add changelog entry to FEATURE_BACKLOG.md
+  □ Move planning file to DOCUMENTATION/ARCHIVED/
+  □ Verify ValidationBadge visible in KnowledgePanel
+
+□ Phase 5: Verification
+  □ Run through FEATURE_CHECKLIST.md
+  □ All links working
+  □ Feature discoverable in all locations
+```
+
+**File Locations Quick Reference:**
+- Planning: `NextFeatures/FEATURE_[ID]_[NAME]_PLAN.md`
+- Checklist: `NextFeatures/FEATURE_[ID]_CHECKLIST.md`
+- Sources: `RGA_Knowledge/SCIENTIFIC_REFERENCES.md`
+- Validation: `src/lib/diagnosis/validation.ts`
+- Backlog: `DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md`
+- Templates: `DOCUMENTATION/BACKLOG/TEMPLATES/`
+
 ---
 
 ## 🔍 Where to Find Things
@@ -56,19 +96,21 @@
 | **Gas properties** | src/lib/knowledge/gasLibrary.ts |
 | **Isotope ratios** | src/lib/knowledge/isotopePatterns.ts |
 | **Diagnostic algorithms** | src/lib/diagnosis/detectors.ts |
-| **Feature planning** | NextFeatures/FEATURE_BACKLOG.md |
+| **Feature planning** | DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md |
+| **Feature templates** | DOCUMENTATION/BACKLOG/TEMPLATES/ |
 | **UI components** | src/components/ |
 
 ---
 
-## 🚀 Current Priorities (2026-01-09)
+## 🚀 Current Priorities (2026-01-10)
 
-1. ✅ Scientific validation documented (DONE)
-2. ⏭️ Implement D₂/HD/N₂O gases
-3. ⏭️ Enhance PDMS detection (add m/z 59)
-4. ⏭️ Error handling framework
+1. ✅ Knowledge Management System implemented (DONE)
+2. ✅ Scientific validation documented (DONE)
+3. ⏭️ Implement D₂/HD/N₂O gases
+4. ⏭️ Enhance PDMS detection (add m/z 59)
+5. ⏭️ Error handling framework
 
-See [FEATURE_BACKLOG.md](NextFeatures/FEATURE_BACKLOG.md) for details.
+See [FEATURE_BACKLOG.md](DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md) for details.
 
 ---
 
@@ -81,4 +123,4 @@ See [FEATURE_BACKLOG.md](NextFeatures/FEATURE_BACKLOG.md) for details.
 
 ---
 
-**Last Updated:** 2026-01-09
+**Last Updated:** 2026-01-10
