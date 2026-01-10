@@ -155,15 +155,16 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
 
   [DiagnosisType.N2_CO_MIXTURE]: {
     validated: true,
-    confidence: 'medium',
+    confidence: 'medium-high',
     sources: [
       'https://webbook.nist.gov/cgi/cbook.cgi?ID=C7727379&Mask=200',
       'https://webbook.nist.gov/cgi/cbook.cgi?ID=C630080&Mask=200',
       'https://www.hidenanalytical.com/tech-data/cracking-patterns/',
-      'https://indico.cern.ch/event/565314/contributions/2285748/attachments/1467497/2273709/RGA_tutorial-interpretation.pdf'
+      'https://indico.cern.ch/event/565314/contributions/2285748/attachments/1467497/2273709/RGA_tutorial-interpretation.pdf',
+      'https://philiphofmann.net/ultrahighvacuum/ind_RGA.html'
     ],
-    lastValidated: '2026-01-09',
-    notes: 'N2: m28/m14 ~14, CO: m28/m12 ~20, 13CO: m29/m28 ~1.2%. Schwellenwert 1.5% etwas hoch.'
+    lastValidated: '2026-01-10',
+    notes: 'Enhanced detector: N2: m28/m14 ~14, CO: m28/m12 ~20, ¹³CO: m29/m28 >1.2% (adjusted), ¹⁴N¹⁵N: m29/m28 0.6-0.9% for N2 confirmation, N+/C+ ratio (m14/m12) discrimination. Thresholds validated against NIST/Hofmann.'
   },
 
   [DiagnosisType.CO_DOMINANT]: {

@@ -1112,6 +1112,28 @@ export function distinguishN2fromCO(input: DiagnosisInput): DiagnosticResult | n
     { min: 15, max: 25 }
   ))
 
+  // N⁺/C⁺ Diskriminierungsverhältnis (neu)
+  const ratio_14_12 = (m14 > 0 && m12 > 0) ? m14 / m12 : 999
+
+  if (m14 > DEFAULT_THRESHOLDS.minPeakHeight && m12 > DEFAULT_THRESHOLDS.minPeakHeight) {
+    evidence.push(createEvidence(
+      'ratio',
+      `N⁺/C⁺ Verhältnis (m14/m12): ${ratio_14_12.toFixed(2)} (N₂: >2, CO: <0.5)`,
+      `N⁺/C⁺ ratio (m14/m12): ${ratio_14_12.toFixed(2)} (N₂: >2, CO: <0.5)`,
+      ratio_14_12 > 0.5 && ratio_14_12 < 2.0,
+      ratio_14_12
+    ))
+
+    if (ratio_14_12 > 2.0) {
+      confidence += 0.2  // Starker N₂-Hinweis
+      probablyCO = false
+    } else if (ratio_14_12 < 0.5) {
+      confidence += 0.2  // Starker CO-Hinweis
+      probablyCO = true
+      coFraction = Math.max(coFraction, 0.7)
+    }
+  }
+
   // Entscheidungslogik
   if (m12 < DEFAULT_THRESHOLDS.minPeakHeight && m14 > DEFAULT_THRESHOLDS.minPeakHeight) {
     // Kein C⁺ → hauptsächlich N₂ → keine Warnung nötig
@@ -1144,17 +1166,50 @@ export function distinguishN2fromCO(input: DiagnosisInput): DiagnosticResult | n
     }
   }
 
-  // ¹³CO Check
-  if (m29 > 0 && m28 > 0 && m29 / m28 > 0.015) {
+  // ¹⁴N¹⁵N Check für N₂ Bestätigung (neu)
+  // Natürliche Häufigkeit: ¹⁵N = 0,368%, also ¹⁴N¹⁵N ≈ 0,73% von N₂
+  if (m29 > 0 && m28 > 0) {
+    const m29_28_ratio = m29 / m28
+
+    if (m29_28_ratio >= 0.006 && m29_28_ratio <= 0.009) {
+      // Konsistent mit N₂-Isotopenverhältnis
+      evidence.push(createEvidence(
+        'ratio',
+        `m29/m28 = ${(m29_28_ratio * 100).toFixed(2)}% konsistent mit ¹⁴N¹⁵N (N₂: ~0,73%)`,
+        `m29/m28 = ${(m29_28_ratio * 100).toFixed(2)}% consistent with ¹⁴N¹⁵N (N₂: ~0.73%)`,
+        true,
+        m29_28_ratio * 100,
+        { min: 0.6, max: 0.9 }
+      ))
+      if (!probablyCO) {
+        confidence += 0.15  // Boost N₂ confidence
+      }
+    } else if (m29_28_ratio < 0.006) {
+      // Zu niedrig für natürliches N₂ - könnte reine N₂ mit schwacher m29 sein
+      evidence.push(createEvidence(
+        'ratio',
+        `Niedriges m29/m28 (${(m29_28_ratio * 100).toFixed(2)}%) - mögliche Nachweisgrenze`,
+        `Low m29/m28 (${(m29_28_ratio * 100).toFixed(2)}%) - possible detection limit`,
+        false,
+        m29_28_ratio * 100
+      ))
+    }
+  }
+
+  // ¹³CO Check (verbessert mit wissenschaftlich validiertem Schwellenwert)
+  if (m29 > 0 && m28 > 0 && m29 / m28 > 0.012) {
+    // Schwellenwert auf 1.2% reduziert (von 1.5%)
+    // Wissenschaftliche Grundlage: ¹³C natürliche Häufigkeit = 1,07%, typisches ¹³CO/CO = 1,1-1,2%
     evidence.push(createEvidence(
       'ratio',
-      `Erhöhtes m29/m28 deutet auf CO (¹³CO)`,
-      `Elevated m29/m28 indicates CO (¹³CO)`,
+      `m29/m28 = ${((m29 / m28) * 100).toFixed(2)}% deutet auf ¹³CO (erwartet: 1,1-1,2%)`,
+      `m29/m28 = ${((m29 / m28) * 100).toFixed(2)}% indicates ¹³CO (expected: 1.1-1.2%)`,
       true,
-      (m29 / m28) * 100
+      (m29 / m28) * 100,
+      { min: 1.1, max: 1.3 }
     ))
     probablyCO = true
-    confidence += 0.2
+    confidence += 0.25  // Increased from 0.2
   }
 
   if (confidence < DEFAULT_THRESHOLDS.minConfidence) return null
