@@ -26,11 +26,11 @@
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
-| 0.1 | **RSF-Korrekturen** | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 30min | H₂S, SO₂, C₂H₆, SiH₄, PH₃ - korrigiert! |
-| 0.2 | Neue Gase (Halbleiter) | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 1h | NF₃, WF₆, C₂F₆, GeH₄ |
-| 0.3 | Neue Massen-Einträge | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 30min | m/z 52, 119, 127, 149 (Phthalat!) |
-| 0.4 | Neue Diagnose-Detektoren | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 2-3h | Polymer, Weichmacher, Prozessgas, Kühlwasser |
-| 0.5 | Neue Limit-Profile | ✅ | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | 30min | LIGO UHV, Semiconductor CVD |
+| 0.1 | **RSF-Korrekturen** | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 30min | H₂S, SO₂, C₂H₆, SiH₄, PH₃ - korrigiert! |
+| 0.2 | Neue Gase (Halbleiter) | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 1h | NF₃, WF₆, C₂F₆, GeH₄ |
+| 0.3 | Neue Massen-Einträge | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 30min | m/z 52, 119, 127, 149 (Phthalat!) |
+| 0.4 | Neue Diagnose-Detektoren | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 2-3h | Polymer, Weichmacher, Prozessgas, Kühlwasser |
+| 0.5 | Neue Limit-Profile | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 30min | LIGO UHV, Semiconductor CVD |
 
 ### Wissenschaftliche Analysewerkzeuge (Priorität 1.5)
 
@@ -175,8 +175,8 @@
 
 | # | Feature | Status | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|------------|---------|---------|
-| 1.1 | Error Handling Grundgerüst | ⬜ | [ERROR_HANDLING_SPEC.md](./ERROR_HANDLING_SPEC.md) | 1-2 Tage | Toast, Error-Boundary, Error-Store - **NÄCHSTE PRIORITÄT** (parallel zu 1.6 Leak Planner) |
-| 1.2 | Firebase Auth Migration | ⏸️ | [FIREBASE_AUTH_MIGRATION.md](./FIREBASE_AUTH_MIGRATION.md) | 2-4h | E-Mail + Passwort, Passwort-Reset - **SPÄTER** (nur 3 Nutzer aktuell) |
+| 1.1 | Error Handling Grundgerüst | ⬜ | [FEATURE_3.1_ERROR_HANDLING_PLAN.md](./FEATURE_3.1_ERROR_HANDLING_PLAN.md) | 1-2 Tage | Toast, Error-Boundary, Error-Store - **NÄCHSTE PRIORITÄT** (parallel zu 1.6 Leak Planner) |
+| 1.2 | Firebase Auth Migration | ⏸️ | [FEATURE_3.2_FIREBASE_AUTH_PLAN.md](./FEATURE_3.2_FIREBASE_AUTH_PLAN.md) | 2-4h | E-Mail + Passwort, Passwort-Reset - **SPÄTER** (nur 3 Nutzer aktuell) |
 
 ### Code-Qualität (Priorität 4)
 
@@ -216,7 +216,7 @@
 | Web Research Integration | 2025-12 | [done/RGA_WEB_RESEARCH_ADDENDUM.md](./done/RGA_WEB_RESEARCH_ADDENDUM.md) | Pfeiffer Know-How |
 | Rate-of-Rise Feature | 2026-01 | [done/RATE_OF_RISE_FEATURE_SPEC.md](./done/RATE_OF_RISE_FEATURE_SPEC.md) | Leckraten-Analyse |
 | Knowledge Section | 2026-01 | - | Intro-Texte, RoR Tab |
-| **Datenqualität (Prio 0)** | 2026-01-08 | [IMPLEMENTATION_SPEC.md](./IMPLEMENTATION_SPEC.md) | RSF, 4 Gase, 4 Massen, 4 Detektoren, 2 Profile |
+| **Datenqualität (Prio 0)** | 2026-01-08 | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | RSF, 4 Gase, 4 Massen, 4 Detektoren, 2 Profile |
 | **Ausgasungs-Simulator** | 2026-01-08 | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) | Multi-Material, Leck-vs-Ausgasung, RoR+RGA Integration |
 | **Isotopen-Analyse** | 2026-01-08 | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) | 10 Elemente, Fragment-Muster, verifyIsotopeRatios Detektor |
 | **Konfidenz-Score System** | 2026-01-08 | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) | 6 aktive Faktoren (SNR, Peaks, Dynamik, Temp, Massenbereich, H₂), Grade A-F. Kalibrieralter vorbereitet (weight=0) |
@@ -249,13 +249,13 @@ Für neue Features verwenden:
 - **Bedarf:** ⭐⭐⭐⭐⭐ (RSF-Fehler = falsche Messwerte!)
 - **Fazit:** **Sofort umsetzen!** RSF-Korrekturen sind kritisch für wissenschaftliche Genauigkeit
 
-### ERROR_HANDLING_SPEC.md
+### FEATURE_3.1_ERROR_HANDLING_PLAN.md
 - **Umsetzbarkeit:** ⭐⭐⭐⭐ (Klare Struktur, schrittweise)
 - **Komplexität:** ⭐⭐⭐ (5 Phasen)
 - **Bedarf:** ⭐⭐⭐⭐⭐ (Fundament für Robustheit)
 - **Fazit:** Sollte früh implementiert werden
 
-### FIREBASE_AUTH_MIGRATION.md
+### FEATURE_3.2_FIREBASE_AUTH_PLAN.md
 - **Umsetzbarkeit:** ⭐⭐⭐⭐⭐ (Firebase SDK gut dokumentiert)
 - **Komplexität:** ⭐⭐ (2-4h)
 - **Bedarf:** ⭐⭐⭐⭐ (Passwort-Reset, SSO benötigt)

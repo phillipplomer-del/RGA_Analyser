@@ -79,12 +79,14 @@
 ```
 
 **File Locations Quick Reference:**
-- Planning: `NextFeatures/FEATURE_[ID]_[NAME]_PLAN.md`
+- Planning (Single Feature): `NextFeatures/FEATURE_[ID]_[NAME]_PLAN.md`
+- Planning (Multi-Feature System): `NextFeatures/[SYSTEM_NAME]_SPEC.md` (z.B. LeaksearchPlanner_MasterV7_COMPLETE.md)
 - Checklist: `NextFeatures/FEATURE_[ID]_CHECKLIST.md`
 - Sources: `RGA_Knowledge/SCIENTIFIC_REFERENCES.md`
 - Validation: `src/lib/diagnosis/validation.ts`
 - Backlog: `DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md`
 - Templates: `DOCUMENTATION/BACKLOG/TEMPLATES/`
+- Archived: `DOCUMENTATION/ARCHIVED/` (abgeschlossene Features)
 
 ---
 
