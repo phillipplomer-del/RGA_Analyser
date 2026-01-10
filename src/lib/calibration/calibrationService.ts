@@ -80,10 +80,11 @@ export function calibrate(
     }
 
     // Temperaturkorrektur (STANDARD+)
-    // P_korrigiert = P_gemessen × (T_ref / T_aktuell)
+    // P_korrigiert = P_gemessen × (T_aktuell / T_ref)
+    // Hot gauges measure lower density → higher T requires upward correction
     if (level !== 'BASIC' && metadata.temperature !== undefined) {
       const T_actual_K = metadata.temperature + 273.15
-      temperatureCorr = T_REFERENCE_K / T_actual_K
+      temperatureCorr = T_actual_K / T_REFERENCE_K  // Fixed: was inverted (Gemini-3-Pro Bug Report 2026-01-10)
       totalPressure *= temperatureCorr
     }
   }

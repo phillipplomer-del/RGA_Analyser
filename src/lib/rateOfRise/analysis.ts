@@ -315,9 +315,13 @@ export function calculateLeakRate(
  * Classify the rise type based on pattern analysis
  *
  * Real leak: Linear rise (R² > 0.99), constant dp/dt
- * Virtual leak: Logarithmic rise (flattens), trapped volume
- * Outgassing: Exponential saturation, material desorption
+ * Virtual leak: Exponential approach (1-e^(-t/τ)), trapped volume equilibration
+ *   - Strong negative curvature (convex residuals)
+ * Outgassing: Logarithmic rise (ln(t)) from power-law source (Q ∝ t^(-n))
+ *   - Weak negative curvature, material desorption
  * Mixed: Combination of leak + outgassing
+ *
+ * Fixed: Models were swapped (Gemini-3-Pro Bug Report 2026-01-10)
  */
 export function classifyRiseType(
   dataPoints: PressureDataPoint[],
@@ -380,9 +384,9 @@ export function classifyRiseType(
       type = 'virtual_leak'
       confidence = 0.7
       description =
-        'Abflachender Druckanstieg deutet auf virtuelles Leck hin'
+        'Exponentieller Druckanstieg (schnelle Sättigung) deutet auf virtuelles Leck hin'
       descriptionEn =
-        'Flattening pressure rise indicates virtual leak'
+        'Exponential pressure rise (fast saturation) indicates virtual leak'
       recommendations.push(
         'Prüfen auf eingeschlossene Volumina (Blindbohrungen, O-Ring-Nuten)'
       )
@@ -394,8 +398,8 @@ export function classifyRiseType(
     } else {
       type = 'outgassing'
       confidence = 0.6
-      description = 'Sättigender Druckanstieg deutet auf Ausgasung hin'
-      descriptionEn = 'Saturating pressure rise indicates outgassing'
+      description = 'Logarithmischer Druckanstieg (langsame Sättigung) deutet auf Ausgasung hin'
+      descriptionEn = 'Logarithmic pressure rise (slow saturation) indicates outgassing'
       recommendations.push('System ausheizen')
       recommendations.push(
         'Neue Komponenten identifizieren (O-Ringe, Kabel, etc.)'
