@@ -1,0 +1,80 @@
+{
+  "timestamp": "2026-01-10T17:03:31.263Z",
+  "summary": {
+    "total": 102,
+    "documented": 93,
+    "coverage": 91.2
+  },
+  "byType": {
+    "threshold": {
+      "total": 21,
+      "documented": 12,
+      "undocumented": [
+        {
+          "name": "ratio_28_12",
+          "value": "15-25",
+          "file": "detectors.ts",
+          "line": 1110
+        },
+        {
+          "name": "m29_28_ratio",
+          "value": "0.006-0.009",
+          "file": "detectors.ts",
+          "line": 1174
+        },
+        {
+          "name": "ratio_16_17",
+          "value": "0.6-1.0",
+          "file": "detectors.ts",
+          "line": 1360
+        },
+        {
+          "name": "ratio_15_16",
+          "value": "0.7-1.0",
+          "file": "detectors.ts",
+          "line": 1436
+        },
+        {
+          "name": "ratio_33_34",
+          "value": "0.3-0.5",
+          "file": "detectors.ts",
+          "line": 1526
+        },
+        {
+          "name": "ratio_48_64",
+          "value": "0.4-0.6",
+          "file": "detectors.ts",
+          "line": 1555
+        },
+        {
+          "name": "ratio_92_91",
+          "value": "0.5-0.9",
+          "file": "detectors.ts",
+          "line": 1648
+        },
+        {
+          "name": "n2o2Ratio",
+          "value": "3.2-4.2",
+          "file": "isotopePatterns.ts",
+          "line": 1095
+        },
+        {
+          "name": "arN2Ratio",
+          "value": "0.008-0.015",
+          "file": "isotopePatterns.ts",
+          "line": 1104
+        }
+      ]
+    },
+    "rsf": {
+      "total": 27,
+      "documented": 27,
+      "undocumented": []
+    },
+    "cracking_pattern": {
+      "total": 54,
+      "documented": 54,
+      "undocumented": []
+    }
+  }
+}
