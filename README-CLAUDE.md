@@ -117,6 +117,33 @@ Prüft automatisch:
 
 ---
 
+## ⚡ Quick Commands (User Shortcuts)
+
+When the user says these keywords, perform the corresponding action:
+
+### "prime" or "start"
+**Session Initialization** - Load full project context:
+1. Read README-CLAUDE.md (this file)
+2. Read FEATURE_BACKLOG.md (first 100 lines for structure)
+3. Read SCIENTIFIC_REFERENCES.md (skim structure)
+4. Summarize project status in 3-5 bullet points
+5. Ask user what they want to work on next
+
+### "status"
+**Project Status Report** - Generate comprehensive overview:
+1. Read entire FEATURE_BACKLOG.md
+2. Parse all features from markdown tables
+3. Generate report with:
+   - Overview statistics (total, by status, by validation)
+   - Feature list grouped by status (✅ 🔄 ⬜ ⏸️ ❌)
+   - Tables: ID | Feature | 🔬 Validiert? | Spec
+   - Implementation-Ready features (Status ✅ + 🔬 ✅)
+   - Next steps guidance
+
+*Note: Detailed instructions are in `.claude/skills/` but work via these keyword triggers.*
+
+---
+
 ## 🔍 Where to Find Things
 
 | Need | Location |
