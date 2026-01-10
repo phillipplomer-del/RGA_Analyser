@@ -129,8 +129,11 @@ When the user says these keywords, perform the corresponding action:
 4. Summarize project status in 3-5 bullet points
 5. Ask user what they want to work on next
 
-### "status"
+### "ready"
 **Implementation Readiness Report** - Action-oriented feature overview:
+
+**IMPORTANT:** This command automatically runs "prime" first to load project context, then generates the readiness report.
+
 1. Read entire FEATURE_BACKLOG.md
 2. Parse all features from markdown tables
 3. Check file existence (Spec files, Plan files in NextFeatures/)

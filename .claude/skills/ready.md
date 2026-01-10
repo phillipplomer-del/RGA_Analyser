@@ -1,6 +1,6 @@
 ---
-name: status
-description: Show implementation readiness for all features
+name: ready
+description: Show implementation readiness for all features (automatically loads project context first)
 ---
 
 # RGA Analyser Implementation Readiness Report
@@ -9,7 +9,17 @@ You need to provide an action-oriented overview showing what's missing to implem
 
 ## Instructions
 
-1. **Read FEATURE_BACKLOG.md** (entire file)
+**IMPORTANT:** This command automatically runs "prime" first to load project context.
+
+### Step 1: Execute "prime" command
+1. Read README-CLAUDE.md (full)
+2. Read FEATURE_BACKLOG.md (first 100 lines for structure)
+3. Read SCIENTIFIC_REFERENCES.md (skim structure)
+4. Summarize project status in 3-5 bullet points
+5. (Skip asking user what to work on - continue directly to Step 2)
+
+### Step 2: Generate readiness report
+1. **Read FEATURE_BACKLOG.md** (entire file - read again if needed)
 2. **Parse all features** from markdown tables (extract: ID, name, status, validationStatus, specFile)
 3. **Check file existence:**
    - Spec files: NextFeatures/, DOCUMENTATION/ARCHIVED/, or paths in FEATURE_BACKLOG.md
