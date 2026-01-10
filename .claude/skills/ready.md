@@ -159,4 +159,6 @@ Run `npm run check:features` to verify documentation completeness.
 
 ## After generating the report
 
-End with: "What would you like to work on next? Use 'prime' for full context."
+End with: "What would you like to work on next?"
+
+Note: Don't mention 'prime' - it was already executed automatically in Step 1.
