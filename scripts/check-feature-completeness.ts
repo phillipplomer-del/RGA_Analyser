@@ -18,6 +18,7 @@ interface FeatureEntry {
   id: string
   name: string
   status: '⬜' | '🔄' | '✅' | '⏸️' | '❌'
+  validationStatus: '✅' | '⚠️' | '-' | ''
   specFile: string
   scientific: boolean
 }
@@ -41,19 +42,23 @@ function parseFeatureBacklog(): FeatureEntry[] {
   const content = fs.readFileSync(backlogPath, 'utf-8')
 
   // Regex to extract feature entries from markdown tables
-  // Format: | 1.5.7 | **Feature Name** | ✅ | [spec.md](...) | ...
-  const featureRegex = /\|\s*([\d.]+)\s*\|\s*\*\*(.*?)\*\*\s*\|\s*(⬜|🔄|✅|⏸️|❌)\s*\|\s*\[(.*?)\]/g
+  // Format: | 1.5.7 | **Feature Name** | ✅ | ✅ | [spec.md](...) | ...
+  // or: | 1.5.7 | **Feature Name** | ✅ | - | [spec.md](...) | ...
+  const featureRegex = /\|\s*([\d.]+)\s*\|\s*\*\*(.*?)\*\*\s*\|\s*(⬜|🔄|✅|⏸️|❌)\s*\|\s*(✅|⚠️|-|)\s*\|\s*\[(.*?)\]/g
 
   const features: FeatureEntry[] = []
   let match
 
   while ((match = featureRegex.exec(content)) !== null) {
-    const [_, id, name, status, specFile] = match
+    const [_, id, name, status, validationStatus, specFile] = match
 
-    // Detect scientific features (Priority 1.5.x, 1.8.x, or contains keywords)
+    // Detect scientific features (Priority 0.x, 1.5.x, 1.8.x, 1.9.x, 3.x or contains keywords)
     const scientific =
+      id.startsWith('0.') ||
       id.startsWith('1.5.') ||
       id.startsWith('1.8.') ||
+      id.startsWith('1.9.') ||
+      id.startsWith('3.') ||
       name.toLowerCase().includes('validierung') ||
       name.toLowerCase().includes('validation') ||
       name.toLowerCase().includes('detektor') ||
@@ -64,6 +69,7 @@ function parseFeatureBacklog(): FeatureEntry[] {
       id,
       name,
       status: status as any,
+      validationStatus: (validationStatus.trim() || '') as any,
       specFile,
       scientific
     })
@@ -169,6 +175,56 @@ function checkValidationMetadata(feature: FeatureEntry): ValidationIssue | null 
   return null
 }
 
+// Check validation status column
+function checkValidationStatus(feature: FeatureEntry): ValidationIssue | null {
+  // Skip rejected features
+  if (feature.status === '❌') return null
+
+  // For scientific features (completed), validation status should not be empty
+  if (feature.scientific && feature.status === '✅') {
+    if (feature.validationStatus === '') {
+      return {
+        featureId: feature.id,
+        severity: 'error',
+        message: `Completed scientific feature "${feature.name}" missing validation status (should be ✅ or ⚠️)`,
+        location: 'FEATURE_BACKLOG.md - 🔬 Validiert? column'
+      }
+    }
+
+    // If validation status is ✅, verify SCIENTIFIC_REFERENCES.md has an entry
+    if (feature.validationStatus === '✅') {
+      const referencesPath = path.join(__dirname, '../RGA_Knowledge/SCIENTIFIC_REFERENCES.md')
+
+      if (fs.existsSync(referencesPath)) {
+        const content = fs.readFileSync(referencesPath, 'utf-8')
+        const featureIdNormalized = feature.id.replace(/\./g, '')
+        const contentNormalized = content.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+        if (!contentNormalized.includes(featureIdNormalized)) {
+          return {
+            featureId: feature.id,
+            severity: 'warning',
+            message: `Feature marked as fully validated (✅) but not found in SCIENTIFIC_REFERENCES.md`,
+            location: 'RGA_Knowledge/SCIENTIFIC_REFERENCES.md'
+          }
+        }
+      }
+    }
+  }
+
+  // For infrastructure/tool features (not scientific), should be marked as "-"
+  if (!feature.scientific && feature.status === '✅' && feature.validationStatus !== '-') {
+    return {
+      featureId: feature.id,
+      severity: 'warning',
+      message: `Non-scientific feature "${feature.name}" should have validation status "-" (not applicable)`,
+      location: 'FEATURE_BACKLOG.md - 🔬 Validiert? column'
+    }
+  }
+
+  return null
+}
+
 // Main validation
 function validateFeatures() {
   console.log('🔍 RGA Analyser - Feature Completeness Check\n')
@@ -192,6 +248,9 @@ function validateFeatures() {
 
     const validationIssue = checkValidationMetadata(feature)
     if (validationIssue) issues.push(validationIssue)
+
+    const validationStatusIssue = checkValidationStatus(feature)
+    if (validationStatusIssue) issues.push(validationStatusIssue)
   }
 
   console.log('━'.repeat(60))

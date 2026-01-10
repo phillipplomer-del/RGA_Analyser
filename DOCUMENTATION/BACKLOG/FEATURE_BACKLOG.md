@@ -16,6 +16,15 @@
 | ⏸️ | Pausiert |
 | ❌ | Verworfen |
 
+## 🔬 Wissenschaftliche Validierung
+
+| Status | Bedeutung |
+|--------|-----------|
+| ✅ | **Vollständig validiert** - Quellen in [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md) dokumentiert |
+| ⚠️ | **Teilvalidiert** - Grundquellen vorhanden, weitere Recherche empfohlen |
+| - | **Nicht wissenschaftlich** - Feature benötigt keine wissenschaftliche Validierung (z.B. UI/UX) |
+| (leer) | **Ausstehend** - Validierung steht noch aus |
+
 ---
 
 ## 📊 Wissenschaftliche Features & Detektoren
@@ -24,53 +33,53 @@
 
 ### Datenqualität & Korrekturen (Priorität 0) ✅ ABGESCHLOSSEN
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 0.1 | **RSF-Korrekturen** | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 30min | H₂S, SO₂, C₂H₆, SiH₄, PH₃ - korrigiert! |
-| 0.2 | Neue Gase (Halbleiter) | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 1h | NF₃, WF₆, C₂F₆, GeH₄ |
-| 0.3 | Neue Massen-Einträge | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 30min | m/z 52, 119, 127, 149 (Phthalat!) |
-| 0.4 | Neue Diagnose-Detektoren | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 2-3h | Polymer, Weichmacher, Prozessgas, Kühlwasser |
-| 0.5 | Neue Limit-Profile | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 30min | LIGO UHV, Semiconductor CVD |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 0.1 | **RSF-Korrekturen** | ✅ | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 30min | H₂S, SO₂, C₂H₆, SiH₄, PH₃ - korrigiert! |
+| 0.2 | Neue Gase (Halbleiter) | ✅ | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 1h | NF₃, WF₆, C₂F₆, GeH₄ |
+| 0.3 | Neue Massen-Einträge | ✅ | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 30min | m/z 52, 119, 127, 149 (Phthalat!) |
+| 0.4 | Neue Diagnose-Detektoren | ✅ | ✅ | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 2-3h | Polymer, Weichmacher, Prozessgas, Kühlwasser |
+| 0.5 | Neue Limit-Profile | ✅ | - | [IMPLEMENTATION_SPEC.md](../ARCHIVED/IMPLEMENTATION_SPEC.md) | 30min | LIGO UHV, Semiconductor CVD |
 
 ### Wissenschaftliche Analysewerkzeuge (Priorität 1.5)
 
 > Aus [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md) - Vakuum-Experten-Empfehlungen
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 1.5.1 | **Ausgasungs-Simulator** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#1-ausgasungs-simulator) | ~4h | Multi-Material, integriert in RoR + RGA Diagnose |
-| 1.5.2 | **Isotopen-Analyse** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#2-erweiterte-isotopen-analyse) | 4-6h | isotopePatterns.ts + verifyIsotopeRatios Detektor |
-| 1.5.3 | **Konfidenz-Score System** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#8-konfidenz-score-system) | 4-6h | 6 aktive Faktoren, Temp aus Dateinamen. **TODO:** Kalibrieralter aus Geräteprofil/Cloud |
-| 1.5.4 | **ESD-Artefakt-Erkennung** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#3-esd-artefakt-erkennung) | 2-4h | 6 Kriterien (O⁺, N⁺, C⁺, H⁺, F⁺, Cl), dynamische Severity (info/warning), spezifische Degassing-Empfehlungen |
-| 1.5.5 | **Helium-Leck-Indikator** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#4-helium-lecktest-integration) | 2h | Qualitative m/z=4 Detektion (NICHT quantitative Leckrate!). Warnung mit Empfehlung für dedizierten He-Leckdetektor |
-| 1.5.6 | ~~Erweiterte Öl-Diagnose~~ | ❌ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#5-erweiterte-öl-diagnose) | VERWORFEN | **Wissenschaftlich nicht valide:** Öl-Typ-Unterscheidung nicht zuverlässig, FOMBLIN-Fehler. Existierender `detectOilBackstreaming()` ist korrekt. Plan: [done/OEL_DIAGNOSE_VERWORFEN_NICHT_VALIDE.md](./done/OEL_DIAGNOSE_VERWORFEN_NICHT_VALIDE.md) |
-| 1.5.7 | **Peak-Deconvolution** | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#6-massenauflösung-und-peak-überlappung) | 3h | ✅ **2026-01-10:** N₂/CO Diskriminierung mit ¹³CO (1.2%), ¹⁴N¹⁵N (0.6-0.9%), N⁺/C⁺ Ratio. Wissenschaftlich validiert gegen NIST/Hofmann. |
-| 1.5.8 | Pfeiffer-Kalibrierung | ⬜ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#7-pfeiffer-spezifische-erweiterungen) | 2h | Gerätespezifische Kalibrierungsfaktoren |
-| **1.5.9** | **Wissenschaftliche Validierung & Referenz-System** | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md) | ~6h | **67 Quellen dokumentiert**, alle Isotope validiert (NIST/CIAAW), Knowledge Panel erweitert, Claude Code Training. **Status-Übersicht:** [WISSENSCHAFTLICHE_VALIDIERUNG_STATUS.md](./WISSENSCHAFTLICHE_VALIDIERUNG_STATUS.md) |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 1.5.1 | **Ausgasungs-Simulator** | ✅ | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#1-ausgasungs-simulator) | ~4h | Multi-Material, integriert in RoR + RGA Diagnose |
+| 1.5.2 | **Isotopen-Analyse** | ✅ | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#2-erweiterte-isotopen-analyse) | 4-6h | isotopePatterns.ts + verifyIsotopeRatios Detektor |
+| 1.5.3 | **Konfidenz-Score System** | ✅ | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#8-konfidenz-score-system) | 4-6h | 6 aktive Faktoren, Temp aus Dateinamen. **TODO:** Kalibrieralter aus Geräteprofil/Cloud |
+| 1.5.4 | **ESD-Artefakt-Erkennung** | ✅ | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#3-esd-artefakt-erkennung) | 2-4h | 6 Kriterien (O⁺, N⁺, C⁺, H⁺, F⁺, Cl), dynamische Severity (info/warning), spezifische Degassing-Empfehlungen |
+| 1.5.5 | **Helium-Leck-Indikator** | ✅ | ⚠️ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#4-helium-lecktest-integration) | 2h | Qualitative m/z=4 Detektion (NICHT quantitative Leckrate!). Warnung mit Empfehlung für dedizierten He-Leckdetektor |
+| 1.5.6 | ~~Erweiterte Öl-Diagnose~~ | ❌ | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#5-erweiterte-öl-diagnose) | VERWORFEN | **Wissenschaftlich nicht valide:** Öl-Typ-Unterscheidung nicht zuverlässig, FOMBLIN-Fehler. Existierender `detectOilBackstreaming()` ist korrekt. Plan: [done/OEL_DIAGNOSE_VERWORFEN_NICHT_VALIDE.md](./done/OEL_DIAGNOSE_VERWORFEN_NICHT_VALIDE.md) |
+| 1.5.7 | **Peak-Deconvolution** | ✅ | ✅ | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#6-massenauflösung-und-peak-überlappung) | 3h | ✅ **2026-01-10:** N₂/CO Diskriminierung mit ¹³CO (1.2%), ¹⁴N¹⁵N (0.6-0.9%), N⁺/C⁺ Ratio. Wissenschaftlich validiert gegen NIST/Hofmann. |
+| 1.5.8 | Pfeiffer-Kalibrierung | ⬜ | | [RGA_APP_VERBESSERUNGEN.md](./RGA_APP_VERBESSERUNGEN.md#7-pfeiffer-spezifische-erweiterungen) | 2h | Gerätespezifische Kalibrierungsfaktoren |
+| **1.5.9** | **Wissenschaftliche Validierung & Referenz-System** | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md) | ~6h | **67 Quellen dokumentiert**, alle Isotope validiert (NIST/CIAAW), Knowledge Panel erweitert, Claude Code Training. **Status-Übersicht:** [WISSENSCHAFTLICHE_VALIDIERUNG_STATUS.md](./WISSENSCHAFTLICHE_VALIDIERUNG_STATUS.md) |
 
 ### Erweiterungen aus wissenschaftlicher Validierung (Priorität 1.8) 🔬
 
 > **Identifiziert durch systematische Literatur-Recherche (2026-01-09)**
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|------------|
-| 1.8.1 | D₂/HD Gase (Deuterium) | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#deuterium-d₂-and-hd) | 2-3h | m/z 3, 4. Fusionsforschung (JET, ASDEX). **Quelle:** Hiden Analytical, DOE SRNL. gasLibrary.ts + massReference.ts aktualisiert |
-| 1.8.2 | N₂O Gas (Lachgas) | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#n₂o-nitrous-oxide) | 2h | m/z 44/45/46, 30/31. Biogeochemie, ¹⁵N-Analyse. **Quelle:** UC Davis, PubMed. Bereits in gasLibrary.ts implementiert |
-| 1.8.3 | PDMS m/z 59 Enhancement | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#silicon-isotopes--pdms-contamination) | 30min | Zusätzlicher kritischer PDMS-Marker (C₃H₇Si⁺). **Quelle:** Springer, Hiden SIMS. Erweitert um m/z 147 Check |
-| 1.8.4 | Argon Ratio Update (Optional) | ⬜ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#argon---air-leak-detection) | 15min | Update auf Lee 2006 Wert (298.6 statt 295.5). 1% Abweichung, niedrige Priorität |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|------------|
+| 1.8.1 | D₂/HD Gase (Deuterium) | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#deuterium-d₂-and-hd) | 2-3h | m/z 3, 4. Fusionsforschung (JET, ASDEX). **Quelle:** Hiden Analytical, DOE SRNL. gasLibrary.ts + massReference.ts aktualisiert |
+| 1.8.2 | N₂O Gas (Lachgas) | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#n₂o-nitrous-oxide) | 2h | m/z 44/45/46, 30/31. Biogeochemie, ¹⁵N-Analyse. **Quelle:** UC Davis, PubMed. Bereits in gasLibrary.ts implementiert |
+| 1.8.3 | PDMS m/z 59 Enhancement | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#silicon-isotopes--pdms-contamination) | 30min | Zusätzlicher kritischer PDMS-Marker (C₃H₇Si⁺). **Quelle:** Springer, Hiden SIMS. Erweitert um m/z 147 Check |
+| 1.8.4 | Argon Ratio Update (Optional) | ⬜ | | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#argon---air-leak-detection) | 15min | Update auf Lee 2006 Wert (298.6 statt 295.5). 1% Abweichung, niedrige Priorität |
 
 ### Offline-Analyse Features (Priorität 1.9) 🧪
 
 > **Identifiziert durch Gemini-3-Pro Cross-Validation (2026-01-10)**
 > Wissenschaftliche Features für fortgeschrittene Offline-Analyse von RGA/RoR-Daten
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 1.9.1 | Kinetic Fingerprinting | ⬜ | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 4-6h | Desorptions-Kinetik: Exponent n identifiziert Gas-Quelle (n≈1: Surface, n≈0.5: Bulk Diffusion). P ∝ t⁻ⁿ Analyse |
-| 1.9.2 | Dynamic LOD (Limit of Detection) | ⬜ | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 2-3h | LOD = μ_noise + 3σ_noise (IUPAC Standard). Ersetzt arbitrary "1e-10" Cutoffs mit statistisch robuster Berechnung pro Scan |
-| 1.9.3 | Statistical Uncertainty Calculation | ⬜ | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 3-4h | Confidence Intervals für Leckraten: Q ± 2·SE_slope (95% CI). Linear Regression Analysis mit Standard Error of Slope |
-| 1.9.4 | Intelligent Background Subtraction | ⬜ | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 3-4h | ASCII Background-File Subtraktion mit Negative Clamping und Normalization Drift Handling |
-| 1.9.5 | Permeation Lag Detection | ⬜ | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 4-5h | Elastomer Check: Time Lag t_lag = L²/6D Detection. Unterscheidet "Real Leak" (immediate) vs. "Permeation" (delayed S-Curve) |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 1.9.1 | Kinetic Fingerprinting | ⬜ | | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 4-6h | Desorptions-Kinetik: Exponent n identifiziert Gas-Quelle (n≈1: Surface, n≈0.5: Bulk Diffusion). P ∝ t⁻ⁿ Analyse |
+| 1.9.2 | Dynamic LOD (Limit of Detection) | ⬜ | | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 2-3h | LOD = μ_noise + 3σ_noise (IUPAC Standard). Ersetzt arbitrary "1e-10" Cutoffs mit statistisch robuster Berechnung pro Scan |
+| 1.9.3 | Statistical Uncertainty Calculation | ⬜ | | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 3-4h | Confidence Intervals für Leckraten: Q ± 2·SE_slope (95% CI). Linear Regression Analysis mit Standard Error of Slope |
+| 1.9.4 | Intelligent Background Subtraction | ⬜ | | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 3-4h | ASCII Background-File Subtraktion mit Negative Clamping und Normalization Drift Handling |
+| 1.9.5 | Permeation Lag Detection | ⬜ | | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 4-5h | Elastomer Check: Time Lag t_lag = L²/6D Detection. Unterscheidet "Real Leak" (immediate) vs. "Permeation" (delayed S-Curve) |
 
 **Kritische Bug-Fixes aus Cross-Validation:**
 - ✅ **Rate-of-Rise Curve Fitting Models:** GEFIXT (2026-01-10) - Virtual Leak: Exponential (1-e^(-t/τ)), Outgassing: Logarithmic (ln(t))
@@ -78,12 +87,12 @@
 
 ### Wissenschaftliche Qualität (Priorität 3)
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 3.1 | Unsicherheiten Basis | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 4-6h | Lineare Regression mit Fehlern |
-| 3.2 | Fehlerfortpflanzung | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 4h | Q = V · dp/dt mit Unsicherheiten |
-| 3.3 | Robuste Regression | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 6h | Huber, RANSAC |
-| 3.4 | Grenzwert-Signifikanz | ⬜ | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 2h | P(Q < Limit) Berechnung |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 3.1 | Unsicherheiten Basis | ⬜ | | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 4-6h | Lineare Regression mit Fehlern |
+| 3.2 | Fehlerfortpflanzung | ⬜ | | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 4h | Q = V · dp/dt mit Unsicherheiten |
+| 3.3 | Robuste Regression | ⬜ | | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 6h | Huber, RANSAC |
+| 3.4 | Grenzwert-Signifikanz | ⬜ | | [UNCERTAINTY_ANALYSIS.md](./UNCERTAINTY_ANALYSIS.md) | 2h | P(Q < Limit) Berechnung |
 
 ---
 
@@ -96,16 +105,16 @@
 > **Intelligenter Assistent für Lecksuchmethoden-Auswahl nach DIN EN 1779**
 > **Spec-Qualität: 10/10** - Vollständigste Spec im Projekt! Alle TypeScript Types, Equipment DB, Physik-Engine, UI Screens, Test Cases fertig spezifiziert.
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| **1.6.0** | **Demo Implementation** | ✅ | [src/components/LeakSearchDemo.tsx](../src/components/LeakSearchDemo.tsx) | ~3h | Funktionierende Demo: Input-System, B2/B5/B6 Logic, 9 Warnsystem, Timing-Calc. ~10% der vollständigen Version. |
-| **1.6.1** | **Core Engine & Types** | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **6-8h** | Physik (Leitwert, τ, MDL), Decision Tree, Virtual Leak Risk, Equipment DB, Standards |
-| **1.6.2** | **UI Wizard (Quick Mode)** | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **8-10h** | 4 Screens, Live-Feedback, 3-Karten-Result, Checkliste |
-| **1.6.3** | **Report & Export** | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **2-3h** | Markdown-Generator, Audit-Block, PDF später |
-| 1.6.4 | Expert Mode (Phase 2) | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 4-6h | Leitungslängen, Ventiltypen, detaillierte Pumpen-Parameter |
-| 1.6.5 | B4 Sniffer Methode | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 2h | Überdruck-Prüfung |
-| 1.6.6 | RGA-Integration | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 2h | Deep-Links, Virtual Leak Detection Workflow |
-| 1.6.7 | Shared Geometrie-Komponente | ⬜ | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 2h | `<ChamberGeometryInput />` aus Outgassing extrahieren |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| **1.6.0** | **Demo Implementation** | ✅ | - | [src/components/LeakSearchDemo.tsx](../src/components/LeakSearchDemo.tsx) | ~3h | Funktionierende Demo: Input-System, B2/B5/B6 Logic, 9 Warnsystem, Timing-Calc. ~10% der vollständigen Version. |
+| **1.6.1** | **Core Engine & Types** | ⬜ | - | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **6-8h** | Physik (Leitwert, τ, MDL), Decision Tree, Virtual Leak Risk, Equipment DB, Standards |
+| **1.6.2** | **UI Wizard (Quick Mode)** | ⬜ | - | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **8-10h** | 4 Screens, Live-Feedback, 3-Karten-Result, Checkliste |
+| **1.6.3** | **Report & Export** | ⬜ | - | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | **2-3h** | Markdown-Generator, Audit-Block, PDF später |
+| 1.6.4 | Expert Mode (Phase 2) | ⬜ | - | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 4-6h | Leitungslängen, Ventiltypen, detaillierte Pumpen-Parameter |
+| 1.6.5 | B4 Sniffer Methode | ⬜ | - | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 2h | Überdruck-Prüfung |
+| 1.6.6 | RGA-Integration | ⬜ | - | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 2h | Deep-Links, Virtual Leak Detection Workflow |
+| 1.6.7 | Shared Geometrie-Komponente | ⬜ | - | [LeaksearchPlanner_MasterV7_COMPLETE.md](./LeaksearchPlanner_MasterV7_COMPLETE.md) | 2h | `<ChamberGeometryInput />` aus Outgassing extrahieren |
 
 **MVP-Scope (1.6.1-1.6.3):** 16-21h → 3 Methoden (B2, B5, B6), Quick Mode, 8 Standards, Virtual Leak Risk, Warnungen, Markdown-Export
 
@@ -114,12 +123,12 @@
 > **CAD-Modell-Import für automatische Volumen- und Oberflächenberechnung**
 > Ingenieure laden STL-Dateien hoch → automatische Berechnung → Übernahme in Ausgasungs-Rechner und Lecksuche-Planer
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 1.7.1 | Core Library (Parser + Analyzer) | ⬜ | [STL_GEOMETRY_IMPORT_SPEC.md](./STL_GEOMETRY_IMPORT_SPEC.md) | 4-6h | Three.js STLLoader, Volumen/Oberflächen-Berechnung, Wandkorrektur |
-| 1.7.2 | UI Components | ⬜ | [STL_GEOMETRY_IMPORT_SPEC.md](./STL_GEOMETRY_IMPORT_SPEC.md) | 3-4h | Drag&Drop Upload, 3D-Preview, Results Display, Wall-Thickness Control |
-| 1.7.3 | Ausgasungs-Integration | ⬜ | [STL_GEOMETRY_IMPORT_SPEC.md](./STL_GEOMETRY_IMPORT_SPEC.md) | 1-2h | Tab "STL Import" in Outgassing Calculator |
-| 1.7.4 | Leak Planner Integration + Polish | ⬜ | [STL_GEOMETRY_IMPORT_SPEC.md](./STL_GEOMETRY_IMPORT_SPEC.md) | 2-3h | Wiederverwendung, Screenshot-Export, Material-Switcher |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 1.7.1 | Core Library (Parser + Analyzer) | ⬜ | - | [STL_GEOMETRY_IMPORT_SPEC.md](./STL_GEOMETRY_IMPORT_SPEC.md) | 4-6h | Three.js STLLoader, Volumen/Oberflächen-Berechnung, Wandkorrektur |
+| 1.7.2 | UI Components | ⬜ | - | [STL_GEOMETRY_IMPORT_SPEC.md](./STL_GEOMETRY_IMPORT_SPEC.md) | 3-4h | Drag&Drop Upload, 3D-Preview, Results Display, Wall-Thickness Control |
+| 1.7.3 | Ausgasungs-Integration | ⬜ | - | [STL_GEOMETRY_IMPORT_SPEC.md](./STL_GEOMETRY_IMPORT_SPEC.md) | 1-2h | Tab "STL Import" in Outgassing Calculator |
+| 1.7.4 | Leak Planner Integration + Polish | ⬜ | - | [STL_GEOMETRY_IMPORT_SPEC.md](./STL_GEOMETRY_IMPORT_SPEC.md) | 2-3h | Wiederverwendung, Screenshot-Export, Material-Switcher |
 
 **MVP-Scope (1.7.1-1.7.3):** 8-12h → STL-Upload, 3D-Vorschau, automatische Geometrie-Berechnung, Wandstärken-Korrektur
 
@@ -128,10 +137,10 @@
 > **"Schatten-Plot" einer Referenzmessung zur Abweichungs-Erkennung**
 > Lade "Golden Run" CSV und lege es als Schatten unter aktuelles Spektrum → sofort sichtbar: "Wo weicht meine Messung vom Soll ab?"
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 1.10.1 | CSV Reference Loader | ⬜ | TBD | 4-6h | Load 2nd CSV, synchronize x-axis (time), overlay as shadow |
-| 1.10.2 | Deviation Highlighting | ⬜ | TBD | 2-3h | Colorize areas where |delta| > threshold |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 1.10.1 | CSV Reference Loader | ⬜ | - | TBD | 4-6h | Load 2nd CSV, synchronize x-axis (time), overlay as shadow |
+| 1.10.2 | Deviation Highlighting | ⬜ | - | TBD | 2-3h | Colorize areas where |delta| > threshold |
 
 **MVP-Scope:** 6-9h → Shadow-Plot, Deviation Highlighting, X-Axis Sync
 **Commercial Validation:** MKS + Inficon nutzen das für Halbleiter-QA
@@ -141,11 +150,11 @@
 > **Theoretisches Spektrum als Overlay für Kalibrierungs-Check**
 > "Zeig mir wie N₂ bei diesem Druck aussehen würde" → plotte theoretische Kurve über echte Daten
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 1.11.1 | Cracking Pattern Database | ⬜ | TBD | 6-8h | 10 wichtigste Gase: H₂, He, N₂, O₂, Ar, H₂O, CO, CO₂, CH₄, NH₃ (aus NIST/Hiden) |
-| 1.11.2 | Simulation Engine | ⬜ | TBD | 4-6h | Berechne theoretisches Spektrum aus Gas + Druck |
-| 1.11.3 | Overlay UI | ⬜ | TBD | 2-3h | Dropdown Gas-Auswahl, opacity-control |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 1.11.1 | Cracking Pattern Database | ⬜ | - | TBD | 6-8h | 10 wichtigste Gase: H₂, He, N₂, O₂, Ar, H₂O, CO, CO₂, CH₄, NH₃ (aus NIST/Hiden) |
+| 1.11.2 | Simulation Engine | ⬜ | - | TBD | 4-6h | Berechne theoretisches Spektrum aus Gas + Druck |
+| 1.11.3 | Overlay UI | ⬜ | - | TBD | 2-3h | Dropdown Gas-Auswahl, opacity-control |
 
 **MVP-Scope:** 12-17h → 10 Gase, Simulation Engine, Overlay
 **Commercial Validation:** Hiden Genetic Algorithms, Pfeiffer Matrix-Inversion
@@ -155,12 +164,12 @@
 
 > Multi-Scan-Analyse für zeitaufgelöste RGA-Messungen (Prozessüberwachung, Pumpdown-Analyse)
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 2.1 | Zeitreihen MVP (Parser) | ⬜ | [TIMESERIES_FEATURE_SPEC.md](./TIMESERIES_FEATURE_SPEC.md) | 4-6h | Multi-Scan Parser, Datenmodell |
-| 2.2 | Zeitreihen MVP (UI) | ⬜ | [TIMESERIES_FEATURE_SPEC.md](./TIMESERIES_FEATURE_SPEC.md) | 8-12h | Trend-Chart, Spektrum-Slider |
-| 2.3 | Zeitreihen Analyse | ⬜ | [TIMESERIES_FEATURE_SPEC.md](./TIMESERIES_FEATURE_SPEC.md) | 6-8h | Trend-Berechnung, Exp. Fit |
-| 2.4 | Heatmap Visualisierung | ⬜ | TBD | 6-8h | 3D Trend-Masse-Intensität Karte (Hiden-Feature): Masse (X) × Zeit (Y) → Intensität als Farbe. "Wetterkarte fürs Vakuum" |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 2.1 | Zeitreihen MVP (Parser) | ⬜ | - | [TIMESERIES_FEATURE_SPEC.md](./TIMESERIES_FEATURE_SPEC.md) | 4-6h | Multi-Scan Parser, Datenmodell |
+| 2.2 | Zeitreihen MVP (UI) | ⬜ | - | [TIMESERIES_FEATURE_SPEC.md](./TIMESERIES_FEATURE_SPEC.md) | 8-12h | Trend-Chart, Spektrum-Slider |
+| 2.3 | Zeitreihen Analyse | ⬜ | - | [TIMESERIES_FEATURE_SPEC.md](./TIMESERIES_FEATURE_SPEC.md) | 6-8h | Trend-Berechnung, Exp. Fit |
+| 2.4 | Heatmap Visualisierung | ⬜ | - | TBD | 6-8h | 3D Trend-Masse-Intensität Karte (Hiden-Feature): Masse (X) × Zeit (Y) → Intensität als Farbe. "Wetterkarte fürs Vakuum" |
 
 **MVP-Scope (2.1-2.4):** 24-34h → Parser, UI, Trend Analysis, Heatmaps
 **Commercial Validation:** Hiden nutzt 3D-Heatmaps als Hauptfeature für transiente Events
@@ -173,38 +182,38 @@
 
 ### Fundament (Priorität 1)
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 1.1 | Error Handling Grundgerüst | ⬜ | [FEATURE_3.1_ERROR_HANDLING_PLAN.md](./FEATURE_3.1_ERROR_HANDLING_PLAN.md) | 1-2 Tage | Toast, Error-Boundary, Error-Store - **NÄCHSTE PRIORITÄT** (parallel zu 1.6 Leak Planner) |
-| 1.2 | Firebase Auth Migration | ⏸️ | [FEATURE_3.2_FIREBASE_AUTH_PLAN.md](./FEATURE_3.2_FIREBASE_AUTH_PLAN.md) | 2-4h | E-Mail + Passwort, Passwort-Reset - **SPÄTER** (nur 3 Nutzer aktuell) |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 1.1 | Error Handling Grundgerüst | ⬜ | - | [FEATURE_3.1_ERROR_HANDLING_PLAN.md](./FEATURE_3.1_ERROR_HANDLING_PLAN.md) | 1-2 Tage | Toast, Error-Boundary, Error-Store - **NÄCHSTE PRIORITÄT** (parallel zu 1.6 Leak Planner) |
+| 1.2 | Firebase Auth Migration | ⏸️ | - | [FEATURE_3.2_FIREBASE_AUTH_PLAN.md](./FEATURE_3.2_FIREBASE_AUTH_PLAN.md) | 2-4h | E-Mail + Passwort, Passwort-Reset - **SPÄTER** (nur 3 Nutzer aktuell) |
 
 ### Code-Qualität (Priorität 4)
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 4.1 | **Icon-Vereinheitlichung** | ⬜ | - | 2-3h | Emojis → SVG Heroicons: KnowledgePanel (15+ diagnoses), DiagnosisPanel (via Datentyp), QualityChecks |
-| 4.2 | Design Tokens | ⬜ | [SHARED_COMPONENTS_SPEC.md](./SHARED_COMPONENTS_SPEC.md) | 2h | Farben, Abstände, Schatten |
-| 4.3 | Shared Chart Components | ⬜ | [SHARED_COMPONENTS_SPEC.md](./SHARED_COMPONENTS_SPEC.md) | 8h | BaseChart, ChartControls |
-| 4.4 | Shared Data Components | ⬜ | [SHARED_COMPONENTS_SPEC.md](./SHARED_COMPONENTS_SPEC.md) | 4h | DataTable, MetadataCard |
-| 4.5 | Shared Input Components | ⬜ | [SHARED_COMPONENTS_SPEC.md](./SHARED_COMPONENTS_SPEC.md) | 4h | NumberInput, RangeSlider |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 4.1 | **Icon-Vereinheitlichung** | ⬜ | - | - | 2-3h | Emojis → SVG Heroicons: KnowledgePanel (15+ diagnoses), DiagnosisPanel (via Datentyp), QualityChecks |
+| 4.2 | Design Tokens | ⬜ | - | [SHARED_COMPONENTS_SPEC.md](./SHARED_COMPONENTS_SPEC.md) | 2h | Farben, Abstände, Schatten |
+| 4.3 | Shared Chart Components | ⬜ | - | [SHARED_COMPONENTS_SPEC.md](./SHARED_COMPONENTS_SPEC.md) | 8h | BaseChart, ChartControls |
+| 4.4 | Shared Data Components | ⬜ | - | [SHARED_COMPONENTS_SPEC.md](./SHARED_COMPONENTS_SPEC.md) | 4h | DataTable, MetadataCard |
+| 4.5 | Shared Input Components | ⬜ | - | [SHARED_COMPONENTS_SPEC.md](./SHARED_COMPONENTS_SPEC.md) | 4h | NumberInput, RangeSlider |
 
 ### UX Polish (Priorität 5)
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 5.1 | Keyboard Shortcuts | ⬜ | [UX_INTERACTIONS.md](./UX_INTERACTIONS.md) | 2h | Globale + Chart Shortcuts |
-| 5.2 | Chart Zoom/Pan | ⬜ | [UX_INTERACTIONS.md](./UX_INTERACTIONS.md) | 4h | Scroll, Drag, Rechteck-Zoom |
-| 5.3 | Undo/Redo System | ⬜ | [UX_INTERACTIONS.md](./UX_INTERACTIONS.md) | 4h | Zustand-History |
-| 5.4 | Touch-Gesten | ⬜ | [UX_INTERACTIONS.md](./UX_INTERACTIONS.md) | 4h | Pinch-to-Zoom, Swipe |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 5.1 | Keyboard Shortcuts | ⬜ | - | [UX_INTERACTIONS.md](./UX_INTERACTIONS.md) | 2h | Globale + Chart Shortcuts |
+| 5.2 | Chart Zoom/Pan | ⬜ | - | [UX_INTERACTIONS.md](./UX_INTERACTIONS.md) | 4h | Scroll, Drag, Rechteck-Zoom |
+| 5.3 | Undo/Redo System | ⬜ | - | [UX_INTERACTIONS.md](./UX_INTERACTIONS.md) | 4h | Zustand-History |
+| 5.4 | Touch-Gesten | ⬜ | - | [UX_INTERACTIONS.md](./UX_INTERACTIONS.md) | 4h | Pinch-to-Zoom, Swipe |
 
 ### Performance (Priorität 6)
 
-| # | Feature | Status | Spec-Datei | Aufwand | Notizen |
-|---|---------|--------|------------|---------|---------|
-| 6.1 | Web Worker Setup | ⬜ | [PERFORMANCE_GUIDE.md](./PERFORMANCE_GUIDE.md) | 4h | Parser Worker |
-| 6.2 | LTTB Downsampling | ⬜ | [PERFORMANCE_GUIDE.md](./PERFORMANCE_GUIDE.md) | 2h | Chart-Optimierung |
-| 6.3 | Virtualisierte Tabellen | ⬜ | [PERFORMANCE_GUIDE.md](./PERFORMANCE_GUIDE.md) | 4h | react-window |
-| 6.4 | Lazy Loading | ⬜ | [PERFORMANCE_GUIDE.md](./PERFORMANCE_GUIDE.md) | 2h | Code Splitting |
+| # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
+|---|---------|--------|---------------|------------|---------|---------|
+| 6.1 | Web Worker Setup | ⬜ | - | [PERFORMANCE_GUIDE.md](./PERFORMANCE_GUIDE.md) | 4h | Parser Worker |
+| 6.2 | LTTB Downsampling | ⬜ | - | [PERFORMANCE_GUIDE.md](./PERFORMANCE_GUIDE.md) | 2h | Chart-Optimierung |
+| 6.3 | Virtualisierte Tabellen | ⬜ | - | [PERFORMANCE_GUIDE.md](./PERFORMANCE_GUIDE.md) | 4h | react-window |
+| 6.4 | Lazy Loading | ⬜ | - | [PERFORMANCE_GUIDE.md](./PERFORMANCE_GUIDE.md) | 2h | Code Splitting |
 
 ---
 
