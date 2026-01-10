@@ -63,9 +63,9 @@
 
 | # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|---------------|------------|---------|------------|
-| 1.8.1 | D₂/HD Gase (Deuterium) | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#deuterium-d₂-and-hd) | 2-3h | m/z 3, 4. Fusionsforschung (JET, ASDEX). **Quelle:** Hiden Analytical, DOE SRNL. gasLibrary.ts + massReference.ts aktualisiert |
-| 1.8.2 | N₂O Gas (Lachgas) | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#n₂o-nitrous-oxide) | 2h | m/z 44/45/46, 30/31. Biogeochemie, ¹⁵N-Analyse. **Quelle:** UC Davis, PubMed. Bereits in gasLibrary.ts implementiert |
-| 1.8.3 | PDMS m/z 59 Enhancement | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#silicon-isotopes--pdms-contamination) | 30min | Zusätzlicher kritischer PDMS-Marker (C₃H₇Si⁺). **Quelle:** Springer, Hiden SIMS. Erweitert um m/z 147 Check |
+| 1.8.1 | D₂/HD Gase (Deuterium) | ✅ | ✅ | [FEATURE_1.8.1_DEUTERIUM_PLAN.md](../../NextFeatures/FEATURE_1.8.1_DEUTERIUM_PLAN.md) | 2-3h | ✅ Implementation-Ready! Plan-Datei erstellt. m/z 3, 4. Fusionsforschung (JET, ASDEX). **Quelle:** Hiden Analytical, DOE SRNL. gasLibrary.ts + massReference.ts aktualisiert |
+| 1.8.2 | N₂O Gas (Lachgas) | ✅ | ✅ | [FEATURE_1.8.2_N2O_PLAN.md](../../NextFeatures/FEATURE_1.8.2_N2O_PLAN.md) | 2h | ✅ Implementation-Ready! Plan-Datei erstellt. m/z 44/45/46, 30/31. Biogeochemie, ¹⁵N-Analyse. **Quelle:** UC Davis, PubMed. Bereits in gasLibrary.ts implementiert |
+| 1.8.3 | PDMS m/z 59 Enhancement | ✅ | ✅ | [FEATURE_1.8.3_PDMS_PLAN.md](../../NextFeatures/FEATURE_1.8.3_PDMS_PLAN.md) | 30min | ✅ Implementation-Ready! Plan-Datei erstellt. Zusätzlicher kritischer PDMS-Marker (C₃H₇Si⁺). **Quelle:** Springer, Hiden SIMS. Erweitert um m/z 147 Check |
 | 1.8.4 | Argon Ratio Update (Optional) | ⬜ | ✅ | [SCIENTIFIC_REFERENCES.md](../RGA_Knowledge/SCIENTIFIC_REFERENCES.md#argon---air-leak-detection) | 15min | Update auf Lee 2006 Wert (298.6 statt 295.5). 1% Abweichung, niedrige Priorität. **Validiert 2026-01-10:** 5 Quellen (Lee 2006, CIAAW 2007, NIST, IUPAC 2014, USGS) |
 
 ### Offline-Analyse Features (Priorität 1.9) 🧪
@@ -75,11 +75,11 @@
 
 | # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|---------------|------------|---------|---------|
-| 1.9.1 | Kinetic Fingerprinting | ⬜ | | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 4-6h | Desorptions-Kinetik: Exponent n identifiziert Gas-Quelle (n≈1: Surface, n≈0.5: Bulk Diffusion). P ∝ t⁻ⁿ Analyse |
-| 1.9.2 | Dynamic LOD (Limit of Detection) | ⬜ | | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 2-3h | LOD = μ_noise + 3σ_noise (IUPAC Standard). Ersetzt arbitrary "1e-10" Cutoffs mit statistisch robuster Berechnung pro Scan |
-| 1.9.3 | Statistical Uncertainty Calculation | ⬜ | | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 3-4h | Confidence Intervals für Leckraten: Q ± 2·SE_slope (95% CI). Linear Regression Analysis mit Standard Error of Slope |
-| 1.9.4 | Intelligent Background Subtraction | ⬜ | | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 3-4h | ASCII Background-File Subtraktion mit Negative Clamping und Normalization Drift Handling |
-| 1.9.5 | Permeation Lag Detection | ⬜ | | [RGA_SCIENTIFIC_ANALYSIS_LOG.md](../RGA_Knowledge/RGA_SCIENTIFIC_ANALYSIS_LOG.md) | 4-5h | Elastomer Check: Time Lag t_lag = L²/6D Detection. Unterscheidet "Real Leak" (immediate) vs. "Permeation" (delayed S-Curve) |
+| 1.9.1 | Kinetic Fingerprinting | ⬜ | ⚠️ | [FEATURE_1.9.1_KINETIC_FINGERPRINTING_PLAN.md](../../NextFeatures/FEATURE_1.9.1_KINETIC_FINGERPRINTING_PLAN.md) | 4-6h | 🎯 **Implementation-Ready!** Desorptions-Kinetik: Exponent n identifiziert Gas-Quelle (n≈1: Surface, n≈0.5: Bulk Diffusion). P ∝ t⁻ⁿ Analyse |
+| 1.9.2 | Dynamic LOD (Limit of Detection) | ⬜ | ✅ | [FEATURE_1.9.2_DYNAMIC_LOD_PLAN.md](../../NextFeatures/FEATURE_1.9.2_DYNAMIC_LOD_PLAN.md) | 2-3h | 🎯 **Implementation-Ready!** LOD = μ_noise + 3σ_noise (IUPAC Standard). Ersetzt arbitrary "1e-10" Cutoffs mit statistisch robuster Berechnung pro Scan |
+| 1.9.3 | Statistical Uncertainty Calculation | ⬜ | ✅ | [FEATURE_1.9.3_STATISTICAL_UNCERTAINTY_PLAN.md](../../NextFeatures/FEATURE_1.9.3_STATISTICAL_UNCERTAINTY_PLAN.md) | 3-4h | 🎯 **Implementation-Ready!** Confidence Intervals für Leckraten: Q ± 2·SE_slope (95% CI). Linear Regression Analysis mit Standard Error of Slope |
+| 1.9.4 | Intelligent Background Subtraction | ⬜ | ✅ | [FEATURE_1.9.4_BACKGROUND_SUBTRACTION_PLAN.md](../../NextFeatures/FEATURE_1.9.4_BACKGROUND_SUBTRACTION_PLAN.md) | 3-4h | 🎯 **Implementation-Ready!** ASCII Background-File Subtraktion mit Negative Clamping und Normalization Drift Handling |
+| 1.9.5 | Permeation Lag Detection | ⬜ | ✅ | [FEATURE_1.9.5_PERMEATION_LAG_PLAN.md](../../NextFeatures/FEATURE_1.9.5_PERMEATION_LAG_PLAN.md) | 4-5h | 🎯 **Implementation-Ready!** Elastomer Check: Time Lag t_lag = L²/6D Detection. Unterscheidet "Real Leak" (immediate) vs. "Permeation" (delayed S-Curve) |
 
 **Kritische Bug-Fixes aus Cross-Validation:**
 - ✅ **Rate-of-Rise Curve Fitting Models:** GEFIXT (2026-01-10) - Virtual Leak: Exponential (1-e^(-t/τ)), Outgassing: Logarithmic (ln(t))
@@ -388,6 +388,8 @@ Für neue Features verwenden:
 | 2026-01-10 | 🧪 **Priorität 1.9 hinzugefügt (Gemini-3-Pro Cross-Validation):** 5 neue Offline-Analyse Features identifiziert: (1) Kinetic Fingerprinting (Desorptions-Kinetik n-Exponent), (2) Dynamic LOD (3σ IUPAC), (3) Statistical Uncertainty (Confidence Intervals), (4) Intelligent Background Subtraction, (5) Permeation Lag Detection (Elastomer Check). Außerdem 2 kritische Bugs gefunden: Rate-of-Rise Curve Fitting Models vertauscht + Temperature Correction Formula inverted! |
 | 2026-01-10 | 🐛 **Kritische Bug-Fixes implementiert:** (1) Temperature Correction Formula korrigiert (T_curr/T_ref statt T_ref/T_curr) - hot gauges measure lower density, Korrektur muss nach oben! (2) Rate-of-Rise Curve Fitting Model-Beschreibungen korrigiert - Virtual Leak: Exponential (1-e^(-t/τ)), Outgassing: Logarithmic (ln(t)). Implementierungs-Logik war korrekt, nur Dokumentation/Beschreibungen gefixt. Wissenschaftlicher Impact: HOCH. |
 | 2026-01-10 | 🔬 **Feature 1.8.4 (Argon Ratio Update) wissenschaftlich validiert:** 5 Quellen dokumentiert (Lee et al. 2006, CIAAW 2007, NIST, IUPAC 2014, USGS). Plan-Datei erstellt: [FEATURE_1.8.4_ARGON_RATIO_UPDATE_PLAN.md](../../NextFeatures/FEATURE_1.8.4_ARGON_RATIO_UPDATE_PLAN.md). Update von 295.5 (Nier 1950) auf 298.56 (Lee 2006) geplant. Feature ist jetzt **implementation-ready** (hat Spec ✅, Validation ✅, Plan ✅). |
+| 2026-01-10 | ✅ **Features 1.8.1, 1.8.2, 1.8.3 IMPLEMENTATION-READY gemacht:** Alle drei Features waren bereits im Code implementiert und wissenschaftlich validiert, fehlten aber Plan-Dokumentation. Mit parallel-Agents erstellt: (1) **1.8.1 D₂/HD (Deuterium):** Fusionsforschung (JET, ASDEX), m/z 3/4 Diskriminierung. 5 peer-reviewed Quellen (Hiden, DOE SRNL, ScienceDirect). (2) **1.8.2 N₂O (Lachgas):** Biogeochemie-Analyse, m/z 30 (NO⁺) CO₂-Marker. 4 Quellen (UC Davis, PubMed, ACS, NIST). (3) **1.8.3 PDMS m/z 59 Enhancement:** Silikon-Kontaminationserkennung, m/z 59/73/147. 4 Quellen (Springer DART-MS, Hiden SIMS, RSC, NIST). Alle Einträge in FEATURE_BACKLOG.md aktualisiert mit Links zu Plan-Dateien in NextFeatures/. |
+| 2026-01-10 | 📝 **Features 1.9.1-1.9.5 IMPLEMENTATION-READY gemacht:** Namensinkonsistenz behoben - Plan-Dateien waren als FEATURE_1.3-1.7 benannt aber enthielten 1.9.x IDs. Umbenannt zu FEATURE_1.9.1-1.9.5_*_PLAN.md. Status aktualisiert: (1) **1.9.1 Kinetic Fingerprinting:** ⚠️ Teilvalidiert, (2) **1.9.2 Dynamic LOD:** ✅ Validiert (IUPAC), (3) **1.9.3 Statistical Uncertainty:** ✅ Validiert (ISO/IEC), (4) **1.9.4 Background Subtraction:** ✅ Validiert (ASTM), (5) **1.9.5 Permeation Lag:** ✅ Validiert (Fick's Law). **Alle 5 Features haben vollständige Spec + Validierung + Plan = Implementation-Ready!** |
 
 ---
 
@@ -403,25 +405,41 @@ Für neue Features verwenden:
 7. [x] ~~**Helium-Leck-Indikator** (Priorität 1.5.5)~~ ✅ Erledigt (2026-01-09)
 8. [x] ~~**Erweiterte Öl-Diagnose** (Priorität 1.5.6)~~ ❌ Verworfen (2026-01-09) - Wissenschaftlich nicht valide
 
+**Abgeschlossen (2026-01-10):**
+9. [x] ~~**Features 1.8.1-1.8.3 Implementation-Ready**~~ ✅ Erledigt
+   - 1.8.1 D₂/HD (Deuterium) - Plan-Datei + 5 Quellen
+   - 1.8.2 N₂O (Lachgas) - Plan-Datei + 4 Quellen
+   - 1.8.3 PDMS m/z 59 - Plan-Datei + 4 Quellen
+
 **Aktuelle Top-Prioritäten (Team-Aufteilung):**
 
 **Kollegin:**
-7. [ ] 🔥 **Lecksuche-Planer MVP** (Priorität 1.6.1-1.6.3) - **16-21h**
+10. [ ] 🔥 **Lecksuche-Planer MVP** (Priorität 1.6.1-1.6.3) - **16-21h**
    - Phase 1: Core Engine & Types (6-8h)
    - Phase 2: UI Wizard Quick Mode (8-10h)
    - Phase 3: Report & Markdown Export (2-3h)
    - **Begründung:** Spec-Qualität 10/10, Alleinstellungsmerkmal, Marktlücke ($15.8B Market)
 
 **Du (parallel):**
-8. [ ] **Error Handling Grundgerüst** (Priorität 1.1) - **1-2 Tage**
+11. [ ] **Error Handling Grundgerüst** (Priorität 1.1) - **1-2 Tage**
    - Toast System, Error-Boundary, Error-Store
    - 20+ Fehler-Codes (Parser, Metadaten, Daten, Zeitstempel)
    - Recovery-Strategien
 
+**Nächste Features (Implementation-Ready):**
+12. [ ] **1.8.4 Argon Ratio Update** (15 Min) - Gesamter Code + Validierung ✅, nur Update nötig
+13. [ ] **1.8.1 D₂/HD Deuterium** (2-3h) - Implementiert ✅, Spec ✅, Validation ✅, Plan ✅
+14. [ ] **1.8.2 N₂O Lachgas** (2h) - Implementiert ✅, Spec ✅, Validation ✅, Plan ✅
+15. [ ] **1.8.3 PDMS m/z 59** (30min) - Implementiert ✅, Spec ✅, Validation ✅, Plan ✅
+16. [ ] **1.9.1 Kinetic Fingerprinting** (4-6h) - Spec ✅, Validation ⚠️, Plan ✅
+17. [ ] **1.9.2 Dynamic LOD** (2-3h) - Spec ✅, Validation ✅, Plan ✅
+18. [ ] **1.9.3 Statistical Uncertainty** (3-4h) - Spec ✅, Validation ✅, Plan ✅
+19. [ ] **1.9.4 Background Subtraction** (3-4h) - Spec ✅, Validation ✅, Plan ✅
+20. [ ] **1.9.5 Permeation Lag Detection** (4-5h) - Spec ✅, Validation ✅, Plan ✅
+
 **Später (deprioritized):**
-9. ⏸️ Firebase Auth Migration (Priorität 1.2) - nur 3 Nutzer aktuell
-10. [ ] 1.5er Features weitermachen (Helium, Öl, Deconvolution)
-11. [ ] Zeitreihen Parser (Priorität 2.1-2.3)
+21. ⏸️ Firebase Auth Migration (Priorität 1.2) - nur 3 Nutzer aktuell
+22. [ ] Zeitreihen Parser (Priorität 2.1-2.3) - Specs fehlend
 
 ---
 
