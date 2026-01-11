@@ -10,7 +10,8 @@
 
 1. **[.claude/project-context.md](.claude/project-context.md)** - Full project context
 2. **[DOCUMENTATION/SCIENTIFIC/REFERENCES.md](DOCUMENTATION/SCIENTIFIC/REFERENCES.md)** ⭐ PRIMARY REFERENCE for scientific validation (103+ sources)
-3. **[DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md](DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md)** - Current priorities
+3. **[DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md](DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md)** - Module navigation (index)
+4. **[DOCUMENTATION/MODULES/RGA/FEATURE_BACKLOG_RGA.md](DOCUMENTATION/MODULES/RGA/FEATURE_BACKLOG_RGA.md)** - RGA module features (25 features)
 
 ---
 

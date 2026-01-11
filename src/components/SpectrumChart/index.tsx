@@ -542,19 +542,28 @@ export function SpectrumChart({ files, limitChecks }: SpectrumChartProps) {
               {tooltip.gas}
             </div>
             {tooltip.values.map((v, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs">
-                <span
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: v.color }}
-                />
-                <span className="text-text-secondary font-mono">
-                  {chartOptions.yAxisMode === 'pressure'
-                    ? `${v.value.toExponential(2)} ${pressureUnit}`
-                    : chartOptions.yAxisMode === 'absolute'
-                      ? `${v.value.toExponential(2)} A`
-                      : `${(v.value * 100).toFixed(4)}%`
-                  }
-                </span>
+              <div key={i} className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-2 text-xs">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: v.color }}
+                  />
+                  <span className="text-text-secondary font-mono">
+                    {chartOptions.yAxisMode === 'pressure'
+                      ? `${v.value.toExponential(2)} ${pressureUnit}`
+                      : chartOptions.yAxisMode === 'absolute'
+                        ? `${v.value.toExponential(2)} A`
+                        : `${(v.value * 100).toFixed(2)}%`
+                    }
+                  </span>
+                </div>
+                {chartOptions.yAxisMode === 'normalized' && (
+                  <div className="text-micro text-text-muted ml-5 italic">
+                    {i18n.language === 'de'
+                      ? `${(v.value * 100).toFixed(1)}% so stark wie Wasserstoff (H₂)`
+                      : `${(v.value * 100).toFixed(1)}% as strong as hydrogen (H₂)`}
+                  </div>
+                )}
               </div>
             ))}
           </div>

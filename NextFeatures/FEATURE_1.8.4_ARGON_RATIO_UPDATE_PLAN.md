@@ -152,9 +152,11 @@ Der ⁴⁰Ar/³⁶Ar Isotopenverhältnis ist ein charakteristisches Kennzeichen 
    - Actual: [Nach Implementation zu prüfen]
 
 **Erfolgs-Kriterien:**
-- [x] ⁴⁰Ar/³⁶Ar Ratio in `isotopePatterns.ts` aktualisiert
+- [x] ⁴⁰Ar/³⁶Ar Ratio in `isotopePatterns.ts` aktualisiert (298.6)
+- [x] Kommentare in `verifyIsotopeRatios.ts` aktualisiert (Header + inline)
 - [x] Kommentar in `detectors.ts` aktualisiert
-- [x] `SCIENTIFIC_REFERENCES.md` mit Lee 2006 Quellen erweitert
+- [x] Validation notes in `validation.ts` aktualisiert (298.56)
+- [x] UI display in `ReferencesTab.tsx` aktualisiert (298.56)
 - [x] Keine Regressions in anderen Detektoren
 - [x] Luftleck-Diagnose funktioniert wie vorher (1% Änderung innerhalb Toleranz)
 
@@ -183,10 +185,12 @@ Der ⁴⁰Ar/³⁶Ar Isotopenverhältnis ist ein charakteristisches Kennzeichen 
 |-------|--------|-------|
 | 2026-01-10 | ⬜ Geplant | Initiale Planung, wissenschaftliche Validierung abgeschlossen |
 | 2026-01-10 | 🔬 Validiert | 5 Quellen dokumentiert (Lee 2006, CIAAW, NIST, IUPAC 2014, Nier 1950) |
+| 2026-01-11 | ✅ Implementiert | **5 Code-Dateien:** `isotopePatterns.ts` (298.6), `verifyIsotopeRatios.ts` (2×), `detectors.ts`, `validation.ts` (298.56), `ReferencesTab.tsx` (298.56). **6 Dokumentationen:** Feature-Plan, RGA-Backlog, Main-Backlog, Scientific-References, Cross-Validation, AirLeak.md. Build erfolgreich ✅ |
 
 ---
 
 **Template-Version:** 1.0
 **Erstellt:** 2026-01-10
+**Implementiert:** 2026-01-11
 **Autor:** Claude Code
-**Validation Status:** ✅ Implementation-Ready
+**Validation Status:** ✅ Implemented

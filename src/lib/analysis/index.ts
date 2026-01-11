@@ -192,6 +192,7 @@ export function analyzeSpectrum(raw: RawData, options: AnalysisOptions = {}): An
     diagnostics,
     diagnosisSummary,
     dataQualityScore,
+    lodResult: diagnosisInput.lodResult,  // Feature 1.9.2: Dynamic LOD
     // Calibration data
     calibration: calibrationResult,
     pressureData,
@@ -315,6 +316,7 @@ function convertDiagnosticsForUI(results: DiagnosticResult[]): DiagnosticResultS
       recommendationEn: result.recommendationEn,
       affectedMasses: result.affectedMasses,
       evidenceCount: result.evidence.length,
+      evidence: result.evidence,  // Feature 1.9.2: Include full evidence for LOD badges
       icon: meta?.icon || '?',
       color: meta?.color || '#6B7280'
     }

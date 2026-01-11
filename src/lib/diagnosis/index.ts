@@ -17,6 +17,16 @@ export {
   DIAGNOSIS_METADATA
 } from './types'
 
+// Re-export Dynamic LOD (Feature 1.9.2)
+export {
+  calculateDynamicLOD,
+  checkPeakSignificance,
+  formatLOD,
+  getSignificanceColor,
+  type LODResult,
+  type SignificanceResult
+} from '../analysis/dynamicLOD'
+
 // Re-export confidence score system
 export {
   calculateDataQualityScore,
@@ -65,6 +75,7 @@ import {
 
 import type { DiagnosticResult, DiagnosisInput } from './types'
 import { DIAGNOSIS_METADATA } from './types'
+import { calculateDynamicLOD } from '../analysis/dynamicLOD'
 
 // Export individual detectors for direct use
 export {
@@ -194,6 +205,8 @@ export function runQuickDiagnosis(input: DiagnosisInput): DiagnosticResult[] {
 
 /**
  * Erstellt DiagnosisInput aus normalisierten Peak-Daten
+ *
+ * Feature 1.9.2: Berechnet automatisch Dynamic LOD (Limit of Detection)
  */
 export function createDiagnosisInput(
   normalizedPeaks: Array<{ mass: number; normalizedToH2: number }>,
@@ -209,7 +222,10 @@ export function createDiagnosisInput(
     }
   }
 
-  return { peaks, metadata }
+  // Feature 1.9.2: Calculate Dynamic LOD (IUPAC 3σ method)
+  const lodResult = calculateDynamicLOD(peaks)
+
+  return { peaks, metadata, lodResult }
 }
 
 /**

@@ -99,7 +99,7 @@ Assistant:
 ### Argon - Air Leak Detection
 
 **Implemented:** ⁴⁰Ar/³⁶Ar = 295.5 (Nier 1950)
-**Updated Value:** ⁴⁰Ar/³⁶Ar = 298.56 ± 0.31 (Lee 2006, CIAAW 2007) → **Feature 1.8.4 planned**
+**Updated Value:** ⁴⁰Ar/³⁶Ar = 298.56 ± 0.31 (Lee 2006, CIAAW 2007) → **✅ Implemented in Feature 1.8.4 (2026-01-11)**
 
 | Source | Year | Value | Method |
 |--------|------|-------|--------|

@@ -60,7 +60,7 @@
 - N₂⁺/N⁺ Ratio: ~14 (range 6-20)
 
 **Identified Gap:**
-- Missing ⁴⁰Ar/³⁶Ar ≈ 298.6 check (to be addressed by Feature 1.8.4)
+- ✅ ⁴⁰Ar/³⁶Ar ≈ 298.6 check implemented (Feature 1.8.4, 2026-01-11)
 
 **Sources:**
 - CRC Handbook, NIST WebBook, NOAA, Lee et al. (2006), CIAAW (2007)

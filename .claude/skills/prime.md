@@ -12,8 +12,9 @@ You are working on the **RGA Analyser** project - a web-based tool for analyzing
 **ALWAYS read these files at the start:**
 
 1. **README-CLAUDE.md** - Complete quick reference with workflows, checklists, and validation system
-2. **DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md** - Feature overview (read first 100 lines for structure)
-3. **DOCUMENTATION/SCIENTIFIC/REFERENCES.md** - Scientific validation sources (103+ sources)
+2. **DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md** - Module index (read first 50 lines for structure)
+3. **DOCUMENTATION/MODULES/RGA/FEATURE_BACKLOG_RGA.md** - RGA features (read first 100 lines)
+4. **DOCUMENTATION/SCIENTIFIC/REFERENCES.md** - Scientific validation sources (103+ sources)
 
 ## Key Information Summary
 
@@ -54,8 +55,14 @@ You are working on the **RGA Analyser** project - a web-based tool for analyzing
 │   │   ├── Quality/                    # CleanUHV
 │   │   └── README.md                   # Physics overview
 │   ├── BACKLOG/
-│   │   ├── FEATURE_BACKLOG.md          # 46 features, validation tracking
+│   │   ├── FEATURE_BACKLOG.md          # Master index (module navigation)
 │   │   └── TEMPLATES/                  # Feature templates
+│   ├── MODULES/                         # ⭐ NEW: Modular feature backlogs
+│   │   ├── RGA/
+│   │   │   ├── FEATURE_BACKLOG_RGA.md  # RGA module features (25 features)
+│   │   │   └── DETECTORS_INVENTORY.md  # Detector status tracking (22 detectors)
+│   │   └── LeakSearch/
+│   │       └── FEATURE_BACKLOG_LEAKSEARCH.md
 │   └── ARCHIVED/                       # Completed feature docs
 ├── RGA_Knowledge/                      # Data Files Only
 │   ├── README.md                       # Index (points to DOCUMENTATION/SCIENTIFIC/)
@@ -87,11 +94,17 @@ FEATURE_BACKLOG.md has a **🔬 Validiert?** column with 4 levels:
 # Check feature completeness and validation status
 npm run check:features
 
+# ⭐ NOW SUPPORTS MODULAR ARCHITECTURE!
+# Scans all module backlogs:
+# - DOCUMENTATION/MODULES/RGA/FEATURE_BACKLOG_RGA.md
+# - DOCUMENTATION/MODULES/LeakSearch/FEATURE_BACKLOG_LEAKSEARCH.md
+# - DOCUMENTATION/BACKLOG/FEATURE_BACKLOG_INFRASTRUCTURE.md
+#
 # Validates:
 # - Scientific features have entries in DOCUMENTATION/SCIENTIFIC/REFERENCES.md
 # - Completed features have validation status
 # - Infrastructure features marked with "-"
-# - Planning files exist
+# - Planning files exist (NextFeatures/ or DOCUMENTATION/MODULES/)
 # - ValidationMetadata present (for detectors)
 ```
 
@@ -160,6 +173,9 @@ npm run check:features
 - ✅ Knowledge base reorganized to mirror detector architecture
 - ✅ SCIENTIFIC_REFERENCES.md → DOCUMENTATION/SCIENTIFIC/REFERENCES.md (103+ sources)
 - ✅ Physics docs organized by category: Leaks, Contamination, Outgassing, Artifacts, Gases, Isotopes, Quality
+- ✅ **Feature backlogs now modular**: DOCUMENTATION/MODULES/[Module]/FEATURE_BACKLOG_[MODULE].md
+- ✅ **CLI tool updated**: check-feature-completeness.ts now scans all module backlogs
+- ✅ KnowledgePanel refactored: ValidationTab removed, Criteria tab reorganized by category
 
 ## Your Task
 

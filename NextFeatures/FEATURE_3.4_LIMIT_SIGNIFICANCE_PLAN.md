@@ -595,10 +595,13 @@ describe('compareToLimit', () => {
 |-------|--------|-------|
 | 2026-01-10 | 🔬 Validiert | 14 Quellen dokumentiert (5 Standards + 3 Peer-reviewed + 6 Educational) |
 | 2026-01-10 | ⬜ Geplant | Implementation-Ready: Spec geschrieben, Test Cases definiert |
+| 2026-01-11 | ✅ Implementiert | **Core:** statistics.ts (Normal CDF), limitComparison.ts (JCGM 106:2012). **RoR:** Unsicherheitsberechnung aus Linear-Fit. **UI:** Enhanced LimitCheckCard mit praktiker-freundlichen Texten. Build erfolgreich ✅ |
+| 2026-01-11 | ✅ **WISSENS-TAB** | **KnowledgePanel Features-Tab erweitert:** Zeigt praktiker-freundliche Erklärung (Z-Score, P-Wert-Interpretation), wissenschaftliche Validierung (JCGM 106:2012, ILAC G8, ISO 17025), 7 Quellen (3 Standards + 2 Papers + 2 Educational), praktisches Leckraten-Beispiel (naive vs. signifikante Interpretation). Expandierbare Karte. Build erfolgreich ✅ |
 
 ---
 
 **Template-Version:** 1.0
 **Erstellt:** 2026-01-10
+**Implementiert:** 2026-01-11
 **Autor:** Claude Code
-**Validation Status:** ✅ Implementation-Ready
+**Validation Status:** ✅ Implemented

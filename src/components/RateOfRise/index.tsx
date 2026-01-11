@@ -262,10 +262,9 @@ export function RateOfRisePage({ onBack, onOpenOutgassingSimulator }: RateOfRise
               <div
                 {...getRootProps()}
                 className={`p-8 rounded-card border-2 border-dashed cursor-pointer transition-all
-                  ${
-                    isDragActive
-                      ? 'border-aqua-500 bg-aqua-500/10'
-                      : 'border-subtle hover:border-aqua-500/50 bg-surface-card hover:bg-surface-card-muted'
+                  ${isDragActive
+                    ? 'border-aqua-500 bg-aqua-500/10'
+                    : 'border-subtle hover:border-aqua-500/50 bg-surface-card hover:bg-surface-card-muted'
                   }
                   ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
               >
@@ -342,21 +341,19 @@ export function RateOfRisePage({ onBack, onOpenOutgassingSimulator }: RateOfRise
                   <div className="flex bg-surface-card-muted rounded-lg p-1">
                     <button
                       onClick={() => setChartScale('linear')}
-                      className={`px-3 py-1.5 text-caption rounded-md transition-colors ${
-                        chartScale === 'linear'
+                      className={`px-3 py-1.5 text-caption rounded-md transition-colors ${chartScale === 'linear'
                           ? 'bg-surface-card shadow text-text-primary'
                           : 'text-text-secondary hover:text-text-primary'
-                      }`}
+                        }`}
                     >
                       {t('rateOfRise.chart.linear', 'Linear')}
                     </button>
                     <button
                       onClick={() => setChartScale('log')}
-                      className={`px-3 py-1.5 text-caption rounded-md transition-colors ${
-                        chartScale === 'log'
+                      className={`px-3 py-1.5 text-caption rounded-md transition-colors ${chartScale === 'log'
                           ? 'bg-surface-card shadow text-text-primary'
                           : 'text-text-secondary hover:text-text-primary'
-                      }`}
+                        }`}
                     >
                       {t('rateOfRise.chart.log', 'Log')}
                     </button>
@@ -416,7 +413,12 @@ export function RateOfRisePage({ onBack, onOpenOutgassingSimulator }: RateOfRise
                       isGerman={isGerman}
                     />
                     {analysis.limitCheck && (
-                      <LimitCheckCard check={analysis.limitCheck} isGerman={isGerman} />
+                      <LimitCheckCard
+                        check={analysis.limitCheck}
+                        isGerman={isGerman}
+                        uncertainty={analysis.leakRate?.uncertainty}
+                        leakRate={analysis.leakRate?.Q}
+                      />
                     )}
                   </>
                 )}

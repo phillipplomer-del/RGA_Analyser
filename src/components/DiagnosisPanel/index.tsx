@@ -2,18 +2,22 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DiagnosticResultSummary, DiagnosisSummary } from '@/types/rga'
 import type { DataQualityScore } from '@/lib/diagnosis/confidenceScore'
+import type { LODResult } from '@/lib/diagnosis'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { cn } from '@/lib/utils/cn'
 import { OutgassingContext } from './OutgassingContext'
 import { DataQualityScoreCard } from './DataQualityScoreCard'
+import { LODInfoCard } from './LODInfoCard'
+import { SignificanceBadge } from './SignificanceBadge'
 
 interface DiagnosisPanelProps {
   diagnostics: DiagnosticResultSummary[]
   summary: DiagnosisSummary
   dataQualityScore?: DataQualityScore
+  lodResult?: LODResult
 }
 
-export function DiagnosisPanel({ diagnostics, summary, dataQualityScore }: DiagnosisPanelProps) {
+export function DiagnosisPanel({ diagnostics, summary, dataQualityScore, lodResult }: DiagnosisPanelProps) {
   const { i18n } = useTranslation()
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   const isGerman = i18n.language === 'de'
@@ -92,6 +96,13 @@ export function DiagnosisPanel({ diagnostics, summary, dataQualityScore }: Diagn
       {/* Data Quality Score */}
       {dataQualityScore && (
         <DataQualityScoreCard score={dataQualityScore} />
+      )}
+
+      {/* LOD Info Card (Feature 1.9.2) */}
+      {lodResult && (
+        <div className="px-4 pb-3">
+          <LODInfoCard lodResult={lodResult} compact />
+        </div>
       )}
 
       {/* Summary Stats */}
@@ -209,6 +220,41 @@ export function DiagnosisPanel({ diagnostics, summary, dataQualityScore }: Diagn
                     <p className="text-body text-text-primary">{recommendation}</p>
                   </div>
 
+                  {/* Evidence Items (Feature 1.9.2: with LOD significance) */}
+                  {diag.evidence && diag.evidence.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-caption font-medium text-text-secondary mb-2">
+                        {isGerman ? 'Indizien:' : 'Evidence:'}
+                      </p>
+                      <div className="space-y-1.5">
+                        {diag.evidence.map((ev, idx) => {
+                          const evDesc = isGerman ? ev.description : ev.descriptionEn
+                          const hasValue = ev.value !== undefined && ev.value !== null
+                          const canShowSignificance = hasValue && lodResult && ev.value! > 0
+
+                          return (
+                            <div
+                              key={idx}
+                              className="flex items-start gap-2 text-caption text-text-secondary"
+                            >
+                              <span className={ev.passed ? 'text-mint-500' : 'text-coral-500'}>
+                                {ev.passed ? '✓' : '✗'}
+                              </span>
+                              <span className="flex-1">{evDesc}</span>
+                              {canShowSignificance && ev.value !== undefined && (
+                                <SignificanceBadge
+                                  peakValue={ev.value}
+                                  lodResult={lodResult}
+                                  compact
+                                />
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Affected masses */}
                   {diag.affectedMasses.length > 0 && (
                     <div>
@@ -227,11 +273,6 @@ export function DiagnosisPanel({ diagnostics, summary, dataQualityScore }: Diagn
                       </div>
                     </div>
                   )}
-
-                  {/* Evidence count */}
-                  <p className="text-micro text-text-muted mt-2">
-                    {diag.evidenceCount} {isGerman ? 'Indizien analysiert' : 'evidence items analyzed'}
-                  </p>
                 </div>
               )}
             </div>

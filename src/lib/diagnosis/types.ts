@@ -4,6 +4,8 @@
  * Typen für automatische RGA-Spektren-Diagnose
  */
 
+import type { LODResult } from '../analysis/dynamicLOD'
+
 /**
  * Alle möglichen Diagnose-Typen
  */
@@ -71,6 +73,8 @@ export interface EvidenceItem {
   value?: number
   expected?: { min?: number; max?: number; exact?: number }
   passed: boolean
+  /** Mass number for LOD significance calculation (Feature 1.9.2) */
+  mass?: number
 }
 
 /**
@@ -119,6 +123,8 @@ export interface DiagnosisInput {
   peaks: Record<number, number>
   /** Gesamtdruck (wenn verfügbar) */
   totalPressure?: number
+  /** Dynamic Limit of Detection (Feature 1.9.2) */
+  lodResult?: LODResult
   /** Metadaten */
   metadata?: {
     /** Wurde das System ausgeheizt? */

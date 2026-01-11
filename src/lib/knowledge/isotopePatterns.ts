@@ -75,7 +75,7 @@ export const ISOTOPE_RATIOS: IsotopeRatio[] = [
     diagnosticRatios: [
       {
         ratio: '40/36',
-        value: 295.5,
+        value: 298.6, // Updated to Lee et al. (2006) / CIAAW (2007) value
         tolerance: 5,
         significance: 'Confirms atmospheric argon vs. other m/z 40 sources'
       },

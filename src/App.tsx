@@ -488,6 +488,7 @@ function App() {
             diagnostics={primaryAnalysis.diagnostics}
             summary={primaryAnalysis.diagnosisSummary}
             dataQualityScore={primaryAnalysis.dataQualityScore}
+            lodResult={primaryAnalysis.lodResult}
           />
         )}
 

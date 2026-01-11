@@ -74,6 +74,8 @@ export interface AnalysisResult {
   diagnosisSummary?: DiagnosisSummary
   /** Datenqualitäts-Score (optional, für Konfidenz-Anzeige) */
   dataQualityScore?: import('@/lib/diagnosis/confidenceScore').DataQualityScore
+  /** Dynamic Limit of Detection (Feature 1.9.2) */
+  lodResult?: import('@/lib/diagnosis').LODResult
 
   // ============================================
   // Pressure Calibration Data
@@ -205,6 +207,7 @@ export interface DiagnosticResultSummary {
   recommendationEn: string
   affectedMasses: number[]
   evidenceCount: number
+  evidence: import('@/lib/diagnosis/types').EvidenceItem[]  // Feature 1.9.2: Full evidence for LOD badges
   icon: string
   color: string
 }

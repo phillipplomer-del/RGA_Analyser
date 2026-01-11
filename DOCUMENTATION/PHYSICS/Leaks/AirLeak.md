@@ -97,14 +97,14 @@ Threshold for Detection = 30%
 1. **CO Interference:** High CO levels (combustion processes) can distort the N₂/O₂ ratio
 2. **Small Leaks:** Very small leaks may be masked by residual gas (H₂O, H₂)
 3. **No Quantification:** Leak rate is not calculated, only qualitative detection
-4. **Missing Isotope Check:** ⁴⁰Ar/³⁶Ar ratio not yet implemented (see Feature 1.8.4)
+4. **Isotope Check Implemented:** ⁴⁰Ar/³⁶Ar ratio now checked (implemented Feature 1.8.4, 2026-01-11)
 
 ### Known Edge Cases
 
 | Scenario | Effect | Mitigation |
 |----------|--------|------------|
 | **CO contamination** | False positive (high m/z 28) | Check m/z 12 (C⁺) manually |
-| **Welding gas (pure Ar)** | False positive | Feature 1.8.4 will add ³⁶Ar check |
+| **Welding gas (pure Ar)** | Reduced false positive | ✅ Feature 1.8.4 implemented ³⁶Ar check |
 | **Humid air** | Slightly lower O₂ ratio | Tolerance range compensates |
 | **Very small leak** | False negative | Reduce threshold in settings |
 
@@ -119,7 +119,7 @@ Threshold for Detection = 30%
 
 **Identified Gap:** Argon isotope ratio (⁴⁰Ar/³⁶Ar ≈ 298.6) not implemented
 - **Importance:** Distinguishes atmospheric air from pure argon (welding gas)
-- **Solution:** Feature 1.8.4 (Argon Ratio Update)
+- **Solution:** ✅ Feature 1.8.4 (Argon Ratio Update) implemented 2026-01-11
 
 ### References
 
@@ -218,14 +218,14 @@ Schwellwert für Erkennung = 30%
 1. **CO-Interferenz:** Hohe CO-Werte (Verbrennungsprozesse) können das N₂/O₂-Verhältnis verfälschen
 2. **Kleine Lecks:** Sehr kleine Lecks können durch Restgas (H₂O, H₂) maskiert werden
 3. **Keine Quantifizierung:** Leckrate wird nicht berechnet, nur qualitative Erkennung
-4. **Fehlende Isotopen-Prüfung:** ⁴⁰Ar/³⁶Ar-Verhältnis noch nicht implementiert (siehe Feature 1.8.4)
+4. **Isotopen-Prüfung implementiert:** ⁴⁰Ar/³⁶Ar-Verhältnis jetzt geprüft (Feature 1.8.4 implementiert, 2026-01-11)
 
 ### Bekannte Grenzfälle
 
 | Szenario | Effekt | Gegenmaßnahme |
 |----------|--------|---------------|
 | **CO-Kontamination** | Falsch-positiv (hohes m/z 28) | m/z 12 (C⁺) manuell prüfen |
-| **Schweißgas (reines Ar)** | Falsch-positiv | Feature 1.8.4 fügt ³⁶Ar-Prüfung hinzu |
+| **Schweißgas (reines Ar)** | Reduzierte Falsch-positiv | ✅ Feature 1.8.4 hat ³⁶Ar-Prüfung hinzugefügt |
 | **Feuchte Luft** | Leicht niedrigeres O₂-Verhältnis | Toleranzbereich kompensiert |
 | **Sehr kleines Leck** | Falsch-negativ | Schwellwert in Einstellungen reduzieren |
 
@@ -240,7 +240,7 @@ Schwellwert für Erkennung = 30%
 
 **Identifizierte Lücke:** Argon-Isotopenverhältnis (⁴⁰Ar/³⁶Ar ≈ 298.6) nicht implementiert
 - **Wichtigkeit:** Unterscheidet atmosphärische Luft von reinem Argon (Schweißgas)
-- **Lösung:** Feature 1.8.4 (Argon Ratio Update)
+- **Lösung:** ✅ Feature 1.8.4 (Argon Ratio Update) implementiert 2026-01-11
 
 ### Referenzen
 

@@ -2057,7 +2057,7 @@ export function verifyIsotopeRatios(input: DiagnosisInput): DiagnosticResult | n
     peaksMap.set(Number(mass), value)
   }
 
-  // 1. Argon Isotope Verification (⁴⁰Ar/³⁶Ar ≈ 295.5)
+  // 1. Argon Isotope Verification (⁴⁰Ar/³⁶Ar ≈ 298.6, Lee 2006/CIAAW 2007)
   const m40 = getPeak(peaks, 40)
   const m36 = getPeak(peaks, 36)
   if (m40 > DEFAULT_THRESHOLDS.minPeakHeight * 10 && m36 > 0) {

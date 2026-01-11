@@ -19,7 +19,7 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://webbook.nist.gov/cgi/cbook.cgi?ID=C7727379&Mask=200'
     ],
     lastValidated: '2026-01-11',
-    notes: 'N2/O2-Verhältnis 3.0-4.5 (Luft: 3.73), Ar-Isotope 40Ar/36Ar = 295.5, Ar²⁺/Ar⁺ (m20/m40) = 0.05-0.2 (expected: 0.1-0.15 für RGA Ionizer). Limitation: m/z 28 CO/N2-Überlappung.',
+    notes: 'N2/O2-Verhältnis 3.0-4.5 (Luft: 3.73), Ar-Isotope 40Ar/36Ar = 298.56 (Lee 2006), Ar²⁺/Ar⁺ (m20/m40) = 0.05-0.2 (expected: 0.1-0.15 für RGA Ionizer). Limitation: m/z 28 CO/N2-Überlappung.',
     crossValidation: {
       unanimous: true,
       gemini: true,

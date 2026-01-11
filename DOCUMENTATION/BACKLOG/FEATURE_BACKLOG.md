@@ -26,15 +26,14 @@
 
 ### Status Summary
 
-- ✅ **Implemented:** 11 features
-- 🎯 **Implementation-Ready:** 12 features (Spec ✅ + Validation ✅ + Plan ✅)
+- ✅ **Implemented:** 13 features
+- 🎯 **Implementation-Ready:** 10 features (Spec ✅ + Validation ✅ + Plan ✅)
 - ⬜ **Planned:** 2 features
 - 🔧 **Detectors:** 21 total (8 validated, 13 pending)
 
 ### Quick Wins (Ready to implement now)
 
-1. **1.8.4** Argon Ratio Update (15 min) - Lee 2006 value
-2. **3.4** Grenzwert-Signifikanz (2h) - Statistical significance testing
+1. **3.4** Grenzwert-Signifikanz (2h) - Statistical significance testing
 3. **1.9.2** Dynamic LOD (2-3h) - IUPAC standard LOD calculation
 4. **1.9.4** Background Subtraction (3-4h) - ASCII file subtraction
 5. **1.9.5** Permeation Lag (4-5h) - Elastomer check
@@ -193,7 +192,7 @@
 
 1. ✅ Complete documentation split (this PR)
 2. 🔧 Split `detectors.ts` → 21 modular files
-3. ⚡ Implement Quick Wins (1.8.4, 3.4, 1.9.2)
+3. ⚡ Implement Quick Wins (1.9.2)
 
 ### This Month
 

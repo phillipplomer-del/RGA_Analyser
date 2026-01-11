@@ -54,7 +54,7 @@
 | 1.8.1 | D₂/HD Gase (Deuterium) | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../../../RGA_Knowledge/SCIENTIFIC_REFERENCES.md) | 2-3h | ✅ Implementiert. m/z 3, 4. Fusionsforschung |
 | 1.8.2 | N₂O Gas (Lachgas) | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../../../RGA_Knowledge/SCIENTIFIC_REFERENCES.md) | 2h | ✅ Implementiert. m/z 44/45/46, 30/31 |
 | 1.8.3 | PDMS m/z 59 Enhancement | ✅ | ✅ | [SCIENTIFIC_REFERENCES.md](../../../RGA_Knowledge/SCIENTIFIC_REFERENCES.md) | 30min | ✅ Implementiert. C₃H₇Si⁺ Marker |
-| 1.8.4 | Argon Ratio Update | ⬜ | ✅ | [FEATURE_1.8.4_ARGON_RATIO_UPDATE_PLAN.md](../../../NextFeatures/FEATURE_1.8.4_ARGON_RATIO_UPDATE_PLAN.md) | 15min | 🎯 **Ready!** Lee 2006: 298.56 vs 295.5 |
+| 1.8.4 | Argon Ratio Update | ✅ | ✅ | [FEATURE_1.8.4_ARGON_RATIO_UPDATE_PLAN.md](../../../NextFeatures/FEATURE_1.8.4_ARGON_RATIO_UPDATE_PLAN.md) | 15min | ✅ **Implemented!** Lee 2006: 298.56 (was 295.5) |
 
 ---
 
@@ -65,7 +65,7 @@
 | # | Feature | Status | 🔬 Validiert? | Spec-Datei | Aufwand | Notizen |
 |---|---------|--------|---------------|------------|---------|---------|
 | 1.9.1 | Kinetic Fingerprinting | ⬜ | ⚠️ | [FEATURE_1.9.1_KINETIC_FINGERPRINTING_PLAN.md](../../../NextFeatures/FEATURE_1.9.1_KINETIC_FINGERPRINTING_PLAN.md) | 4-6h | 🎯 **Ready!** P ∝ t⁻ⁿ Analyse |
-| 1.9.2 | Dynamic LOD | ⬜ | ✅ | [FEATURE_1.9.2_DYNAMIC_LOD_PLAN.md](../../../NextFeatures/FEATURE_1.9.2_DYNAMIC_LOD_PLAN.md) | 2-3h | 🎯 **Ready!** LOD = μ + 3σ (IUPAC) |
+| 1.9.2 | Dynamic LOD | ✅ | ✅ | [FEATURE_1.9.2_DYNAMIC_LOD_PLAN.md](../../../NextFeatures/FEATURE_1.9.2_DYNAMIC_LOD_PLAN.md) | 2-3h | ✅ **Implementiert!** m/z 21 Standard, Significance Badges |
 | 1.9.3 | Statistical Uncertainty | ⬜ | ✅ | [FEATURE_1.9.3_STATISTICAL_UNCERTAINTY_PLAN.md](../../../NextFeatures/FEATURE_1.9.3_STATISTICAL_UNCERTAINTY_PLAN.md) | 3-4h | 🎯 **Ready!** Q ± 2·SE_slope (95% CI) |
 | 1.9.4 | Background Subtraction | ⬜ | ✅ | [FEATURE_1.9.4_BACKGROUND_SUBTRACTION_PLAN.md](../../../NextFeatures/FEATURE_1.9.4_BACKGROUND_SUBTRACTION_PLAN.md) | 3-4h | 🎯 **Ready!** ASCII background file |
 | 1.9.5 | Permeation Lag Detection | ⬜ | ✅ | [FEATURE_1.9.5_PERMEATION_LAG_PLAN.md](../../../NextFeatures/FEATURE_1.9.5_PERMEATION_LAG_PLAN.md) | 4-5h | 🎯 **Ready!** t_lag = L²/6D |
@@ -79,7 +79,7 @@
 | 3.1 | Unsicherheiten Basis | ⬜ | ✅ | [FEATURE_3.1_UNCERTAINTY_BASIS_PLAN.md](../../../NextFeatures/FEATURE_3.1_UNCERTAINTY_BASIS_PLAN.md) | 8-9h | 🎯 **Ready!** ISO GUM (17 Quellen) |
 | 3.2 | Fehlerfortpflanzung | ⬜ | ✅ | [FEATURE_3.2_ERROR_PROPAGATION_PLAN.md](../../../NextFeatures/FEATURE_3.2_ERROR_PROPAGATION_PLAN.md) | 6-8h | 🎯 **Ready!** Gaussian propagation |
 | 3.3 | Robuste Regression | ⬜ | ✅ | [FEATURE_3.3_ROBUST_REGRESSION_PLAN.md](../../../NextFeatures/FEATURE_3.3_ROBUST_REGRESSION_PLAN.md) | 8-9h | 🎯 **Ready!** Huber + RANSAC |
-| 3.4 | Grenzwert-Signifikanz | ⬜ | ✅ | [FEATURE_3.4_LIMIT_SIGNIFICANCE_PLAN.md](../../../NextFeatures/FEATURE_3.4_LIMIT_SIGNIFICANCE_PLAN.md) | 2h | 🎯 **Ready!** JCGM 106:2012 |
+| 3.4 | Grenzwert-Signifikanz | ✅ | ✅ | [FEATURE_3.4_LIMIT_SIGNIFICANCE_PLAN.md](../../../NextFeatures/FEATURE_3.4_LIMIT_SIGNIFICANCE_PLAN.md) | 2h | ✅ **Implemented!** JCGM 106:2012, praktiker-freundlich |
 
 ---
 
@@ -100,9 +100,7 @@
 
 ### **Phase 1: Quick Wins** (1-2 days)
 
-1. **1.8.4 Argon Ratio Update** (15 min) ⚡
-2. **3.4 Grenzwert-Signifikanz** (2h)
-3. **1.9.2 Dynamic LOD** (2-3h)
+1. **1.9.2 Dynamic LOD** (2-3h)
 
 ### **Phase 2: Statistical Features** (3-5 days)
 

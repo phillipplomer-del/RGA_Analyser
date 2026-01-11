@@ -1,8 +1,9 @@
 #!/usr/bin/env tsx
 /**
- * Feature Completeness Checker
+ * Feature Completeness Checker (Modular Architecture)
  *
  * Prüft, ob alle wissenschaftlichen Features vollständig dokumentiert sind.
+ * Unterstützt die neue modulare Backlog-Struktur.
  *
  * Usage: npm run check:features
  */
@@ -21,6 +22,7 @@ interface FeatureEntry {
   validationStatus: '✅' | '⚠️' | '-' | ''
   specFile: string
   scientific: boolean
+  module: string // 'RGA', 'LeakSearch', 'Infrastructure', etc.
 }
 
 interface ValidationIssue {
@@ -30,20 +32,16 @@ interface ValidationIssue {
   location: string
 }
 
-// Parse FEATURE_BACKLOG.md
-function parseFeatureBacklog(): FeatureEntry[] {
-  const backlogPath = path.join(__dirname, '../DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md')
-
-  if (!fs.existsSync(backlogPath)) {
-    console.error(`❌ ERROR: FEATURE_BACKLOG.md not found at ${backlogPath}`)
-    process.exit(1)
+// Parse a single markdown file for features
+function parseFeaturesFromFile(filePath: string, moduleName: string): FeatureEntry[] {
+  if (!fs.existsSync(filePath)) {
+    return []
   }
 
-  const content = fs.readFileSync(backlogPath, 'utf-8')
+  const content = fs.readFileSync(filePath, 'utf-8')
 
   // Regex to extract feature entries from markdown tables
   // Format: | 1.5.7 | **Feature Name** | ✅ | ✅ | [spec.md](...) | ...
-  // or: | 1.5.7 | **Feature Name** | ✅ | - | [spec.md](...) | ...
   const featureRegex = /\|\s*([\d.]+)\s*\|\s*\*\*(.*?)\*\*\s*\|\s*(⬜|🔄|✅|⏸️|❌)\s*\|\s*(✅|⚠️|-|)\s*\|\s*\[(.*?)\]/g
 
   const features: FeatureEntry[] = []
@@ -52,7 +50,7 @@ function parseFeatureBacklog(): FeatureEntry[] {
   while ((match = featureRegex.exec(content)) !== null) {
     const [_, id, name, status, validationStatus, specFile] = match
 
-    // Detect scientific features (Priority 0.x, 1.5.x, 1.8.x, 1.9.x, 3.x or contains keywords)
+    // Detect scientific features
     const scientific =
       id.startsWith('0.') ||
       id.startsWith('1.5.') ||
@@ -71,8 +69,29 @@ function parseFeatureBacklog(): FeatureEntry[] {
       status: status as any,
       validationStatus: (validationStatus.trim() || '') as any,
       specFile,
-      scientific
+      scientific,
+      module: moduleName
     })
+  }
+
+  return features
+}
+
+// Parse all module backlogs
+function parseAllFeatures(): FeatureEntry[] {
+  const features: FeatureEntry[] = []
+
+  // Module backlog locations
+  const moduleBacklogs = [
+    { path: 'DOCUMENTATION/MODULES/RGA/FEATURE_BACKLOG_RGA.md', name: 'RGA' },
+    { path: 'DOCUMENTATION/MODULES/LeakSearch/FEATURE_BACKLOG_LEAKSEARCH.md', name: 'LeakSearch' },
+    { path: 'DOCUMENTATION/BACKLOG/FEATURE_BACKLOG_INFRASTRUCTURE.md', name: 'Infrastructure' },
+  ]
+
+  for (const backlog of moduleBacklogs) {
+    const fullPath = path.join(__dirname, '..', backlog.path)
+    const moduleFeatures = parseFeaturesFromFile(fullPath, backlog.name)
+    features.push(...moduleFeatures)
   }
 
   return features
@@ -86,6 +105,7 @@ function checkPlanningFile(feature: FeatureEntry): ValidationIssue | null {
   const possiblePaths = [
     path.join(__dirname, `../NextFeatures/${feature.specFile}`),
     path.join(__dirname, `../DOCUMENTATION/ARCHIVED/${feature.specFile}`),
+    path.join(__dirname, `../DOCUMENTATION/MODULES/${feature.module}/${feature.specFile}`),
     path.join(__dirname, `../${feature.specFile}`)
   ]
 
@@ -97,26 +117,27 @@ function checkPlanningFile(feature: FeatureEntry): ValidationIssue | null {
       featureId: feature.id,
       severity: feature.status === '✅' ? 'error' : 'warning',
       message: `Planning file missing: ${feature.specFile}`,
-      location: 'NextFeatures/ or DOCUMENTATION/ARCHIVED/'
+      location: `NextFeatures/ or DOCUMENTATION/MODULES/${feature.module}/`
     }
   }
 
   return null
 }
 
-// Check if feature is documented in SCIENTIFIC_REFERENCES.md
+// Check if feature is documented in REFERENCES.md
 function checkScientificReferences(feature: FeatureEntry): ValidationIssue | null {
   if (!feature.scientific) return null
   if (feature.status !== '✅') return null // Only check completed features
 
-  const referencesPath = path.join(__dirname, '../RGA_Knowledge/SCIENTIFIC_REFERENCES.md')
+  // New location for scientific references
+  const referencesPath = path.join(__dirname, '../DOCUMENTATION/SCIENTIFIC/REFERENCES.md')
 
   if (!fs.existsSync(referencesPath)) {
     return {
       featureId: feature.id,
       severity: 'error',
-      message: 'SCIENTIFIC_REFERENCES.md not found',
-      location: 'RGA_Knowledge/'
+      message: 'REFERENCES.md not found',
+      location: 'DOCUMENTATION/SCIENTIFIC/'
     }
   }
 
@@ -132,8 +153,8 @@ function checkScientificReferences(feature: FeatureEntry): ValidationIssue | nul
     return {
       featureId: feature.id,
       severity: 'warning',
-      message: `Feature "${feature.name}" not found in SCIENTIFIC_REFERENCES.md`,
-      location: 'RGA_Knowledge/SCIENTIFIC_REFERENCES.md'
+      message: `Feature "${feature.name}" not found in REFERENCES.md (might be in detector docs)`,
+      location: 'DOCUMENTATION/SCIENTIFIC/REFERENCES.md'
     }
   }
 
@@ -159,9 +180,6 @@ function checkValidationMetadata(feature: FeatureEntry): ValidationIssue | null 
   const content = fs.readFileSync(validationPath, 'utf-8')
 
   // Simple check: does feature ID appear in validation.ts?
-  // This is heuristic - could have false positives/negatives
-  const featureIdPattern = feature.id.replace(/\./g, '\\.')
-
   if (!content.includes(feature.id)) {
     // Don't error - just warn, as not all scientific features need ValidationMetadata
     return {
@@ -187,13 +205,13 @@ function checkValidationStatus(feature: FeatureEntry): ValidationIssue | null {
         featureId: feature.id,
         severity: 'error',
         message: `Completed scientific feature "${feature.name}" missing validation status (should be ✅ or ⚠️)`,
-        location: 'FEATURE_BACKLOG.md - 🔬 Validiert? column'
+        location: `MODULES/${feature.module}/FEATURE_BACKLOG - 🔬 Validiert? column`
       }
     }
 
-    // If validation status is ✅, verify SCIENTIFIC_REFERENCES.md has an entry
+    // If validation status is ✅, verify REFERENCES.md has an entry
     if (feature.validationStatus === '✅') {
-      const referencesPath = path.join(__dirname, '../RGA_Knowledge/SCIENTIFIC_REFERENCES.md')
+      const referencesPath = path.join(__dirname, '../DOCUMENTATION/SCIENTIFIC/REFERENCES.md')
 
       if (fs.existsSync(referencesPath)) {
         const content = fs.readFileSync(referencesPath, 'utf-8')
@@ -204,8 +222,8 @@ function checkValidationStatus(feature: FeatureEntry): ValidationIssue | null {
           return {
             featureId: feature.id,
             severity: 'warning',
-            message: `Feature marked as fully validated (✅) but not found in SCIENTIFIC_REFERENCES.md`,
-            location: 'RGA_Knowledge/SCIENTIFIC_REFERENCES.md'
+            message: `Feature marked as fully validated (✅) but not found in REFERENCES.md`,
+            location: 'DOCUMENTATION/SCIENTIFIC/REFERENCES.md'
           }
         }
       }
@@ -218,7 +236,7 @@ function checkValidationStatus(feature: FeatureEntry): ValidationIssue | null {
       featureId: feature.id,
       severity: 'warning',
       message: `Non-scientific feature "${feature.name}" should have validation status "-" (not applicable)`,
-      location: 'FEATURE_BACKLOG.md - 🔬 Validiert? column'
+      location: `MODULES/${feature.module}/FEATURE_BACKLOG - 🔬 Validiert? column`
     }
   }
 
@@ -227,16 +245,38 @@ function checkValidationStatus(feature: FeatureEntry): ValidationIssue | null {
 
 // Main validation
 function validateFeatures() {
-  console.log('🔍 RGA Analyser - Feature Completeness Check\n')
+  console.log('🔍 RGA Analyser - Feature Completeness Check (Modular Architecture)\n')
   console.log('━'.repeat(60))
   console.log('')
 
-  const features = parseFeatureBacklog()
+  const features = parseAllFeatures()
   const issues: ValidationIssue[] = []
 
-  console.log(`📊 Found ${features.length} features in FEATURE_BACKLOG.md`)
-  console.log(`   Scientific features: ${features.filter(f => f.scientific).length}`)
-  console.log(`   Completed features: ${features.filter(f => f.status === '✅').length}`)
+  if (features.length === 0) {
+    console.log('⚠️  No features found in module backlogs')
+    console.log('   Expected locations:')
+    console.log('   - DOCUMENTATION/MODULES/RGA/FEATURE_BACKLOG_RGA.md')
+    console.log('   - DOCUMENTATION/MODULES/LeakSearch/FEATURE_BACKLOG_LEAKSEARCH.md')
+    console.log('   - DOCUMENTATION/BACKLOG/FEATURE_BACKLOG_INFRASTRUCTURE.md')
+    console.log('')
+    return 1
+  }
+
+  // Group by module
+  const byModule = features.reduce((acc, f) => {
+    if (!acc[f.module]) acc[f.module] = []
+    acc[f.module].push(f)
+    return acc
+  }, {} as Record<string, FeatureEntry[]>)
+
+  console.log(`📊 Found ${features.length} features across ${Object.keys(byModule).length} modules\n`)
+
+  for (const [module, moduleFeatures] of Object.entries(byModule)) {
+    const scientific = moduleFeatures.filter(f => f.scientific).length
+    const completed = moduleFeatures.filter(f => f.status === '✅').length
+    console.log(`   ${module}: ${moduleFeatures.length} total (${scientific} scientific, ${completed} completed)`)
+  }
+
   console.log('')
 
   for (const feature of features) {
@@ -291,7 +331,7 @@ function validateFeatures() {
   console.log('')
 
   if (errors.length > 0) {
-    console.log('💡 Tip: Fix errors before committing. Run with --help for details.')
+    console.log('💡 Tip: Fix errors before committing. Warnings are informational.')
   }
 
   console.log('')

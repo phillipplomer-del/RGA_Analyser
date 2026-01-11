@@ -93,6 +93,7 @@ export interface LinearFitResult {
   r2: number                     // R² (0-1)
   residualStdDev: number
   dataPoints: number
+  slopeStdError?: number         // Standard error of slope (uncertainty in dp/dt)
 }
 
 // ============================================================================
@@ -106,6 +107,10 @@ export interface LeakRateResult {
   Q_Pa: number                   // Pa·m³/s (SI)
   Q_PaFormatted: string
   equivalentHeLeak: number       // mbar·L/s (He-equivalent)
+
+  // Uncertainty (for statistical significance testing)
+  uncertainty?: number           // Standard uncertainty (1σ) in mbar·L/s
+  relativeUncertainty?: number   // Relative uncertainty (0-1)
 }
 
 // ============================================================================

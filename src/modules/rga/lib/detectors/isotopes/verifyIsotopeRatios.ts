@@ -2,7 +2,7 @@
  * Isotope Ratio Verification Detector
  *
  * Verifies isotope ratios for multiple elements to increase diagnosis confidence:
- * - Argon: ⁴⁰Ar/³⁶Ar ≈ 295.5 (atmospheric)
+ * - Argon: ⁴⁰Ar/³⁶Ar ≈ 298.6 (atmospheric, Lee 2006/CIAAW 2007)
  * - Chlorine: ³⁵Cl/³⁷Cl ≈ 3.13
  * - Bromine: ⁷⁹Br/⁸¹Br ≈ 1.028
  * - Carbon-13 in CO₂: m44/m45 ≈ 83.6
@@ -39,7 +39,7 @@ export function verifyIsotopeRatios(input: DiagnosisInput): DiagnosticResult | n
     peaksMap.set(Number(mass), value)
   }
 
-  // 1. Argon Isotope Verification (⁴⁰Ar/³⁶Ar ≈ 295.5)
+  // 1. Argon Isotope Verification (⁴⁰Ar/³⁶Ar ≈ 298.6, Lee 2006/CIAAW 2007)
   const m40 = getPeak(peaks, 40)
   const m36 = getPeak(peaks, 36)
   if (m40 > DEFAULT_THRESHOLDS.minPeakHeight * 10 && m36 > 0) {

@@ -48,7 +48,9 @@ export function analyzeRateOfRise(
   // 3. Calculate leak rate if volume provided
   let leakRate: LeakRateResult | undefined
   if (volume && volume > 0) {
-    leakRate = calculateLeakRate(dpdt, volume)
+    // Use slope standard error as dpdt uncertainty (not residual std dev!)
+    const dpdtUncertainty = linearFit.slopeStdError || 0
+    leakRate = calculateLeakRate(dpdt, volume, dpdtUncertainty)
   }
 
   // 4. Classify the rise type
@@ -129,7 +131,7 @@ export function detectPhases(
     baselineValues.reduce((a, b) => a + b, 0) / baselineWindowSize
   const baselineStd = Math.sqrt(
     baselineValues.reduce((a, b) => a + (b - baselineMean) ** 2, 0) /
-      baselineWindowSize
+    baselineWindowSize
   )
 
   // 3. Find transition point
@@ -248,12 +250,20 @@ export function fitLinear(
   // Residual standard deviation
   const residualStdDev = n > 2 ? Math.sqrt(ssRes / (n - 2)) : 0
 
+  // Standard error of the slope (uncertainty in dp/dt)
+  // Formula: SE_slope = s_residual / sqrt(Σ(xi - x̄)²)
+  const sumXSquaredDeviations = x.reduce((sum, xi) => sum + (xi - meanX) ** 2, 0)
+  const slopeStdError = sumXSquaredDeviations > 0
+    ? residualStdDev / Math.sqrt(sumXSquaredDeviations)
+    : 0
+
   return {
     slope,
     intercept,
     r2: Math.max(0, Math.min(1, r2)), // Clamp to [0, 1]
     residualStdDev,
     dataPoints: n,
+    slopeStdError,  // NEW: Standard error of slope
   }
 }
 
@@ -280,12 +290,19 @@ function linearRegressionSlope(x: number[], y: number[]): number {
 // ============================================================================
 
 /**
- * Calculate leak rate from dp/dt and volume
+ * Calculate leak rate from dp/dt and volume with uncertainty
  * Q = V × dp/dt
+ * 
+ * Uncertainty propagation:
+ * - Assumes volume uncertainty is negligible (known container volume)
+ * - Uses residual standard deviation from linear fit as dpdt uncertainty
+ * - δQ = V × δ(dp/dt)
+ * - Relative uncertainty: δQ/Q = δ(dp/dt) / (dp/dt)
  */
 export function calculateLeakRate(
   dpdt: number,
-  volumeLiters: number
+  volumeLiters: number,
+  dpdtUncertainty?: number  // Optional: standard uncertainty in dp/dt (mbar/s)
 ): LeakRateResult {
   const Q = volumeLiters * dpdt
 
@@ -297,6 +314,16 @@ export function calculateLeakRate(
   // He diffuses ~2.7× faster than air (√(M_air/M_He) ≈ √(29/4) ≈ 2.7)
   const equivalentHeLeak = Q * 2.7
 
+  // Calculate uncertainty if dpdt uncertainty is provided
+  let uncertainty: number | undefined
+  let relativeUncertainty: number | undefined
+
+  if (dpdtUncertainty && dpdtUncertainty > 0 && Math.abs(dpdt) > 0) {
+    // δQ = V × δ(dp/dt)
+    uncertainty = volumeLiters * dpdtUncertainty
+    relativeUncertainty = dpdtUncertainty / Math.abs(dpdt)
+  }
+
   return {
     volume: volumeLiters,
     Q,
@@ -304,6 +331,8 @@ export function calculateLeakRate(
     Q_Pa,
     Q_PaFormatted: formatScientific(Q_Pa, 'Pa·m³/s'),
     equivalentHeLeak,
+    uncertainty,
+    relativeUncertainty,
   }
 }
 
