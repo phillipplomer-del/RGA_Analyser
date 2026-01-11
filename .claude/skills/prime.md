@@ -20,14 +20,23 @@ You are working on the **RGA Analyser** project - a web-based tool for analyzing
 ### Project Structure
 ```
 ├── src/
+│   ├── modules/rga/lib/detectors/      # ⭐ NEW: Modular detector architecture (21 detectors)
+│   │   ├── leaks/                      # Air, Helium, Virtual, CoolingWater (4)
+│   │   ├── contamination/              # Oils, Polymers, Solvents, etc. (8)
+│   │   ├── outgassing/                 # Water, Hydrogen (2)
+│   │   ├── artifacts/                  # ESD (1)
+│   │   ├── gases/                      # Ammonia, Methane, Sulfur, ProcessGas (4)
+│   │   ├── isotopes/                   # IsotopeRatios (1)
+│   │   ├── quality/                    # CleanUHV (1)
+│   │   ├── shared/                     # types, helpers, constants
+│   │   └── index.ts                    # Public API, runAllDetectors()
 │   ├── lib/
 │   │   ├── knowledge/
-│   │   │   ├── gasLibrary.ts          # Gas properties & RSF
-│   │   │   ├── massReference.ts       # Mass-to-gas mappings
-│   │   │   └── isotopePatterns.ts     # Isotope ratios (NIST/CIAAW)
+│   │   │   ├── gasLibrary.ts           # Gas properties & RSF
+│   │   │   ├── massReference.ts        # Mass-to-gas mappings
+│   │   │   └── isotopePatterns.ts      # Isotope ratios (NIST/CIAAW)
 │   │   └── diagnosis/
-│   │       ├── detectors.ts           # Diagnostic algorithms
-│   │       └── validation.ts          # ValidationMetadata for detectors
+│   │       └── validation.ts           # ValidationMetadata for detectors
 │   └── components/                     # React UI components
 ├── RGA_Knowledge/
 │   └── SCIENTIFIC_REFERENCES.md       # 67+ scientific sources
@@ -114,14 +123,21 @@ npm run check:features
   - Tolerance: ±5-10% for RGA is acceptable
   - Bilingual: German + English in user-facing text
 
-## Current State (2026-01-10)
+## Current State (2026-01-11)
 
 ✅ **Completed:**
 - Knowledge Management System
 - Scientific validation (67+ sources documented)
 - Validation tracking system in FEATURE_BACKLOG.md
+- **Modular detector architecture migration (21/21 detectors)** ⭐ NEW!
 
 ⏭️ **Ready for:** Parallel feature implementation with agents
+
+### Recent Changes (2026-01-11)
+- ✅ All 21 detectors migrated from monolithic file to modular structure
+- ✅ New structure: `src/modules/rga/lib/detectors/` with 7 categories
+- ✅ Each detector now ~100-150 lines in own file
+- ✅ Documentation updated to reflect new architecture
 
 ## Your Task
 

@@ -46,6 +46,19 @@
 □ Document source + precision
 ```
 
+### ✅ Working with Detectors (Modular Architecture)
+
+```
+□ Detectors are in src/modules/rga/lib/detectors/
+□ Organized by category: leaks/, contamination/, outgassing/, etc.
+□ Each detector is ~100-150 lines in own file
+□ Import from: import { detectAirLeak } from '@/modules/rga/lib/detectors'
+□ Add new detector: Create file in appropriate category
+□ Export in src/modules/rga/lib/detectors/index.ts
+□ See README.md in detectors/ directory for details
+□ Migration: 21/21 detectors complete (2026-01-11)
+```
+
 ### ✅ Adding New Scientific Feature (MANDATORY WORKFLOW)
 
 **IMPORTANT:** ALL scientific features MUST follow this workflow to prevent information loss.
@@ -146,7 +159,7 @@ Prüft automatisch:
 
 ```
 □ Step 1: Generate Reverse-Spec (Claude)
-  □ Read function from detectors.ts (use Grep with -A flag)
+  □ Read detector from src/modules/rga/lib/detectors/ (use Read tool)
   □ Create REVERSE_SPEC_[FUNCTION_NAME].md in NextFeatures/
   □ Extract: Logic, Ratios, Thresholds, Confidence Calculation
   □ Template: DOCUMENTATION/BACKLOG/TEMPLATES/REVERSE_SPEC_TEMPLATE.md
@@ -266,7 +279,8 @@ When the user says these keywords, perform the corresponding action:
 | **Scientific sources** | RGA_Knowledge/SCIENTIFIC_REFERENCES.md |
 | **Gas properties** | src/lib/knowledge/gasLibrary.ts |
 | **Isotope ratios** | src/lib/knowledge/isotopePatterns.ts |
-| **Diagnostic algorithms** | src/lib/diagnosis/detectors.ts |
+| **Diagnostic algorithms** | src/modules/rga/lib/detectors/ (21 modular detectors) |
+| **Detector index** | src/modules/rga/lib/detectors/index.ts |
 | **Feature planning** | DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md |
 | **Feature templates** | DOCUMENTATION/BACKLOG/TEMPLATES/ |
 | **UI components** | src/components/ |

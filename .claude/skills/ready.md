@@ -88,11 +88,13 @@ Total: X features ready
 
 ---
 
-## 🔬 Cross-Validation Status (Implemented Detectors)
+## 🔬 Cross-Validation Status (Detector Migration)
 
 **Purpose:** Retroactive validation of already-implemented detectors before Feature 5.5 deployment
 
-**Progress:** 8/8 validated (100%) 🎉
+**Migration Progress:** 21/21 detectors migrated to modular architecture (100%) ✅
+**Cross-Validation Progress:** 8/21 detectors validated by Gemini + Grok (38%)
+**Pending Validation:** 13/21 detectors (62%)
 
 | # | Detector | Reverse-Spec | Gemini | Grok | Merged | Physics Doc | Approval | Critical Fixes |
 |---|----------|--------------|--------|------|--------|-------------|----------|----------------|
@@ -149,9 +151,36 @@ From **detectPlasticizerContamination** (⚠️ Conditional):
 3. ⚠️ **LOW:** Add m/z 43 to alkyl fragment check - listed but not checked
 4. ⚠️ **LOW:** Update affectedMasses to include m/z 167
 
-**🎉 CROSS-VALIDATION COMPLETE: All 8 detectors validated (100%)**
+### 🔬 Validated Detectors (8/21) - ⚠️ Conditional Approvals
 
+Above table shows detectors with Gemini + Grok cross-validation complete.
 **Full Details:** See [CROSS_VALIDATION_STATUS.md](DOCUMENTATION/BACKLOG/CROSS_VALIDATION_STATUS.md)
+
+---
+
+### ⏳ Pending Validation (13/21) - Migrated but Not Yet Cross-Validated
+
+**Migration Status:** ✅ All migrated to modular architecture
+**Location:** `src/modules/rga/lib/detectors/`
+**Next Step:** Submit for Gemini + Grok cross-validation
+
+| # | Detector | Category | Location | Status |
+|---|----------|----------|----------|--------|
+| 9 | detectVirtualLeak | Leaks | leaks/ | ⬜ Pending validation |
+| 10 | detectCoolingWaterLeak | Leaks | leaks/ | ⬜ Pending validation |
+| 11 | detectSiliconeContamination | Contamination | contamination/polymers/ | ⬜ Pending validation |
+| 12 | detectSolventResidue | Contamination | contamination/solvents/ | ⬜ Pending validation |
+| 13 | detectChlorinatedSolvent | Contamination | contamination/solvents/ | ⬜ Pending validation |
+| 14 | detectAromatic | Contamination | contamination/aromatics/ | ⬜ Pending validation |
+| 15 | detectWaterOutgassing | Outgassing | outgassing/ | ⬜ Pending validation |
+| 16 | detectHydrogenDominant | Outgassing | outgassing/ | ⬜ Pending validation |
+| 17 | detectAmmonia | Gases | gases/ | ⬜ Pending validation |
+| 18 | detectMethane | Gases | gases/ | ⬜ Pending validation |
+| 19 | detectSulfur | Gases | gases/ | ⬜ Pending validation |
+| 20 | detectProcessGasResidue | Gases | gases/ | ⬜ Pending validation |
+| 21 | detectCleanUHV | Quality | quality/ | ⬜ Pending validation |
+
+**Total Migration:** ✅ 21/21 detectors migrated from monolithic file (2,228 lines) to modular structure (~100-150 lines each)
 
 ---
 

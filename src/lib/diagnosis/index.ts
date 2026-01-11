@@ -29,34 +29,41 @@ export {
   type MeasurementContext
 } from './confidenceScore'
 
-// Import detectors
+// Import detectors from new modular structure
 import {
+  // Leaks (4)
   detectAirLeak,
+  detectHeliumLeak,
+  detectVirtualLeak,
+  detectCoolingWaterLeak,
+  // Contamination (8)
   detectOilBackstreaming,
   detectFomblinContamination,
+  detectPolymerOutgassing,
+  detectPlasticizerContamination,
+  detectSiliconeContamination,
   detectSolventResidue,
   detectChlorinatedSolvent,
+  detectAromatic,
+  // Outgassing (2)
   detectWaterOutgassing,
   detectHydrogenDominant,
+  // Artifacts (1)
   detectESDartifacts,
-  detectHeliumLeak,
-  detectSiliconeContamination,
-  detectCleanUHV,
-  detectVirtualLeak,
-  distinguishN2fromCO,
-  // Neue Detektoren
+  // Gases (4)
   detectAmmonia,
   detectMethane,
   detectSulfur,
-  detectAromatic,
-  // Halbleiter-spezifische Detektoren
-  detectPolymerOutgassing,
-  detectPlasticizerContamination,
   detectProcessGasResidue,
-  detectCoolingWaterLeak,
-  // Isotopen-Analyse
-  verifyIsotopeRatios
-} from './detectors'
+  // Isotopes (1)
+  verifyIsotopeRatios,
+  // Quality (1)
+  detectCleanUHV
+} from '@/modules/rga/lib/detectors'
+
+// TODO: Migrate distinguishN2fromCO to modular structure
+// This is a special analysis function, not a typical detector
+import { distinguishN2fromCO } from './detectors'
 
 import type { DiagnosticResult, DiagnosisInput } from './types'
 import { DIAGNOSIS_METADATA } from './types'

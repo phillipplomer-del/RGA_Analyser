@@ -25,8 +25,44 @@ interface DocumentationCheck {
 }
 
 // Dateien, die geprüft werden sollen
+// NOTE: Detectors migrated to modular structure (21 files)
 const CODE_FILES = [
-  'src/lib/diagnosis/detectors.ts',
+  // Modular Detectors - Leaks (4)
+  'src/modules/rga/lib/detectors/leaks/detectAirLeak.ts',
+  'src/modules/rga/lib/detectors/leaks/detectHeliumLeak.ts',
+  'src/modules/rga/lib/detectors/leaks/detectVirtualLeak.ts',
+  'src/modules/rga/lib/detectors/leaks/detectCoolingWaterLeak.ts',
+
+  // Modular Detectors - Contamination (8)
+  'src/modules/rga/lib/detectors/contamination/oils/detectOilBackstreaming.ts',
+  'src/modules/rga/lib/detectors/contamination/fluorinated/detectFomblinContamination.ts',
+  'src/modules/rga/lib/detectors/contamination/polymers/detectPolymerOutgassing.ts',
+  'src/modules/rga/lib/detectors/contamination/polymers/detectPlasticizerContamination.ts',
+  'src/modules/rga/lib/detectors/contamination/polymers/detectSiliconeContamination.ts',
+  'src/modules/rga/lib/detectors/contamination/solvents/detectSolventResidue.ts',
+  'src/modules/rga/lib/detectors/contamination/solvents/detectChlorinatedSolvent.ts',
+  'src/modules/rga/lib/detectors/contamination/aromatics/detectAromatic.ts',
+
+  // Modular Detectors - Outgassing (2)
+  'src/modules/rga/lib/detectors/outgassing/detectWaterOutgassing.ts',
+  'src/modules/rga/lib/detectors/outgassing/detectHydrogenDominant.ts',
+
+  // Modular Detectors - Artifacts (1)
+  'src/modules/rga/lib/detectors/artifacts/detectESDartifacts.ts',
+
+  // Modular Detectors - Gases (4)
+  'src/modules/rga/lib/detectors/gases/detectAmmonia.ts',
+  'src/modules/rga/lib/detectors/gases/detectMethane.ts',
+  'src/modules/rga/lib/detectors/gases/detectSulfur.ts',
+  'src/modules/rga/lib/detectors/gases/detectProcessGasResidue.ts',
+
+  // Modular Detectors - Isotopes (1)
+  'src/modules/rga/lib/detectors/isotopes/verifyIsotopeRatios.ts',
+
+  // Modular Detectors - Quality (1)
+  'src/modules/rga/lib/detectors/quality/detectCleanUHV.ts',
+
+  // Other scientific code
   'src/lib/calibration/constants.ts',
   'src/lib/calibration/deconvolution.ts',
   'src/lib/knowledge/isotopePatterns.ts',

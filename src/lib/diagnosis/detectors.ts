@@ -1,8 +1,26 @@
 /**
- * Diagnose-Detektoren
+ * ⚠️ DEPRECATED - This file is being phased out
  *
- * Implementiert alle Diagnose-Algorithmen basierend auf dem konsolidierten
- * RGA-Expertenwissen aus CERN, Pfeiffer, MKS, NIST
+ * 📌 NEW LOCATION: src/modules/rga/lib/detectors/
+ *
+ * All 21 detectors have been migrated to a modular architecture:
+ * - Leaks: detectAirLeak, detectHeliumLeak, detectVirtualLeak, detectCoolingWaterLeak
+ * - Contamination: detectOilBackstreaming, detectFomblinContamination, detectPolymer*, detectSilicone*, detectSolvent*, detectAromatic
+ * - Outgassing: detectWaterOutgassing, detectHydrogenDominant
+ * - Artifacts: detectESDartifacts
+ * - Gases: detectAmmonia, detectMethane, detectSulfur, detectProcessGasResidue
+ * - Isotopes: verifyIsotopeRatios
+ * - Quality: detectCleanUHV
+ *
+ * Import from: import { detectAirLeak } from '@/modules/rga/lib/detectors'
+ *
+ * This file now only contains:
+ * - distinguishN2fromCO (pending migration)
+ *
+ * Migration completed: 2026-01-11
+ * See: src/modules/rga/lib/detectors/README.md
+ *
+ * @deprecated Use @/modules/rga/lib/detectors instead
  */
 
 import {
