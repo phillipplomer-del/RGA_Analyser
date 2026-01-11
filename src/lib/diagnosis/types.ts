@@ -87,6 +87,28 @@ export interface ValidationMetadata {
   lastValidated: string
   /** Optionale Anmerkungen zu Limitationen oder Besonderheiten */
   notes?: string
+  /** Cross-Validation Status (Multi-AI Review) */
+  crossValidation?: {
+    /** Unanimous approval von allen AIs */
+    unanimous: boolean
+    /** Gemini AI Validierung */
+    gemini: boolean
+    /** Grok AI Validierung */
+    grok: boolean
+    /** Grok Physics Score (0-100) */
+    grokScore?: number
+  }
+  /** Link zu Physics Documentation (DOCUMENTATION/PHYSICS/) */
+  physicsDoc?: string
+  /** Fix Status für Conditional Approvals */
+  fixes?: {
+    /** Anzahl der Fixes */
+    count: number
+    /** Wurden Fixes implementiert? */
+    applied: boolean
+    /** Schweregrad der Fixes */
+    severity: 'critical' | 'high' | 'medium' | 'low'
+  }
 }
 
 /**

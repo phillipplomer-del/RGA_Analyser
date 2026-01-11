@@ -216,7 +216,7 @@ export const ISOTOPE_RATIOS: IsotopeRatio[] = [
     diagnosticRatios: [
       {
         ratio: '32/34',
-        value: 487,
+        value: 244,  // FIXED: was 487 (atomic ¹⁶O/¹⁸O). Correct is molecular ³²O₂/³⁴O₂ = 0.9951/0.00409 ≈ 244
         tolerance: 10,
         significance: 'Pure O₂ ratio (¹⁸O¹⁶O at m/z 34)'
       },

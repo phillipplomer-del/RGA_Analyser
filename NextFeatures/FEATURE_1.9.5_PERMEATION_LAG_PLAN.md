@@ -115,4 +115,20 @@ export function detectPermeationLag(
 
 ---
 
-**Erstellt:** 2026-01-10 | **Autor:** Claude Code | **Gemini ID:** 1.1 (Permeation Lag)
+**Erstellt:** 2026-01-10 | **Autor:** Claude Code | **Gemini Feature ID:** 1.1 (Permeation Lag)
+
+---
+
+## 🤖 Gemini Review & Critique (Validated 2026-01-11)
+
+**CRITICAL FINDING:** The plan proposes a mathematically incorrect fitting function ($1 - \exp(-t)$).
+*   Exponential curves are convex (instant rise), but permeation is sigmoidal (concave start).
+*   The fitting would fail to detect the "Time Lag", which is the key differentiator.
+
+**Validated Solution:**
+Use the **Time Lag Asymptote Method** (Daynes/Barrer).
+1.  Find linear steady state at the end.
+2.  Extrapolate to time-axis intercept ($\Theta$).
+3.  $\Theta > 30s$ indicates Permeation.
+
+👉 **View Validated Plan:** [FEATURE_1.9.5_PERMEATION_LAG_PLAN_gemini.md](FEATURE_1.9.5_PERMEATION_LAG_PLAN_gemini.md)

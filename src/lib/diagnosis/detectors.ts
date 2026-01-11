@@ -153,6 +153,7 @@ export function detectOilBackstreaming(input: DiagnosisInput): DiagnosticResult 
   const m43 = getPeak(peaks, 43)
   const m57 = getPeak(peaks, 57)
   const m41 = getPeak(peaks, 41)
+  const m39 = getPeak(peaks, 39)
 
   evidence.push(createEvidence(
     'pattern',
@@ -170,8 +171,19 @@ export function detectOilBackstreaming(input: DiagnosisInput): DiagnosticResult 
       'ratio',
       `C₄H₉⁺/C₃H₇⁺ (m57/m43): ${ratio.toFixed(2)} (Öl typisch: 0.7-0.9)`,
       `C₄H₉⁺/C₃H₇⁺ (m57/m43): ${ratio.toFixed(2)} (oil typical: 0.7-0.9)`,
-      ratio >= 0.5 && ratio <= 1.2,
+      ratio >= 0.5 && ratio <= 1.4,
       ratio
+    ))
+  }
+
+  // Check for m/z 39 aromatic marker
+  if (m39 > DEFAULT_THRESHOLDS.minPeakHeight) {
+    evidence.push(createEvidence(
+      'presence',
+      `C₃H₃⁺ (m/z 39) detektiert - aromatischer Marker`,
+      `C₃H₃⁺ (m/z 39) detected - aromatic marker`,
+      true,
+      m39 * 100
     ))
   }
 
@@ -188,11 +200,11 @@ export function detectOilBackstreaming(input: DiagnosisInput): DiagnosticResult 
   const m71 = getPeak(peaks, 71)
   let oilType = 'Vorpumpe'
   if (m71 > 0 && m43 > 0 && m71 / m43 > 0.4) {
-    oilType = 'Turbopumpe'
+    oilType = 'Heavy Hydrocarbons'
     evidence.push(createEvidence(
       'ratio',
-      `Hoher m71-Anteil deutet auf Turbopumpenöl`,
-      `High m71 content indicates turbopump oil`,
+      `Hoher m71-Anteil deutet auf schwere Kohlenwasserstoffe`,
+      `High m71 content indicates heavy hydrocarbons`,
       true,
       m71 / m43
     ))
@@ -201,9 +213,9 @@ export function detectOilBackstreaming(input: DiagnosisInput): DiagnosticResult 
   return {
     type: DiagnosisType.OIL_BACKSTREAMING,
     name: `Öl-Rückströmung (${oilType})`,
-    nameEn: `Oil Backstreaming (${oilType === 'Vorpumpe' ? 'Forepump' : 'Turbopump'})`,
+    nameEn: `Oil Backstreaming (${oilType === 'Vorpumpe' ? 'Forepump' : 'Heavy Hydrocarbons'})`,
     description: `Kohlenwasserstoff-Muster deutet auf ${oilType}nöl-Kontamination.`,
-    descriptionEn: `Hydrocarbon pattern indicates ${oilType === 'Vorpumpe' ? 'forepump' : 'turbopump'} oil contamination.`,
+    descriptionEn: `Hydrocarbon pattern indicates ${oilType === 'Vorpumpe' ? 'forepump' : 'heavy hydrocarbon'} oil contamination.`,
     confidence: Math.min(confidence, 1.0),
     severity: confidence > 0.6 ? 'critical' : 'warning',
     evidence,
@@ -222,6 +234,7 @@ export function detectFomblinContamination(input: DiagnosisInput): DiagnosticRes
   const m69 = getPeak(peaks, 69)  // CF₃⁺ - Hauptmarker
   const m31 = getPeak(peaks, 31)  // CF⁺
   const m47 = getPeak(peaks, 47)  // CFO⁺
+  const m50 = getPeak(peaks, 50)  // CF₂⁺
 
   // Fomblin braucht m69 als starken Peak
   if (m69 < DEFAULT_THRESHOLDS.minPeakHeight * 10) return null
@@ -237,6 +250,18 @@ export function detectFomblinContamination(input: DiagnosisInput): DiagnosticRes
     m69 * 100
   ))
   confidence += 0.4
+
+  // CRITICAL FIX: Check m/z 50 (CF₂⁺) - 2nd/3rd strongest PFPE peak (5-10%)
+  if (m50 > DEFAULT_THRESHOLDS.minPeakHeight * 50) {
+    evidence.push(createEvidence(
+      'presence',
+      `CF₂⁺ (m/z 50) detektiert: ${(m50 * 100).toFixed(2)}%`,
+      `CF₂⁺ (m/z 50) detected: ${(m50 * 100).toFixed(2)}%`,
+      true,
+      m50 * 100
+    ))
+    confidence += 0.2
+  }
 
   // Anti-Pattern: KEINE Alkyl-Peaks
   const m41 = getPeak(peaks, 41)
@@ -257,8 +282,8 @@ export function detectFomblinContamination(input: DiagnosisInput): DiagnosticRes
 
   if (noAlkyl) confidence += 0.3
 
-  // Weitere PFPE-Marker
-  if (m31 > DEFAULT_THRESHOLDS.minPeakHeight || m47 > DEFAULT_THRESHOLDS.minPeakHeight) {
+  // Weitere PFPE-Marker - FIXED: Raised threshold from 0.1% to 1% to reduce noise
+  if (m31 > DEFAULT_THRESHOLDS.minPeakHeight * 10 || m47 > DEFAULT_THRESHOLDS.minPeakHeight * 10) {
     evidence.push(createEvidence(
       'presence',
       `Weitere PFPE-Fragmente: CF⁺ (m31), CFO⁺ (m47)`,
@@ -281,7 +306,7 @@ export function detectFomblinContamination(input: DiagnosisInput): DiagnosticRes
     evidence,
     recommendation: 'Quelle: Diffusionspumpenöl, vakuumkompatibles Fett. Intensive Reinigung erforderlich. PFPE ist hartnäckig!',
     recommendationEn: 'Source: Diffusion pump oil, vacuum-compatible grease. Intensive cleaning required. PFPE is persistent!',
-    affectedMasses: [20, 31, 47, 50, 69]
+    affectedMasses: [31, 47, 50, 69]  // FIXED: Removed m20 (HF⁺ is extrinsic)
   }
 }
 
@@ -635,9 +660,9 @@ export function detectHydrogenDominant(input: DiagnosisInput): DiagnosticResult 
 // ESD-spezifische Schwellenwerte
 const ESD_THRESHOLDS = {
   o_ratio: { normal: 0.15, anomaly: 0.50 },      // m16/m32
-  n_ratio: { normal: 0.07, anomaly: 0.15 },      // m14/m28
+  n_ratio: { normal: 0.10, anomaly: 0.25 },      // m14/m28 - FIXED: was 0.07/0.15 - caused false positives
   c_ratio: { normal: 0.05, anomaly: 0.12 },      // m12/m28
-  h_ratio: { normal: 0.01, anomaly: 0.05 },      // m1/m2
+  h_ratio: { normal: 0.10, anomaly: 0.20 },      // m1/m2 - FIXED: was 0.01/0.05 - unrealistic for 70 eV EI
   minCriteriaForWarning: 4                        // Ab 4 Kriterien → warning
 }
 
@@ -837,7 +862,7 @@ export function detectESDartifacts(input: DiagnosisInput): DiagnosticResult | nu
  * Qualitative Helium-Detektion (m/z=4)
  *
  * WICHTIG: Dies ist KEIN quantitativer Leckraten-Test!
- * RGAs sind 1-2 Größenordnungen weniger sensitiv als dedizierte He-Lecktester.
+ * RGAs sind 1-3 Größenordnungen weniger sensitiv als dedizierte He-Lecktester (~5×10⁻¹² mbar·l/s).
  *
  * Zweck: Einfacher Hinweis auf ungewöhnlich hohe Helium-Konzentration.
  * → Empfehlung: Bei Verdacht He-Leckdetektor einsetzen.
@@ -865,19 +890,21 @@ export function detectHeliumLeak(input: DiagnosisInput): DiagnosticResult | null
   ))
   confidence += 0.3
 
-  // Sekundärkriterium: Verhältnis zu H₂
+  // Sekundärkriterium: Verhältnis zu H₂ (RSF-korrigiert)
   if (m2 > 0) {
-    const ratio_4_2 = m4 / m2
+    const RSF_He = 0.15   // Helium relative sensitivity (NIST/Hiden Analytical)
+    const RSF_H2 = 0.44   // Hydrogen relative sensitivity
+    const ratio_4_2 = (m4 / RSF_He) / (m2 / RSF_H2)
 
-    // Wenn He/H₂ > 0.1 (10%), dann auffällig
-    if (ratio_4_2 > 0.1) {
+    // Wenn RSF-korrigiertes He/H₂ > 0.03 (3%), dann auffällig
+    if (ratio_4_2 > 0.03) {
       evidence.push(createEvidence(
         'ratio',
-        `He/H₂-Verhältnis auffällig: ${ratio_4_2.toFixed(3)} (${(ratio_4_2 * 100).toFixed(1)}%)`,
-        `He/H₂ ratio notable: ${ratio_4_2.toFixed(3)} (${(ratio_4_2 * 100).toFixed(1)}%)`,
+        `He/H₂-Verhältnis (RSF-korrigiert) auffällig: ${ratio_4_2.toFixed(3)} (${(ratio_4_2 * 100).toFixed(1)}%)`,
+        `He/H₂ ratio (RSF-corrected) notable: ${ratio_4_2.toFixed(3)} (${(ratio_4_2 * 100).toFixed(1)}%)`,
         true,
         ratio_4_2,
-        { min: 0.1 }
+        { min: 0.03 }
       ))
       confidence += 0.4
     } else {
@@ -902,7 +929,7 @@ export function detectHeliumLeak(input: DiagnosisInput): DiagnosticResult | null
       true,
       m3 * 100
     ))
-    confidence -= 0.1 // Unsicherheit, da D₂/He Überlappung
+    confidence -= 0.3 // FIXED: Stronger uncertainty penalty (was -0.1) - D₂/He overlap
   }
 
   // Absoluter Wert wichtig: nur bei relevantem Signal melden
@@ -1694,19 +1721,26 @@ export function detectAromatic(input: DiagnosisInput): DiagnosticResult | null {
 export function detectPolymerOutgassing(input: DiagnosisInput): DiagnosticResult | null {
   const { peaks } = input
 
-  const m18 = getPeak(peaks, 18)  // H₂O
-  const m17 = getPeak(peaks, 17)  // OH
-  const m28 = getPeak(peaks, 28)  // N₂/CO
-  const m32 = getPeak(peaks, 32)  // O₂
-  const m40 = getPeak(peaks, 40)  // Ar
+  const m16 = getPeak(peaks, 16)  // O⁺
+  const m17 = getPeak(peaks, 17)  // OH⁺
+  const m18 = getPeak(peaks, 18)  // H₂O⁺
+  const m28 = getPeak(peaks, 28)  // N₂⁺/CO⁺
+  const m32 = getPeak(peaks, 32)  // O₂⁺
+  const m40 = getPeak(peaks, 40)  // Ar⁺
+  const m41 = getPeak(peaks, 41)  // C₃H₅⁺
+  const m43 = getPeak(peaks, 43)  // C₃H₇⁺/C₂H₃O⁺
+  const m44 = getPeak(peaks, 44)  // CO₂⁺
 
   const evidence: EvidenceItem[] = []
   let confidence = 0
 
   // H₂O dominant ohne Luftleck-Signatur
   const waterDominant = m18 > m28 * 2
-  const noAirLeak = (m28 / Math.max(m32, 0.001)) > 5 || m40 < 0.005
+  const noAirLeak = (m28 / Math.max(m32, 0.001)) > 4.5 || m40 < 0.005  // FIXED: threshold changed from >5 to >4.5
   const normalWaterRatio = m17 > 0 && m18 / m17 > 3.5 && m18 / m17 < 5.0
+
+  // Check for polymer-specific markers (m41/m43)
+  const hasPolymerMarkers = m41 > 0.005 || m43 > 0.005
 
   if (waterDominant && noAirLeak) {
     evidence.push(createEvidence(
@@ -1740,20 +1774,51 @@ export function detectPolymerOutgassing(input: DiagnosisInput): DiagnosticResult
     confidence += 0.2
   }
 
-  if (confidence < DEFAULT_THRESHOLDS.minConfidence) return null
+  // Add m16 (O⁺) evidence
+  if (m16 > 0.01) {
+    evidence.push(createEvidence(
+      'presence',
+      `O⁺ (m/z 16) detektiert: ${(m16 * 100).toFixed(2)}% - Fragment von H₂O/O₂`,
+      `O⁺ (m/z 16) detected: ${(m16 * 100).toFixed(2)}% - fragment from H₂O/O₂`,
+      true,
+      m16 * 100
+    ))
+  }
+
+  // Add m44 (CO₂) evidence if present
+  if (m44 > 0.01) {
+    evidence.push(createEvidence(
+      'presence',
+      `CO₂ (m/z 44) detektiert: ${(m44 * 100).toFixed(2)}% - typisch für Polymer-Ausgasung`,
+      `CO₂ (m/z 44) detected: ${(m44 * 100).toFixed(2)}% - typical for polymer outgassing`,
+      true,
+      m44 * 100
+    ))
+  }
+
+  // Check if we should return early
+  if (!hasPolymerMarkers && confidence < DEFAULT_THRESHOLDS.minConfidence) return null
+
+  // Build affected masses list
+  const affectedMasses: number[] = [16, 17, 18]
+  if (m44 > 0.01) affectedMasses.push(44)
 
   return {
     type: DiagnosisType.POLYMER_OUTGASSING,
-    name: 'Polymer-Ausgasung',
-    nameEn: 'Polymer Outgassing',
-    description: 'Polymer-Ausgasung (PEEK/Kapton/Viton) - hauptsächlich H₂O.',
-    descriptionEn: 'Polymer outgassing (PEEK/Kapton/Viton) - mainly H₂O.',
+    name: hasPolymerMarkers ? 'Polymer-Ausgasung' : 'Restgas-Ausgasung',
+    nameEn: hasPolymerMarkers ? 'Polymer Outgassing' : 'Residual Gas Outgassing',
+    description: hasPolymerMarkers
+      ? 'Polymer-Ausgasung (PEEK/Kapton/Viton) - hauptsächlich H₂O.'
+      : 'Restgas-Ausgasung - hauptsächlich H₂O und CO₂.',
+    descriptionEn: hasPolymerMarkers
+      ? 'Polymer outgassing (PEEK/Kapton/Viton) - mainly H₂O.'
+      : 'Residual gas outgassing - mainly H₂O and CO₂.',
     confidence: Math.min(confidence, 1.0),
     severity: 'info',
     evidence,
     recommendation: 'Längeres Abpumpen, Bakeout bei max. zulässiger Polymer-Temperatur (150-200°C).',
     recommendationEn: 'Extended pumping, bakeout at max. allowed polymer temperature (150-200°C).',
-    affectedMasses: [16, 17, 18]
+    affectedMasses
   }
 }
 
@@ -1763,9 +1828,11 @@ export function detectPolymerOutgassing(input: DiagnosisInput): DiagnosticResult
 export function detectPlasticizerContamination(input: DiagnosisInput): DiagnosticResult | null {
   const { peaks } = input
 
-  const m149 = getPeak(peaks, 149)  // Phthalat-Marker
+  const m149 = getPeak(peaks, 149)  // C₈H₅O₃⁺ (protonated phthalic anhydride)
+  const m167 = getPeak(peaks, 167)  // Phthalate secondary marker
   const m57 = getPeak(peaks, 57)    // Alkyl-Fragment
   const m71 = getPeak(peaks, 71)    // Alkyl-Fragment
+  const m43 = getPeak(peaks, 43)    // Alkyl-Fragment
 
   const evidence: EvidenceItem[] = []
   let confidence = 0
@@ -1781,12 +1848,24 @@ export function detectPlasticizerContamination(input: DiagnosisInput): Diagnosti
     ))
     confidence += 0.5
 
-    const hasAlkylFragments = m57 > 0.01 || m71 > 0.01
+    // HIGH FIX: Add m167 confirmation (2nd strongest phthalate peak, 15-45%)
+    if (m167 > m149 * 0.15) {
+      evidence.push(createEvidence(
+        'pattern',
+        `Phthalat-Sekundär-Marker (m/z 167) detektiert: ${(m167 * 100).toFixed(4)}%`,
+        `Phthalate secondary marker (m/z 167) detected: ${(m167 * 100).toFixed(4)}%`,
+        true,
+        m167 * 100
+      ))
+      confidence += 0.25  // Stronger phthalate confirmation
+    }
+
+    const hasAlkylFragments = m57 > 0.01 || m71 > 0.01 || m43 > 0.01
     if (hasAlkylFragments) {
       evidence.push(createEvidence(
         'pattern',
-        `Alkyl-Fragmente (m57/m71) unterstützen Weichmacher-Diagnose`,
-        `Alkyl fragments (m57/m71) support plasticizer diagnosis`,
+        `Alkyl-Fragmente (m43/m57/m71) unterstützen Weichmacher-Diagnose`,
+        `Alkyl fragments (m43/m57/m71) support plasticizer diagnosis`,
         true
       ))
       confidence += 0.25
@@ -1806,7 +1885,7 @@ export function detectPlasticizerContamination(input: DiagnosisInput): Diagnosti
     evidence,
     recommendation: 'O-Ringe in Hexan auskochen (über Nacht), Kunststoffteile entfernen.',
     recommendationEn: 'Reflux O-rings in hexane overnight, remove plastic components.',
-    affectedMasses: [43, 57, 71, 149]
+    affectedMasses: [43, 57, 71, 149, 167]
   }
 }
 

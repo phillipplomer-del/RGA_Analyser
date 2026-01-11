@@ -50,22 +50,27 @@
 
 **IMPORTANT:** ALL scientific features MUST follow this workflow to prevent information loss.
 
+**⚠️ CRITICAL:** After EVERY file creation, verify the file exists before updating documentation!
+
 ```
 □ Phase 1: Konzept
   □ Create entry in FEATURE_BACKLOG.md (Status: ⬜, 🔬 Validiert?: leer)
   □ Copy TEMPLATES/FEATURE_PLAN_TEMPLATE.md → NextFeatures/FEATURE_[ID]_[NAME]_PLAN.md
   □ Copy TEMPLATES/FEATURE_CHECKLIST.md → NextFeatures/FEATURE_[ID]_CHECKLIST.md
+  ⚠️ VERIFY: Run `ls NextFeatures/FEATURE_[ID]*` to confirm files exist!
 
 □ Phase 2: Wissenschaftliche Validierung
   □ Research scientific sources (≥2 peer-reviewed OR ≥3 standards/manufacturer)
   □ Add section to SCIENTIFIC_REFERENCES.md with sources + limitations
   □ Update planning file with validation results
   □ Update FEATURE_BACKLOG.md: 🔬 Validiert? = ✅ (fully validated) or ⚠️ (partially validated)
+  ⚠️ VERIFY: Grep SCIENTIFIC_REFERENCES.md for the new section!
 
 □ Phase 3: Implementation
   □ Update FEATURE_BACKLOG.md (⬜ → 🔄)
   □ Implement code
   □ Add ValidationMetadata to src/lib/diagnosis/validation.ts
+  ⚠️ VERIFY: Run build/type check to confirm code compiles!
 
 □ Phase 4: Finalization
   □ Update FEATURE_BACKLOG.md (🔄 → ✅)
@@ -74,12 +79,16 @@
   □ Verify ValidationBadge visible in KnowledgePanel
   □ Run `npm run check:features` to verify completeness
 
-□ Phase 5: Verification
+□ Phase 5: Verification (MANDATORY - DO NOT SKIP!)
   □ Run through FEATURE_CHECKLIST.md
-  □ All links working
+  □ All links in FEATURE_BACKLOG.md working (click to verify!)
   □ Feature discoverable in all locations
   □ CLI check passes without errors
+  □ Run: `ls -la` on all files referenced in FEATURE_BACKLOG.md
 ```
+
+**🚨 Anti-Ghost-File Rule:** NEVER update FEATURE_BACKLOG.md to claim a file was created
+   without first verifying the file exists on disk. Use `ls`, `cat`, or Read tool to confirm!
 
 **File Locations Quick Reference:**
 - Planning (Single Feature): `NextFeatures/FEATURE_[ID]_[NAME]_PLAN.md`
@@ -114,6 +123,98 @@ Prüft automatisch:
 - ValidationMetadata in validation.ts vorhanden (für Detektoren)
 
 **Regel:** Features mit Status ✅ und 🔬 Validiert? = ✅ sind **Implementation-Ready**.
+
+---
+
+### 🤖 Multi-AI Cross-Validation Workflow (RETROACTIVE VALIDATION)
+
+**Purpose:** Validate **already-implemented** detectors retroactively to ensure scientific correctness before Feature 5.5 deployment.
+
+**Status:** ACTIVE (2026-01-11)
+
+**Priority Order:**
+1. ✅ detectAirLeak - VALIDATED (Unanimous Approval)
+2. ⚠️ detectOilBackstreaming - VALIDATED (Conditional, fixes needed)
+3. ⏳ verifyIsotopeRatios - IN PROGRESS
+4. ⬜ detectESDArtefacts
+5. ⬜ detectHeliumLeak
+6. ⬜ detectFomblinContamination
+7. ⬜ detectPolymerOutgassing
+8. ⬜ detectPlasticizerContamination
+
+**Workflow (6 Steps per Detector):**
+
+```
+□ Step 1: Generate Reverse-Spec (Claude)
+  □ Read function from detectors.ts (use Grep with -A flag)
+  □ Create REVERSE_SPEC_[FUNCTION_NAME].md in NextFeatures/
+  □ Extract: Logic, Ratios, Thresholds, Confidence Calculation
+  □ Template: DOCUMENTATION/BACKLOG/TEMPLATES/REVERSE_SPEC_TEMPLATE.md
+  □ Token-efficient format (tables, bullet points, <1200 tokens)
+  ⚠️ VERIFY: ls NextFeatures/REVERSE_SPEC_*.md
+
+□ Step 2: User submits to Gemini + Grok
+  □ User copies "VALIDATION PROMPT" section from Reverse-Spec
+  □ User pastes into Gemini → waits for response
+  □ User pastes Gemini response into "🤖 Gemini Review" section
+  □ User pastes same prompt into Grok → waits for response
+  □ User pastes Grok response into "🤖 Grok Review" section
+  □ User notifies Claude: "beide reviews sind drin"
+
+□ Step 3: Claude merges reviews
+  □ Compare Gemini vs Grok findings
+  □ Identify consensus (both agree)
+  □ Identify conflicts (both disagree)
+  □ Resolution: Prefer stricter validation, cite sources
+  □ Approval: ✅ (unanimous), ⚠️ (conditional), ❌ (rejected)
+  □ Write to "✅ Merged Validation" section in same file
+  ⚠️ VERIFY: Grep for "Cross-Validation Complete"
+
+□ Step 4: Create Physics Documentation (Claude)
+  □ Create DOCUMENTATION/PHYSICS/[FUNCTION_NAME].md
+  □ Bilingual (DE + EN in same file)
+  □ Sections: Summary, Physical Model, Assumptions/Limitations, Validation, References
+  □ User-facing (for RGA practitioners, not physicists)
+  ⚠️ VERIFY: ls DOCUMENTATION/PHYSICS/*.md
+
+□ Step 5: Update Changelogs (Claude)
+  □ FEATURE_BACKLOG.md → Add changelog entry with date, function, status
+  □ SCIENTIFIC_REFERENCES.md → Add changelog entry with sources
+  ⚠️ VERIFY: Grep changelogs for function name
+
+□ Step 6: Collect Fixes (defer implementation)
+  □ Track all "MUST FIX" items from conditional approvals
+  □ Implement AFTER Feature 5.5 (Progressive Disclosure)
+  □ Batch all fixes together
+```
+
+**Approval Criteria:**
+- **✅ APPROVED:** Both AIs validate physics + math, no critical issues
+- **⚠️ CONDITIONAL:** Valid physics but needs fixes (e.g., labeling, ranges)
+- **❌ REJECTED:** Fundamental physics errors (rare)
+
+**File Naming Convention:**
+```
+NextFeatures/REVERSE_SPEC_[functionName].md  # Single file with all sections
+DOCUMENTATION/PHYSICS/[functionName].md      # User-facing bilingual doc
+```
+
+**Token Budget:**
+- Reverse-Spec: ~1200 tokens (650 spec + 400 prompt + 150 overhead)
+- Physics Doc: ~2000 tokens (bilingual)
+- Total per detector: ~3200 tokens
+
+**Current Status (2026-01-11):**
+- detectAirLeak: ✅ Complete (unanimous, gap identified: Feature 1.8.4)
+- detectOilBackstreaming: ⚠️ Complete (conditional, 3 fixes needed)
+- verifyIsotopeRatios: Reverse-Spec ready, awaiting user submission
+
+**Next Action:** User submits verifyIsotopeRatios to Gemini/Grok
+
+**Related Files:**
+- Template: [REVERSE_SPEC_TEMPLATE.md](DOCUMENTATION/BACKLOG/TEMPLATES/REVERSE_SPEC_TEMPLATE.md)
+- Backlog: [FEATURE_BACKLOG.md](DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md) (Changelog section)
+- References: [SCIENTIFIC_REFERENCES.md](RGA_Knowledge/SCIENTIFIC_REFERENCES.md) (Changelog section)
 
 ---
 

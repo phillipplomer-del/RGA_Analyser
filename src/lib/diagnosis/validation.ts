@@ -18,8 +18,20 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://ciaaw.org/argon.htm',
       'https://webbook.nist.gov/cgi/cbook.cgi?ID=C7727379&Mask=200'
     ],
-    lastValidated: '2026-01-09',
-    notes: 'N2/O2-Verhältnis 3.0-4.5 (Luft: 3.73), Ar-Isotope 40Ar/36Ar = 295.5, Ar²⁺/Ar⁺ (m20/m40) = 0.05-0.2 (expected: 0.1-0.15 für RGA Ionizer). Limitation: m/z 28 CO/N2-Überlappung.'
+    lastValidated: '2026-01-11',
+    notes: 'N2/O2-Verhältnis 3.0-4.5 (Luft: 3.73), Ar-Isotope 40Ar/36Ar = 295.5, Ar²⁺/Ar⁺ (m20/m40) = 0.05-0.2 (expected: 0.1-0.15 für RGA Ionizer). Limitation: m/z 28 CO/N2-Überlappung.',
+    crossValidation: {
+      unanimous: true,
+      gemini: true,
+      grok: true,
+      grokScore: 95
+    },
+    physicsDoc: 'DOCUMENTATION/PHYSICS/detectAirLeak.md',
+    fixes: {
+      count: 0,
+      applied: true,
+      severity: 'low'
+    }
   },
 
   [DiagnosisType.OIL_BACKSTREAMING]: {
@@ -30,8 +42,19 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://www.hidenanalytical.com/wp-content/uploads/2016/08/hydrocarbon_fragments-1-1.pdf',
       'https://www.thinksrs.com/downloads/pdfs/applicationnotes/Vac_diag_RGA.pdf'
     ],
-    lastValidated: '2026-01-09',
-    notes: 'Delta-14 Pattern (m/z 41/43/55/57/69/71/83/85), min. 3 Peaks. Thresholds: C₄H₉⁺/C₃H₇⁺ (m57/m43) = 0.5-1.2 (typical 0.7-0.9), Turbopumpenöl: m71/m43 > 0.4. Keine generelle Öl-Typ-Unterscheidung möglich (nur Vorpumpe vs. Turbo).'
+    lastValidated: '2026-01-11',
+    notes: 'Delta-14 Pattern (m/z 39/41/43/55/57/69/71/83/85), min. 3 Peaks. Thresholds: C₄H₉⁺/C₃H₇⁺ (m57/m43) = 0.5-1.4 (typical 0.6-1.0). Fixed: Renamed to "Heavy Hydrocarbons", adjusted m57/m43 range, added m/z 39.',
+    crossValidation: {
+      unanimous: false,
+      gemini: true,
+      grok: true
+    },
+    physicsDoc: 'DOCUMENTATION/PHYSICS/FEATURE_1.5.3_OIL_BACKSTREAMING_DETECTION.md',
+    fixes: {
+      count: 3,
+      applied: true,
+      severity: 'high'
+    }
   },
 
   [DiagnosisType.FOMBLIN_CONTAMINATION]: {
@@ -42,8 +65,19 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://pmc.ncbi.nlm.nih.gov/articles/PMC4723628/',
       'https://www.syensqo.com/en/brands/fomblin-pfpe-lubricants/faq'
     ],
-    lastValidated: '2026-01-09',
-    notes: 'CF3+ (m/z 69) dominant. Anti-Pattern: keine Alkyl-Peaks (m41 < m69×0.3, m43 < m69×0.5, m57 < m69×0.5 für reines PFPE). Bei Mischkontamination kann m/z 69 auch von C5H9+ (Öl) stammen.'
+    lastValidated: '2026-01-11',
+    notes: 'CF₃⁺ (m/z 69) dominant, CF₂⁺ (m/z 50) 2nd strongest. Anti-Pattern: keine Alkyl-Peaks (m41 < m69×0.3, m43 < m69×0.5, m57 < m69×0.5). Fixed: Added m/z 50 check, raised secondary thresholds to 1%.',
+    crossValidation: {
+      unanimous: false,
+      gemini: true,
+      grok: true
+    },
+    physicsDoc: 'DOCUMENTATION/PHYSICS/FEATURE_1.5.4_FOMBLIN_PFPE_DETECTION.md',
+    fixes: {
+      count: 1,
+      applied: true,
+      severity: 'critical'
+    }
   },
 
   [DiagnosisType.SOLVENT_RESIDUE]: {
@@ -102,8 +136,19 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://pubs.aip.org/avs/jva/article-abstract/11/4/1620/834935/',
       'https://nvlpubs.nist.gov/nistpubs/sp958-lide/219-223.pdf'
     ],
-    lastValidated: '2026-01-09',
-    notes: 'Anomale Fragment-Verhältnisse (O+/O2+ > 0.50, N+/N2+ > 0.15). Schwellenwerte empirisch.'
+    lastValidated: '2026-01-11',
+    notes: 'Anomale Fragment-Verhältnisse: O⁺/O₂⁺ > 0.50, N⁺/N₂⁺ > 0.25, C⁺/CO > 0.12, H⁺/H₂⁺ > 0.20. Fixed: Adjusted N⁺/N₂⁺ (0.15→0.25) and H⁺/H₂⁺ (0.01→0.10, anomaly 0.05→0.20) thresholds.',
+    crossValidation: {
+      unanimous: false,
+      gemini: true,
+      grok: true
+    },
+    physicsDoc: 'DOCUMENTATION/PHYSICS/FEATURE_1.5.6_ESD_ARTIFACT_DETECTION.md',
+    fixes: {
+      count: 2,
+      applied: true,
+      severity: 'critical'
+    }
   },
 
   [DiagnosisType.HELIUM_LEAK_INDICATOR]: {
@@ -114,8 +159,19 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://www.mks.com/n/residual-gas-analysis',
       'https://en.wikipedia.org/wiki/Residual_gas_analyzer'
     ],
-    lastValidated: '2026-01-09',
-    notes: 'NUR QUALITATIV! m/z 4 kann He oder D2 sein. Kein Ersatz für He-Leckdetektor.'
+    lastValidated: '2026-01-11',
+    notes: 'NUR QUALITATIV! m/z 4 (He oder D₂), RSF-corrected He/H₂ > 3%. Fixed: Added RSF correction (He: 0.15, H₂: 0.44), reduced threshold to 3%, increased m/z 3 penalty, updated disclaimer to "1-3 orders less sensitive".',
+    crossValidation: {
+      unanimous: false,
+      gemini: true,
+      grok: true
+    },
+    physicsDoc: 'DOCUMENTATION/PHYSICS/FEATURE_1.5.7_HELIUM_LEAK_DETECTION.md',
+    fixes: {
+      count: 2,
+      applied: true,
+      severity: 'critical'
+    }
   },
 
   [DiagnosisType.SILICONE_CONTAMINATION]: {
@@ -155,7 +211,7 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
 
   [DiagnosisType.N2_CO_MIXTURE]: {
     validated: true,
-    confidence: 'medium-high',
+    confidence: 'medium',  // FIXED: was 'medium-high' (invalid type)
     sources: [
       'https://webbook.nist.gov/cgi/cbook.cgi?ID=C7727379&Mask=200',
       'https://webbook.nist.gov/cgi/cbook.cgi?ID=C630080&Mask=200',
@@ -234,8 +290,19 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://indico.cern.ch/event/1031708/contributions/4355322/attachments/2267727/3964487/Outgassing%20rates%20of%20PEEK%20Kapton%20and%20Vespel%20foils%20ATS%20NoteFinal.pdf',
       'https://www.mtm-inc.com/plastics-in-vacuum-applications.html'
     ],
-    lastValidated: '2026-01-09',
-    notes: 'H2O-dominant ohne Luftleck. PEEK, Viton, Kapton gasen hauptsächlich H2O aus. Ausschlussverfahren.'
+    lastValidated: '2026-01-11',
+    notes: 'H₂O-dominant ohne Luftleck. Fixed: Added polymer-specific markers (CO₂ check m44, O⁺ fragment m16, hydrocarbon traces), adjusted N₂/O₂ threshold to >4.5. PEEK, Viton, Kapton gasen hauptsächlich H₂O + CO₂ aus.',
+    crossValidation: {
+      unanimous: false,
+      gemini: true,
+      grok: true
+    },
+    physicsDoc: 'DOCUMENTATION/PHYSICS/FEATURE_1.5.5_POLYMER_OUTGASSING_DETECTION.md',
+    fixes: {
+      count: 1,
+      applied: true,
+      severity: 'critical'
+    }
   },
 
   [DiagnosisType.PLASTICIZER_CONTAMINATION]: {
@@ -246,8 +313,19 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://www.lipidmaps.org/resources/lipidweb/lipidweb_html/ms/others/msartefacts/index.htm',
       'https://pubs.rsc.org/en/content/articlehtml/2020/cp/d0cp00538j'
     ],
-    lastValidated: '2026-01-09',
-    notes: 'Phthalate: m/z 149 (protoniertes Phthalsäureanhydrid, etablierter Marker). O-Ringe, Vinyl-Handschuhe.'
+    lastValidated: '2026-01-11',
+    notes: 'Phthalate: m/z 149 (C₈H₅O₃⁺, base peak 100%) + m/z 167 (2nd strongest, 15-45%). Fixed: Added m/z 167 check (>15% of m149), corrected ion formula to C₈H₅O₃⁺, added m/z 43 to alkyl fragment check. O-Ringe, Vinyl-Handschuhe.',
+    crossValidation: {
+      unanimous: false,
+      gemini: true,
+      grok: true
+    },
+    physicsDoc: 'DOCUMENTATION/PHYSICS/FEATURE_1.5.8_PLASTICIZER_PHTHALATE_DETECTION.md',
+    fixes: {
+      count: 2,
+      applied: true,
+      severity: 'high'
+    }
   },
 
   [DiagnosisType.PROCESS_GAS_RESIDUE]: {
@@ -281,8 +359,19 @@ export const DETECTOR_VALIDATIONS: Record<DiagnosisType, ValidationMetadata> = {
       'https://ciaaw.org',
       'https://physics.nist.gov/cgi-bin/Compositions/stand_alone.pl'
     ],
-    lastValidated: '2026-01-09',
-    notes: '40Ar/36Ar = 295.5, 35Cl/37Cl = 3.13, 79Br/81Br = 1.028, 32S/34S = 22.35. IUPAC-Standard-Werte.'
+    lastValidated: '2026-01-11',
+    notes: 'Isotope ratios: ⁴⁰Ar/³⁶Ar = 298.56 (Lee 2006), ³⁵Cl/³⁷Cl = 3.13, ⁷⁹Br/⁸¹Br = 1.028, ³²S/³⁴S = 22.35, ³²O₂/³⁴O₂ = 244 (molecular). Fixed: Updated O₂ ratio from 487 to 244 (was using atomic instead of molecular ratio), Ar ratio updated to 298.56. IUPAC/CIAAW standards.',
+    crossValidation: {
+      unanimous: false,
+      gemini: true,
+      grok: true
+    },
+    physicsDoc: 'DOCUMENTATION/PHYSICS/FEATURE_1.8.2_ISOTOPE_RATIO_VERIFICATION.md',
+    fixes: {
+      count: 1,
+      applied: true,
+      severity: 'critical'
+    }
   },
 
   [DiagnosisType.NEEDS_BAKEOUT]: {

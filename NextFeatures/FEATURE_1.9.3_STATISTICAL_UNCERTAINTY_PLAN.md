@@ -248,3 +248,19 @@ export function calculateLeakRate(
 **Erstellt:** 2026-01-10
 **Autor:** Claude Code
 **Gemini Feature ID:** 1.2 (Statistical Uncertainty)
+
+---
+
+## 🤖 Gemini Review & Critique (Validated 2026-01-10)
+
+**CRITICAL FINDING:** The plan ignores a dominant error source: **Volume Uncertainty**.
+*   Formula $Q = V \cdot slope$.
+*   Original plan only considers uncertainty in $slope$ (from fit).
+*   ISO 20485 requires including uncertainty of Volume $V$ (often 5-10%).
+
+**Also:** The UI visualization logic (width calculation) was mathematically incorrect relative to the background.
+
+**Validated Solution:**
+Use the **Total Uncertainty** formula including Volume Error, and a corrected UI visualization logic.
+
+👉 **View Validated Plan:** [FEATURE_1.9.3_STATISTICAL_UNCERTAINTY_PLAN_gemini.md](FEATURE_1.9.3_STATISTICAL_UNCERTAINTY_PLAN_gemini.md)

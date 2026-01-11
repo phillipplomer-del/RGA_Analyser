@@ -132,3 +132,17 @@ After loading this context:
 3. **Ask the user** what they want to work on next
 
 This ensures you have full context and can work efficiently from the start of the session.
+
+## 🚨 Anti-Ghost-File Protocol
+
+**CRITICAL:** When creating or claiming to create files:
+1. ALWAYS use Write tool to actually create the file
+2. ALWAYS verify with `ls` or Read that the file exists
+3. NEVER update FEATURE_BACKLOG.md to claim a file exists without verification
+4. If updating documentation about file creation, include the verification step in your response
+
+**Example verification:**
+```
+✅ Created: NextFeatures/FEATURE_1.8.1_PLAN.md
+   Verified: ls NextFeatures/FEATURE_1.8* shows file exists
+```

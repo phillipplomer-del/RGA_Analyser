@@ -199,3 +199,20 @@ if (m18 > lodResult.lod) {
 **Erstellt:** 2026-01-10
 **Autor:** Claude Code
 **Gemini Feature ID:** 2.2 (Dynamic LOD)
+
+---
+
+## 🤖 Gemini Review & Critique (Validated 2026-01-10)
+
+**CRITICAL FINDING:** The proposed noise region (m/z 5-10) is scientifically invalid.
+*   **m/z 7** is contaminated by $N^{++}$ (doubly charged Nitrogen from air), intensity ~15% of N2 peak.
+*   **m/z 8** is contaminated by $O^{++}$ (doubly charged Oxygen).
+
+Using this range would artificially inflate the LOD in any system containing air.
+
+**Validated Solution:**
+Use a "Safe Mass List" based on industry best practices (ThinkSRS, Semitracks):
+1.  **m/z 21:** Gold standard "floor channel" (empty).
+2.  **m/z 5, 9:** Backup safe channels.
+
+👉 **View Validated Plan:** [FEATURE_1.9.2_DYNAMIC_LOD_PLAN_gemini.md](FEATURE_1.9.2_DYNAMIC_LOD_PLAN_gemini.md)

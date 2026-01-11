@@ -3829,42 +3829,49 @@ function ValidationTab({ isGerman }: { isGerman: boolean }) {
     { type: DiagnosisType.ISOTOPE_VERIFICATION, name: 'Isotopen-Verifizierung', nameEn: 'Isotope Verification', line: 1895 },
   ]
 
-  const validatedCount = detectorInfo.filter(d => DETECTOR_VALIDATIONS[d.type]?.validated).length
   const highConfidenceCount = detectorInfo.filter(d => DETECTOR_VALIDATIONS[d.type]?.confidence === 'high').length
-  const mediumConfidenceCount = detectorInfo.filter(d => DETECTOR_VALIDATIONS[d.type]?.confidence === 'medium').length
+  const crossValidatedCount = detectorInfo.filter(d => DETECTOR_VALIDATIONS[d.type]?.crossValidation).length
+  const unanimousCount = detectorInfo.filter(d => DETECTOR_VALIDATIONS[d.type]?.crossValidation?.unanimous).length
+  const fixesAppliedCount = detectorInfo.filter(d => DETECTOR_VALIDATIONS[d.type]?.fixes?.applied).length
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h3 className="text-h4 font-semibold text-text-primary mb-2">
-          {isGerman ? 'Wissenschaftliche Validierung' : 'Scientific Validation'}
+          {isGerman ? 'Wissenschaftliche Validierung & Cross-Validation' : 'Scientific Validation & Cross-Validation'}
         </h3>
         <p className="text-body text-text-secondary">
           {isGerman
-            ? 'Alle Diagnose-Detektoren wurden systematisch gegen NIST WebBook, CERN, Hersteller-Dokumentation und Peer-reviewed Literatur validiert.'
-            : 'All diagnostic detectors have been systematically validated against NIST WebBook, CERN, manufacturer documentation and peer-reviewed literature.'}
+            ? 'Alle 22 Diagnose-Detektoren wurden systematisch gegen NIST WebBook, CERN, Hersteller-Dokumentation und Peer-reviewed Literatur validiert. 8 von 22 Detektoren wurden zusätzlich durch Multi-AI Cross-Validation (Gemini + Grok) überprüft.'
+            : 'All 22 diagnostic detectors have been systematically validated against NIST WebBook, CERN, manufacturer documentation and peer-reviewed literature. 8 of 22 detectors underwent additional Multi-AI Cross-Validation (Gemini + Grok) review.'}
         </p>
       </div>
 
       {/* Summary Statistics */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-green-700 dark:text-green-400">{highConfidenceCount}</div>
+      <div className="grid grid-cols-4 gap-3">
+        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-green-700 dark:text-green-400">{crossValidatedCount}/22</div>
           <div className="text-caption text-green-600 dark:text-green-500 mt-1">
-            {isGerman ? 'Hohe Konfidenz' : 'High Confidence'}
+            {isGerman ? 'Cross-Validated' : 'Cross-Validated'}
           </div>
         </div>
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">{mediumConfidenceCount}</div>
-          <div className="text-caption text-yellow-600 dark:text-yellow-500 mt-1">
-            {isGerman ? 'Mittlere Konfidenz' : 'Medium Confidence'}
-          </div>
-        </div>
-        <div className="bg-aqua-50 dark:bg-aqua-900/20 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-aqua-700 dark:text-aqua-400">{validatedCount}/{detectorInfo.length}</div>
+        <div className="bg-aqua-50 dark:bg-aqua-900/20 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-aqua-700 dark:text-aqua-400">{unanimousCount}</div>
           <div className="text-caption text-aqua-600 dark:text-aqua-500 mt-1">
-            {isGerman ? 'Validiert' : 'Validated'}
+            {isGerman ? 'Unanimous' : 'Unanimous'}
+          </div>
+        </div>
+        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-green-700 dark:text-green-400">{fixesAppliedCount}</div>
+          <div className="text-caption text-green-600 dark:text-green-500 mt-1">
+            {isGerman ? 'Fixes Applied' : 'Fixes Applied'}
+          </div>
+        </div>
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">{highConfidenceCount}</div>
+          <div className="text-caption text-yellow-600 dark:text-yellow-500 mt-1">
+            {isGerman ? 'High Confidence' : 'High Confidence'}
           </div>
         </div>
       </div>
@@ -3889,8 +3896,59 @@ function ValidationTab({ isGerman }: { isGerman: boolean }) {
                     <div className="text-micro text-text-muted mb-2">
                       detectors.ts:{detector.line}
                     </div>
+
+                    {/* Cross-Validation Status */}
+                    {validation.crossValidation && (
+                      <div className="flex items-center gap-2 mt-2 mb-2">
+                        {validation.crossValidation.unanimous ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-micro font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                            ✅ {isGerman ? 'Unanimous' : 'Unanimous'}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-micro font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300">
+                            ⚠️ {isGerman ? 'Conditional' : 'Conditional'}
+                          </span>
+                        )}
+                        <span className="text-micro text-text-muted">
+                          Gemini {validation.crossValidation.gemini ? '✅' : '❌'} | Grok {validation.crossValidation.grok ? '✅' : '❌'}
+                          {validation.crossValidation.grokScore && ` (${validation.crossValidation.grokScore}%)`}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Physics Doc Link */}
+                    {validation.physicsDoc && (
+                      <div className="mt-2 mb-2">
+                        <a
+                          href={`vscode://file/${validation.physicsDoc}`}
+                          className="inline-flex items-center gap-1 text-caption text-aqua-600 dark:text-aqua-400 hover:text-aqua-700 dark:hover:text-aqua-300 hover:underline"
+                        >
+                          📖 {isGerman ? 'Physics Documentation (DE/EN)' : 'Physics Documentation (DE/EN)'}
+                        </a>
+                      </div>
+                    )}
+
+                    {/* Fix Status */}
+                    {validation.fixes && validation.fixes.count > 0 && (
+                      <div className="mt-2 mb-2">
+                        {validation.fixes.applied ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-micro font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                            ✅ {validation.fixes.count} {validation.fixes.count === 1 ? 'fix' : 'fixes'} {isGerman ? 'implementiert' : 'applied'}
+                            {validation.fixes.severity === 'critical' && ' (CRITICAL)'}
+                            {validation.fixes.severity === 'high' && ' (HIGH)'}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-micro font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300">
+                            ⚠️ {validation.fixes.count} {validation.fixes.count === 1 ? 'fix' : 'fixes'} {isGerman ? 'benötigt' : 'needed'}
+                            {validation.fixes.severity === 'critical' && ' (CRITICAL)'}
+                            {validation.fixes.severity === 'high' && ' (HIGH)'}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
                     {validation.notes && (
-                      <div className="text-caption text-text-secondary italic">
+                      <div className="text-caption text-text-secondary italic mt-2">
                         {validation.notes}
                       </div>
                     )}

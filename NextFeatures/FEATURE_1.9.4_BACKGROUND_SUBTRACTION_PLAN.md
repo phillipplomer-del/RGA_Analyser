@@ -107,4 +107,18 @@ export function subtractBackground(
 
 ---
 
-**Erstellt:** 2026-01-10 | **Autor:** Claude Code | **Gemini ID:** 2.3
+**Erstellt:** 2026-01-10 | **Autor:** Claude Code | **Gemini Feature ID:** 2.3
+
+---
+
+## 🤖 Gemini Review & Critique (Validated 2026-01-10)
+
+**CRITICAL FINDING:** The plan contains a major physics error: **Auto-Normalization by Total Pressure**.
+*   Original plan: Scale background by $P_{sample}/P_{bg}$.
+*   Reality: Adding process gas increases total pressure, but does NOT increase the background (residual gas).
+*   Result: This scaling would heavily "over-subtract" the background and destroy the data.
+
+**Validated Solution:**
+Use **Direct Subtraction** (1:1) without scaling. Partial pressures are additive (Dalton's Law).
+
+👉 **View Validated Plan:** [FEATURE_1.9.4_BACKGROUND_SUBTRACTION_PLAN_gemini.md](FEATURE_1.9.4_BACKGROUND_SUBTRACTION_PLAN_gemini.md)
