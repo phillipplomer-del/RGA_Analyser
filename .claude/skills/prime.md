@@ -13,7 +13,7 @@ You are working on the **RGA Analyser** project - a web-based tool for analyzing
 
 1. **README-CLAUDE.md** - Complete quick reference with workflows, checklists, and validation system
 2. **DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md** - Feature overview (read first 100 lines for structure)
-3. **RGA_Knowledge/SCIENTIFIC_REFERENCES.md** - Scientific validation sources (skim structure)
+3. **DOCUMENTATION/SCIENTIFIC/REFERENCES.md** - Scientific validation sources (103+ sources)
 
 ## Key Information Summary
 
@@ -38,17 +38,34 @@ You are working on the **RGA Analyser** project - a web-based tool for analyzing
 │   │   └── diagnosis/
 │   │       └── validation.ts           # ValidationMetadata for detectors
 │   └── components/                     # React UI components
-├── RGA_Knowledge/
-│   └── SCIENTIFIC_REFERENCES.md       # 67+ scientific sources
 ├── DOCUMENTATION/
+│   ├── SCIENTIFIC/                     # Master Scientific Knowledge
+│   │   ├── REFERENCES.md               # 103+ scientific sources ⭐
+│   │   ├── DETECTORS.md                # Master validation table (22 detectors)
+│   │   ├── VALIDATION_MASTERPLAN.md    # 3-phase validation strategy
+│   │   └── README.md                   # Scientific knowledge index
+│   ├── PHYSICS/                        # Category-Organized Physics Documentation
+│   │   ├── Leaks/                      # Air, Helium, Virtual, CoolingWater
+│   │   ├── Contamination/              # Oils, Polymers, Fluorinated, Solvents, Aromatics
+│   │   ├── Outgassing/                 # Water, Hydrogen
+│   │   ├── Artifacts/                  # ESD artifacts
+│   │   ├── Gases/                      # Ammonia, Methane, Sulfur, ProcessGas, N2/CO
+│   │   ├── Isotopes/                   # IsotopeRatios
+│   │   ├── Quality/                    # CleanUHV
+│   │   └── README.md                   # Physics overview
 │   ├── BACKLOG/
-│   │   ├── FEATURE_BACKLOG.md         # 46 features, validation tracking
-│   │   └── TEMPLATES/                 # Feature templates
-│   └── ARCHIVED/                      # Completed feature docs
-├── NextFeatures/                      # Active feature planning files
+│   │   ├── FEATURE_BACKLOG.md          # 46 features, validation tracking
+│   │   └── TEMPLATES/                  # Feature templates
+│   └── ARCHIVED/                       # Completed feature docs
+├── RGA_Knowledge/                      # Data Files Only
+│   ├── README.md                       # Index (points to DOCUMENTATION/SCIENTIFIC/)
+│   ├── isotopeData.md                  # Raw isotope data (CIAAW)
+│   ├── RSF_Values.md                   # Sensitivity factors
+│   └── gasDatabase.md                  # Gas properties
+├── NextFeatures/                       # Active feature planning files
 ├── scripts/
-│   └── check-feature-completeness.ts  # Validation CLI tool
-└── README-CLAUDE.md                   # Your primary reference
+│   └── check-feature-completeness.ts   # Validation CLI tool
+└── README-CLAUDE.md                    # Your primary reference
 ```
 
 ### Validation Status System
@@ -57,7 +74,7 @@ FEATURE_BACKLOG.md has a **🔬 Validiert?** column with 4 levels:
 
 | Status | Meaning | Usage |
 |--------|---------|-------|
-| ✅ | Fully validated | Scientific features with sources in SCIENTIFIC_REFERENCES.md |
+| ✅ | Fully validated | Scientific features with sources in DOCUMENTATION/SCIENTIFIC/REFERENCES.md |
 | ⚠️ | Partially validated | Basic sources present, more research recommended |
 | - | Not scientific | UI/UX/Infrastructure features (no scientific validation needed) |
 | (empty) | Pending | Not yet validated (planned features) |
@@ -71,7 +88,7 @@ FEATURE_BACKLOG.md has a **🔬 Validiert?** column with 4 levels:
 npm run check:features
 
 # Validates:
-# - Scientific features have entries in SCIENTIFIC_REFERENCES.md
+# - Scientific features have entries in DOCUMENTATION/SCIENTIFIC/REFERENCES.md
 # - Completed features have validation status
 # - Infrastructure features marked with "-"
 # - Planning files exist
@@ -86,7 +103,7 @@ npm run check:features
 
 **Phase 2: Wissenschaftliche Validierung**
 - Research ≥2 peer-reviewed OR ≥3 standards/manufacturer sources
-- Add to SCIENTIFIC_REFERENCES.md
+- Add to DOCUMENTATION/SCIENTIFIC/REFERENCES.md
 - Update 🔬 Validiert? = ✅ or ⚠️
 
 **Phase 3: Implementation**
@@ -127,17 +144,22 @@ npm run check:features
 
 ✅ **Completed:**
 - Knowledge Management System
-- Scientific validation (67+ sources documented)
+- Scientific validation (103+ sources documented)
 - Validation tracking system in FEATURE_BACKLOG.md
-- **Modular detector architecture migration (21/21 detectors)** ⭐ NEW!
+- **Modular detector architecture migration (22/22 detectors)** ⭐ NEW!
+- **Knowledge base reorganization** ⭐ NEW!
+  - DOCUMENTATION/SCIENTIFIC/ (master references)
+  - DOCUMENTATION/PHYSICS/ (organized by 7 detector categories)
 
 ⏭️ **Ready for:** Parallel feature implementation with agents
 
 ### Recent Changes (2026-01-11)
-- ✅ All 21 detectors migrated from monolithic file to modular structure
+- ✅ All 22 detectors migrated from monolithic file to modular structure
 - ✅ New structure: `src/modules/rga/lib/detectors/` with 7 categories
 - ✅ Each detector now ~100-150 lines in own file
-- ✅ Documentation updated to reflect new architecture
+- ✅ Knowledge base reorganized to mirror detector architecture
+- ✅ SCIENTIFIC_REFERENCES.md → DOCUMENTATION/SCIENTIFIC/REFERENCES.md (103+ sources)
+- ✅ Physics docs organized by category: Leaks, Contamination, Outgassing, Artifacts, Gases, Isotopes, Quality
 
 ## Your Task
 

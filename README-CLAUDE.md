@@ -9,7 +9,7 @@
 **ALWAYS read these first:**
 
 1. **[.claude/project-context.md](.claude/project-context.md)** - Full project context
-2. **[RGA_Knowledge/SCIENTIFIC_REFERENCES.md](RGA_Knowledge/SCIENTIFIC_REFERENCES.md)** ⭐ PRIMARY REFERENCE for scientific validation
+2. **[DOCUMENTATION/SCIENTIFIC/REFERENCES.md](DOCUMENTATION/SCIENTIFIC/REFERENCES.md)** ⭐ PRIMARY REFERENCE for scientific validation (103+ sources)
 3. **[DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md](DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md)** - Current priorities
 
 ---
@@ -107,7 +107,7 @@
 - Planning (Single Feature): `NextFeatures/FEATURE_[ID]_[NAME]_PLAN.md`
 - Planning (Multi-Feature System): `NextFeatures/[SYSTEM_NAME]_SPEC.md` (z.B. LeaksearchPlanner_MasterV7_COMPLETE.md)
 - Checklist: `NextFeatures/FEATURE_[ID]_CHECKLIST.md`
-- Sources: `RGA_Knowledge/SCIENTIFIC_REFERENCES.md`
+- Sources: `DOCUMENTATION/SCIENTIFIC/REFERENCES.md` (master reference, 103+ sources)
 - Validation: `src/lib/diagnosis/validation.ts`
 - Backlog: `DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md`
 - Templates: `DOCUMENTATION/BACKLOG/TEMPLATES/`
@@ -184,11 +184,12 @@ Prüft automatisch:
   ⚠️ VERIFY: Grep for "Cross-Validation Complete"
 
 □ Step 4: Create Physics Documentation (Claude)
-  □ Create DOCUMENTATION/PHYSICS/[FUNCTION_NAME].md
+  □ Create DOCUMENTATION/PHYSICS/[Category]/[DetectorName].md
+  □ Categories: Leaks, Contamination (Oils/Polymers/Fluorinated/Solvents/Aromatics), Outgassing, Artifacts, Gases, Isotopes, Quality
   □ Bilingual (DE + EN in same file)
   □ Sections: Summary, Physical Model, Assumptions/Limitations, Validation, References
   □ User-facing (for RGA practitioners, not physicists)
-  ⚠️ VERIFY: ls DOCUMENTATION/PHYSICS/*.md
+  ⚠️ VERIFY: ls DOCUMENTATION/PHYSICS/[Category]/*.md
 
 □ Step 5: Update Changelogs (Claude)
   □ FEATURE_BACKLOG.md → Add changelog entry with date, function, status
@@ -208,9 +209,11 @@ Prüft automatisch:
 
 **File Naming Convention:**
 ```
-NextFeatures/REVERSE_SPEC_[functionName].md  # Single file with all sections
-DOCUMENTATION/PHYSICS/[functionName].md      # User-facing bilingual doc
+NextFeatures/REVERSE_SPEC_[functionName].md           # Single file with all sections
+DOCUMENTATION/PHYSICS/[Category]/[DetectorName].md   # User-facing bilingual doc
 ```
+
+**Categories:** Leaks, Contamination (Oils/Polymers/Fluorinated/Solvents/Aromatics), Outgassing, Artifacts, Gases, Isotopes, Quality
 
 **Token Budget:**
 - Reverse-Spec: ~1200 tokens (650 spec + 400 prompt + 150 overhead)
@@ -227,7 +230,7 @@ DOCUMENTATION/PHYSICS/[functionName].md      # User-facing bilingual doc
 **Related Files:**
 - Template: [REVERSE_SPEC_TEMPLATE.md](DOCUMENTATION/BACKLOG/TEMPLATES/REVERSE_SPEC_TEMPLATE.md)
 - Backlog: [FEATURE_BACKLOG.md](DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md) (Changelog section)
-- References: [SCIENTIFIC_REFERENCES.md](RGA_Knowledge/SCIENTIFIC_REFERENCES.md) (Changelog section)
+- References: [REFERENCES.md](DOCUMENTATION/SCIENTIFIC/REFERENCES.md) (Master scientific references, 103+ sources)
 
 ---
 
@@ -276,10 +279,11 @@ When the user says these keywords, perform the corresponding action:
 
 | Need | Location |
 |------|----------|
-| **Scientific sources** | RGA_Knowledge/SCIENTIFIC_REFERENCES.md |
+| **Scientific sources** | DOCUMENTATION/SCIENTIFIC/REFERENCES.md (103+ sources) |
+| **Physics documentation** | DOCUMENTATION/PHYSICS/[Category]/ (organized by 7 categories) |
 | **Gas properties** | src/lib/knowledge/gasLibrary.ts |
 | **Isotope ratios** | src/lib/knowledge/isotopePatterns.ts |
-| **Diagnostic algorithms** | src/modules/rga/lib/detectors/ (21 modular detectors) |
+| **Diagnostic algorithms** | src/modules/rga/lib/detectors/ (22 modular detectors) |
 | **Detector index** | src/modules/rga/lib/detectors/index.ts |
 | **Feature planning** | DOCUMENTATION/BACKLOG/FEATURE_BACKLOG.md |
 | **Feature templates** | DOCUMENTATION/BACKLOG/TEMPLATES/ |

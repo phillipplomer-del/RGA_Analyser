@@ -1,5 +1,23 @@
 # Scientific References - RGA Analyser
 
+> **⚠️ DEPRECATED - DO NOT USE**
+>
+> This file has been superseded by [../SCIENTIFIC/REFERENCES.md](../SCIENTIFIC/REFERENCES.md)
+>
+> **Reason for Archival:**
+> - **Outdated:** This file contains 53 sources (last updated 2026-01-09)
+> - **Superseded:** New master reference has 103+ sources (more comprehensive and up-to-date)
+> - **Location Change:** Scientific references moved to `DOCUMENTATION/SCIENTIFIC/REFERENCES.md`
+>
+> **Migration Date:** 2026-01-11
+> **Part of:** Knowledge base reorganization to mirror modular detector architecture
+>
+> This file is kept for historical reference only. **Do not update this file.**
+
+---
+
+## Original Purpose (Deprecated)
+
 > **Purpose:** This file consolidates all peer-reviewed scientific sources, standards organizations, and validated references used in the RGA Analyser application. Use this as the primary reference for validating isotope ratios, gas properties, and diagnostic algorithms.
 
 **Statistics:**

@@ -1,6 +1,17 @@
 # Air Leak Detection - Scientific Basis / Wissenschaftliche Grundlagen
 
-**Feature:** detectAirLeak()
+> **Consolidated Documentation**
+> This document consolidates:
+> - `FEATURE_1.5.1_AIR_LEAK_DETECTION.md` (436 lines)
+> - `detectAirLeak.md` (253 lines)
+>
+> Consolidation date: 2026-01-11
+> Part of knowledge base reorganization to mirror modular detector architecture.
+
+---
+
+**Detector Function:** `detectAirLeak()`
+**Code Location:** `src/modules/rga/lib/detectors/leaks/detectAirLeak.ts`
 **Validation Status:** ✅ Cross-Validated (Gemini + Grok, 2026-01-11)
 **Sources:** NIST, CRC Handbook, NOAA
 
@@ -248,6 +259,7 @@ Schwellwert für Erkennung = 30%
 
 ---
 
-**Document Version:** 1.0
+**Document Version:** 2.0 (Consolidated)
 **Last Updated:** 2026-01-11
 **Validation:** ✅ Cross-Validated (Gemini + Grok)
+**Reorganization:** Part of knowledge base restructuring (Phase 3)
