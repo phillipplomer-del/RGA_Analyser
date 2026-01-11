@@ -4,7 +4,7 @@
  * This module provides access to all RGA diagnostic detectors.
  * Detectors are organized by category for better maintainability.
  *
- * Migration Status: 21/21 detectors migrated (100%) ✅ COMPLETE!
+ * Migration Status: 22/22 detectors migrated (100%) ✅ COMPLETE!
  *
  * Leaks (4):
  * - ✅ detectAirLeak
@@ -29,11 +29,12 @@
  * Artifacts (1):
  * - ✅ detectESDartifacts
  *
- * Gases (4):
+ * Gases (5):
  * - ✅ detectAmmonia
  * - ✅ detectMethane
  * - ✅ detectSulfur
  * - ✅ detectProcessGasResidue
+ * - ✅ distinguishN2fromCO
  *
  * Isotopes (1):
  * - ✅ verifyIsotopeRatios
@@ -43,10 +44,10 @@
  *
  * Target Structure:
  * - leaks/ (4 detectors)
- * - contamination/ (9 detectors)
+ * - contamination/ (8 detectors)
  * - outgassing/ (2 detectors)
  * - artifacts/ (1 detector)
- * - gases/ (4 detectors)
+ * - gases/ (5 detectors)
  * - isotopes/ (1 detector)
  * - quality/ (1 detector)
  */
@@ -89,6 +90,7 @@ import { detectAmmonia } from './gases/detectAmmonia'
 import { detectMethane } from './gases/detectMethane'
 import { detectSulfur } from './gases/detectSulfur'
 import { detectProcessGasResidue } from './gases/detectProcessGasResidue'
+import { distinguishN2fromCO } from './gases/distinguishN2fromCO'
 
 // Isotopes
 import { verifyIsotopeRatios } from './isotopes/verifyIsotopeRatios'
@@ -134,6 +136,7 @@ export { detectAmmonia }
 export { detectMethane }
 export { detectSulfur }
 export { detectProcessGasResidue }
+export { distinguishN2fromCO }
 
 // ============================================
 // ISOTOPES
@@ -146,11 +149,11 @@ export { verifyIsotopeRatios }
 export { detectCleanUHV }
 
 // ============================================
-// All 21 detectors have been successfully migrated! 🎉
+// All 22 detectors have been successfully migrated! 🎉
 // ============================================
 
 /**
- * Run all 21 detectors on the given input
+ * Run all 22 detectors on the given input
  * Returns array of all positive diagnoses
  */
 export function runAllDetectors(input: DiagnosisInput): DiagnosticResult[] {
@@ -178,11 +181,12 @@ export function runAllDetectors(input: DiagnosisInput): DiagnosticResult[] {
     // Artifacts (1)
     detectESDartifacts(input),
 
-    // Gases (4)
+    // Gases (5)
     detectAmmonia(input),
     detectMethane(input),
     detectSulfur(input),
     detectProcessGasResidue(input),
+    distinguishN2fromCO(input),
 
     // Isotopes (1)
     verifyIsotopeRatios(input),
@@ -198,7 +202,7 @@ export function runAllDetectors(input: DiagnosisInput): DiagnosticResult[] {
  * Get detector count
  */
 export const DETECTOR_COUNT = {
-  total: 21,
-  migrated: 21,
+  total: 22,
+  migrated: 22,
   pending: 0
 }

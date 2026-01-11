@@ -1,8 +1,8 @@
 # RGA Detectors - Modular Architecture
 
-**Status:** ✅ Migration Complete (21/21 detectors migrated)
+**Status:** ✅ Migration Complete (22/22 detectors migrated)
 
-**Old Location:** `src/lib/diagnosis/detectors.ts` (2,228 lines, all 21 detectors) - TO BE DEPRECATED
+**Old Location:** `src/lib/diagnosis/detectors.ts` (2,228 lines) - ⚠️ DEPRECATED (only contains deprecation warning now)
 
 **New Location:** `src/modules/rga/lib/detectors/` (modular structure)
 
@@ -40,11 +40,12 @@ detectors/
 ├── artifacts/                      # Artifacts (1)
 │   └── detectESDartifacts.ts      ✅ Migrated
 │
-├── gases/                          # Specific Gases (4)
+├── gases/                          # Specific Gases (5)
 │   ├── detectAmmonia.ts           ✅ Migrated
 │   ├── detectMethane.ts           ✅ Migrated
 │   ├── detectSulfur.ts            ✅ Migrated
-│   └── detectProcessGasResidue.ts ✅ Migrated
+│   ├── detectProcessGasResidue.ts ✅ Migrated
+│   └── distinguishN2fromCO.ts     ✅ Migrated
 │
 ├── isotopes/                       # Isotope Analysis (1)
 │   └── verifyIsotopeRatios.ts     ✅ Migrated
@@ -71,10 +72,10 @@ detectors/
 | Contamination | 8 | 8 | ✅ 100% |
 | Outgassing | 2 | 2 | ✅ 100% |
 | Artifacts | 1 | 1 | ✅ 100% |
-| Gases | 4 | 4 | ✅ 100% |
+| Gases | 5 | 5 | ✅ 100% |
 | Isotopes | 1 | 1 | ✅ 100% |
 | Quality | 1 | 1 | ✅ 100% |
-| **TOTAL** | **21** | **21** | **✅ 100%** |
+| **TOTAL** | **22** | **22** | **✅ 100%** |
 
 ---
 
@@ -118,19 +119,19 @@ import { detectAirLeak } from '@/modules/rga/lib/detectors'
 
 ### What Was Accomplished
 
-✅ All 21 detectors migrated from monolithic 2,228-line file to individual ~100-150 line files
+✅ All 22 detectors migrated from monolithic 2,228-line file to individual ~100-150 line files
 ✅ Clear categorization into 7 categories (Leaks, Contamination, Outgassing, Artifacts, Gases, Isotopes, Quality)
 ✅ Shared utilities extracted (helpers.ts, types.ts, constants.ts)
 ✅ Scientific documentation headers added with cross-validation status
 ✅ TypeScript compilation verified with no errors
-✅ 8 cross-validated detectors have fixes applied, 13 pending validation
+✅ 8 cross-validated detectors have fixes applied, 14 pending validation
 
 ### Files Created
 
-- 21 detector files (one per detector)
+- 22 detector files (one per detector)
 - 3 shared utility files
 - 1 public API file (index.ts)
-- **Total: 25 files** replacing 1 monolithic file
+- **Total: 26 files** replacing 1 monolithic file
 
 ---
 
@@ -165,10 +166,10 @@ import { detectAirLeak } from '@/modules/rga/lib/detectors'
 
 ## Next Steps
 
-1. ✅ All 21 detectors migrated to modular structure
+1. ✅ All 22 detectors migrated to modular structure
 2. ✅ Cross-validation status documented in each file
-3. ⏭️ **Next:** Update imports across codebase to use new structure (`@/modules/rga/lib/detectors`)
-4. ⏭️ **Next:** Deprecate old `src/lib/diagnosis/detectors.ts` (mark as deprecated, add warning comments)
+3. ✅ Imports updated across codebase to use new structure (`@/modules/rga/lib/detectors`)
+4. ✅ Old `src/lib/diagnosis/detectors.ts` deprecated (contains only deprecation warning now)
 5. ⏭️ **Future:** Add unit tests for individual detectors
 6. ⏭️ **Future:** Remove old file completely after transition period
 
@@ -180,4 +181,4 @@ import { detectAirLeak } from '@/modules/rga/lib/detectors'
 
 **Migration Time:** ~2.5 hours (automated with Claude Code)
 
-**Files Changed:** 25 files created, 1 file to be deprecated
+**Files Changed:** 26 files created, 1 file deprecated

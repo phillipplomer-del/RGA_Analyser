@@ -58,12 +58,10 @@ import {
   // Isotopes (1)
   verifyIsotopeRatios,
   // Quality (1)
-  detectCleanUHV
+  detectCleanUHV,
+  // Special analysis function (Gases)
+  distinguishN2fromCO
 } from '@/modules/rga/lib/detectors'
-
-// TODO: Migrate distinguishN2fromCO to modular structure
-// This is a special analysis function, not a typical detector
-import { distinguishN2fromCO } from './detectors'
 
 import type { DiagnosticResult, DiagnosisInput } from './types'
 import { DIAGNOSIS_METADATA } from './types'
